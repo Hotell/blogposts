@@ -1,6 +1,6 @@
 # Ultimate React Component Patterns with Typescript 2.8
 
-> Stateful x Stateless, Default Props, Render Callbacks, Component Injection, Generic Components, Controlled Components, High Order Components
+> Stateful x Stateless, Default Props, Render Callbacks, Component Injection, Generic Components, High Order Components, Controlled Components
 
 > This blogpost is inspired by [React Component Patterns post](https://levelup.gitconnected.com/react-component-patterns-ab1f09be2c82)
 
@@ -8,7 +8,9 @@
 
 If you know me, you already know that I don't write javascript without types, so yeah I'm really into Typescript, since version 0.9. Beside typed JS I really love React, and when React + Typescript are combined, I just feel like in heaven :D. Complete type safety within whole app and VDOM templates it's just marvelous.
 
-So what is this post all about? Well, there are various articles about React Component patterns on the internet, but none describes how to apply those pattenrs with Typescript. So please sit back and relax, while you master Ultimate React Component Patterns with Typescript!
+So what is this post all about? Well, there are various articles about React Component patterns on the internet, but none describes how to apply those patterns with Typescript. Also upcoming version of TS 2.8 brings new exciting features to the table, like conditional mapped types, which allows us create easily common react patterns and other things...
+
+So please sit back and relax, while you master Ultimate React Component Patterns with Typescript!
 
 > all patterns/examples use typescript 2.8 and strict mode
 
@@ -35,7 +37,7 @@ yarn add react react-dom
 yarn add -D @types/{react,react-dom}
 ```
 
-Great! Now let's hop into those component patterns shall we ?
+Great! Now let's hop into those component patterns, shall we ?
 
 ## Stateless Component
 
@@ -94,9 +96,9 @@ type State = Readonly<typeof initialState>
 >
 > This will throw error during runtime time, but not during compile time. By explicitly mapping our `type State` to readonly, TS will let us know that we are doing something wrong immediately.
 
-whole Container component implementation:
+**Whole Container component implementation:**
 
-Our Container doesn't have any Props api so we need to type 1st generic argument on generic `Component` as `object` ( because props is always an object) and use `State` type as a 2nd generic argument.
+Our Container doesn't have any Props api so we need to type 1st generic argument of `Component` as `object` ( because props is always an object) and use `State` type as a 2nd generic argument.
 
 ```tsx
 const initialState = { clicksCount: 0 }
