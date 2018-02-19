@@ -20,13 +20,14 @@ First off we need to install typescript and tslib helpers so our emitted code is
 
 ```sh
 yarn add -D typescript@next
+# tslib will be leveraged only for features that are not natively supported by your compile target
 yarn add tslib
 ```
 
 With that we can initialize our typescript config:
 
 ```sh
-// this will create tsconfig.json within our project with sane compiler defaults
+# this will create tsconfig.json within our project with sane compiler defaults
 yarn tsc --init
 ```
 
@@ -43,9 +44,9 @@ Great! Now let's hop into those component patterns, shall we ?
 
 You guess it, those are components without **state** ( they are also called presentational ). Most of the time they are just pure functions. Let's create contrived Button stateless compoennt with Typescript.
 
-Like in vanilla JS we need to import React and so on
+Like in vanilla JS we need to import React which allows us to use JSX
 
-```ts
+```tsx
 import React from 'react'
 
 const Button = ({ onClick: handleClick, children }) => (
@@ -53,9 +54,9 @@ const Button = ({ onClick: handleClick, children }) => (
 )
 ```
 
-Although now compiler will emit errors! We need to be explicit and tell the component/function what is the type of our props. Let's define our props:
+Although tsc compiler will now emit errors! We need to be explicit and tell the component/function what is the type of our **props**. Let's define our props:
 
-```ts
+```tsx
 import React, { MouseEvent, ReactNode } from 'react'
 type Props = { onClick(e: MouseEvent<HTMLElement>): void; children?: ReactNode }
 
@@ -68,16 +69,19 @@ We get rid of all errors! great! But we can do even better!
 
 There is a predefined type within `@types/react` => `type SFC<P>` which is just an alias of `interface StatelessComponent<P>` and it has pre-defined `children` and other things (defaultProps,displayName...), so we don't have to write it everytime on our own!
 
-So the finall declaration is following
+So the finall stateless component looks like this:
 
-```ts
+```tsx
 import React, { MouseEvent, SFC } from 'react'
+
 type Props = { onClick(e: MouseEvent<HTMLElement>): void }
 
 const Button: SFC<Props> = ({ onClick: handleClick, children }) => (
   <button onClick={handleClick}>{children}</button>
 )
 ```
+
+![Stateless component](./img/stateless-component.png 'Stateless component')
 
 ## Stateful Component
 
@@ -89,35 +93,54 @@ First of we need define `initialState`
 const initialState = { clicksCount: 0 }
 ```
 
-Now we will use Typescript to infer type from that implementation. By doing this we don't have to maintain types and implementation separately, we have only source of thruth, which is the implementation. nice !
+Now we will use Typescript to infer State type from our implementation.
+
+> By doing this we don't have to maintain types and implementation separately, we have only source of thruth, which is the implementation. nice !
 
 ```ts
 type State = Readonly<typeof initialState>
 ```
 
-> Also note that type is explicitly mapped to have all properties read-only. We need to be explicit again and define use our State type to define state property on the class `state: State = initialState`
+> Also note that type is explicitly mapped to have all properties read-only.
+> We need to be explicit again and define use our State type to define state property on the class
+>
+> ```tsx
+>   readonly state: State = initialState
+> ```
+>
 > Why is this useful/needed ?
 >
-> Well we know that you cannot update `state` within react like this: `this.state.count = 2`
+> We know that we cannot update `state` direclty within React like following:
 >
-> This will throw error during runtime time, but not during compile time. By explicitly mapping our `type State` to readonly, TS will let us know that we are doing something wrong immediately.
+> ```tsx
+> this.state.clicksCount = 2
+> this.state = { clicksCount: 2 }
+> ```
+>
+> This will throw runtime time, but not during compile time. By explicitly mapping our `type State` to readonly via Readonly and settting readonly state within our class component, TS will let us know that we are doing something wrong immediately.
 
-**Whole Container component implementation:**
+**Live example:**
 
-Our Container doesn't have any Props api so we need to type 1st generic argument of `Component` as `object` ( because props is always an object) and use `State` type as a 2nd generic argument.
+![Guarding Component State](./img/state-protection.gif 'Guarding Component State')
+
+**Whole Container/Stateful component implementation:**
+
+Our Container doesn't have any Props API so we need to type 1st generic argument of `Component` as `object` ( because `props` is always an object `{}` in React) and use `State` type as a 2nd generic argument.
 
 ```tsx
+import React, { Component } from 'react'
+
 const initialState = { clicksCount: 0 }
 type State = Readonly<typeof initialState>
 
 class ButtonCounter extends Component<object, State> {
-  state: State = initialState
+  readonly state: State = initialState
   render() {
     const { clicksCount } = this.state
     return (
       <>
         <Button onClick={this.handleIncrement}>Increment</Button>
-        <Button onClick={this.handleDecrement}>Decrement</ButtonViaClass>
+        <Button onClick={this.handleDecrement}>Decrement</Button>
         You've clicked me {clicksCount} times!
       </>
     )
@@ -131,7 +154,9 @@ const incrementClicksCount = (prevState: State) => ({ clicksCount: prevState.cli
 const decrementClicksCount = (prevState: State) => ({ clicksCount: prevState.clicksCount - 1 })
 ```
 
-You've may noticed that we've extracted state update functions to pure functions outside the class. This is very clean a common pattern, as we can test those without ease without any knowledge of renderer layer. Also because we are using typescript and we mapped State to be explicitly read-only, it will prevent us to do any mutations within those functions as well
+![Stateful component](./img/stateful-component.png 'Stateful component')
+
+You've may noticed that we've extracted state update functions to pure functions outside the class. This is a common pattern, as we can test those with ease, without any knowledge of renderer layer. Also because we are using typescript and we mapped State to be explicitly read-only, it will prevent us to do any mutations within those functions as well
 
 ```ts
 const decrementClicksCount = (prevState: State) => ({ clicksCount: prevState.clicksCount-- })
@@ -157,66 +182,110 @@ To satisfy TS compiler we can use 3 techniques:
 * create reusable `withDefaultProps` High order function, which will update our props type definition and will set our default props. This is the most clean solution, IMHO
 
 ```ts
-const withDefaultProps = <P extends object, DP extends P = P>(
-  Cmp: ComponentType<P>,
-  defaultProps: DP
+export const withDefaultProps = <P extends object, DP extends Partial<P> = Partial<P>>(
+  defaultProps: DP,
+  Cmp: ComponentType<P>
 ) => {
   // we are extracting props that need to be required
   type RequiredProps = Omit<P, keyof DP>
-  // we are re-creating our props definition by creating and intersection type between
-  // all original props mapped to be optional and required to be required
-  type Props = Partial<P> & Required<RequiredProps>
+  // we are re-creating our props definition by creating and intersection type
+  // between all original props mapped to be optional and required to be required
+  type Props = Partial<DP> & Required<RequiredProps>
 
   // here we set our defaultProps
   Cmp.defaultProps = defaultProps
 
-  // we override return type definition by turning type checker off and setting the correct return type
-  return (Cmp as any) as ComponentType<Props>
+  // we override return type definition by turning type checker off
+  // for original props  and setting the correct return type
+  return (Cmp as ComponentType<any>) as ComponentType<Props>
 }
 ```
+
+![with default props HOF](./img/with-default-props.png 'with default props HOF')
 
 Now we can use our `withDefaultProps` High order function to define our default props:
 
-```ts
-type Props = { onClick(e: MouseEvent<HTMLElement>): void }
-
-const defaultProps: Props = {
-  onClick: event => undefined,
+```tsx
+const defaultProps = {
+  color: 'red',
 }
-const Button = withDefaultProps<Props>(
-  ({ onClick: handleClick, children }) => <button onClick={handleClick}>{children}</button>,
-  defaultProps
+
+type DefaultProps = typeof defaultProps
+type Props = { onClick(e: MouseEvent<HTMLElement>): void } & DefaultProps
+
+const Button: SFC<Props> = ({ onClick: handleClick, color, children }) => (
+  <button style={{ color }} onClick={handleClick}>
+    {children}
+  </button>
+)
+
+const ButtonWithDefaultProps = withDefaultProps(defaultProps, Button)
+```
+
+![component with defaultProps declaration](./img/with-default-props-component-declaration.png)
+
+Or directly inline ( note that we need to explicitly provide original Button Props type, as TS is not able to infer argument types from function):
+
+```tsx
+const ButtonWithDefaultProps = withDefaultProps<Props>(
+  defaultProps,
+  ({ onClick: handleClick, color, children }) => (
+    <button style={{ color }} onClick={handleClick}>
+      {children}
+    </button>
+  )
 )
 ```
 
-Now the Button props are defined correctly, default Props are reflected and those prop types are marked as optional!
+![component with defaultProps declaration inline](./img/with-default-props-component-declaration-inline.png)
 
-```
+Now Button props are defined correctly, default Props are reflected and marked as optional!
+
+```tsx
 {
-  onClick?(e: MouseEvent<HTMLElement>): void
+  onClick(e: MouseEvent<HTMLElement>): void
+  color?: string
 }
 ```
 
-And yes this works also for Components defined via `class`
+![component props api with defaultProps applied](./img/with-default-props-component.png)
+
+And usage remains the same:
+
+```tsx
+render(){
+  return <ButtonWithDefaultProps onClick={this.handleIncrement}>Increment</ButtonWithDefaultProps>
+}
+```
+
+And yes this works also for Components defined via `class` ( also note, that thanks to structural origin of classes in TS, we don't have to specify excplicitly our `Prop` generic type)
 
 It looks like this:
 
-```ts
-type Props = { onClick(e: MouseEvent<HTMLElement>): void }
-
-const defaultProps: Props = {
-  onClick: event => undefined,
-}
-
-const ButtonViaClass = withDefaultProps<Props>(
+```tsx
+const ButtonViaClass = withDefaultProps(
+  defaultProps,
   class Button extends Component<Props> {
     render() {
-      const { onClick: handleClick, children } = this.props
-      return <button onClick={handleClick}>{children}</button>
+      const { onClick: handleClick, children, color } = this.props
+      return (
+        <button style={{ color }} onClick={handleClick}>
+          {children}
+        </button>
+      )
     }
-  },
-  defaultProps
+  }
 )
+```
+
+![class component with defaultProps declaration inline](./img/with-default-props-component-declaration-inline-class.png)
+
+And usage remains the same:
+
+```tsx
+render(){
+  return <ButtonViaClass onClick={this.handleIncrement}>Increment</ButtonViaClass>
+}
 ```
 
 ---
