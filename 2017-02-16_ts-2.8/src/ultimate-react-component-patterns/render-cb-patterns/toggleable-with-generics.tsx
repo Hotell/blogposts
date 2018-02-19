@@ -3,7 +3,8 @@ import React, { Component, MouseEvent, ComponentType, ReactNode } from 'react'
 import { isFunction, getHocComponentName } from '../utils'
 
 const initialState = { show: false }
-const defaultProps: DefaultProps = { ...initialState, props: {} }
+const defaultProps: DefaultProps = { props: {} }
+
 type State = Readonly<typeof initialState>
 type Props<P extends object = object> = Partial<
   {
@@ -12,28 +13,20 @@ type Props<P extends object = object> = Partial<
     component: ComponentType<ToggleableComponentProps<P>>
   } & DefaultProps<P>
 >
+type DefaultProps<P extends object = object> = { props: P }
 type RenderCallback = (args: ToggleableComponentProps) => JSX.Element
 export type ToggleableComponentProps<P extends object = object> = {
   show: State['show']
   toggle: Toggleable['toggle']
 } & P
-type DefaultProps<P extends object = object> = { props: P } & Pick<State, 'show'>
-export type OwnProps = Pick<Props, 'show'>
 
 export class Toggleable<T extends object = object> extends Component<Props<T>, State> {
   static ofType<T extends object>() {
     return Toggleable as Constructor<Toggleable<T>>
   }
   static readonly defaultProps: Props = defaultProps
-  readonly state: State = { show: this.props.show! }
+  readonly state: State = { show: this.state.show }
 
-  componentWillReceiveProps(nextProps: Props<T>, nextContext: any) {
-    const currentProps = this.props
-
-    if (nextProps.show !== currentProps.show) {
-      this.setState({ show: Boolean(nextProps.show) })
-    }
-  }
   render() {
     const { component: InjectedComponent, children, render, props } = this.props
     const renderProps = { show: this.state.show, toggle: this.toggle }

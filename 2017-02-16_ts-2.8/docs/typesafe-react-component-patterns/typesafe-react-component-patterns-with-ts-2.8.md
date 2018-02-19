@@ -305,16 +305,16 @@ import { isFunction } from '../utils'
 const initialState = { show: false }
 
 type State = Readonly<typeof initialState>
-type Props = {
-  children?: RenderCallback
-  render?: RenderCallback
-}
+type Props = Partial<{
+  children: RenderCallback
+  render: RenderCallback
+}>
 
 type RenderCallback = (args: ToggleableComponentProps) => JSX.Element
 type ToggleableComponentProps = { show: State['show']; toggle: Toggleable['toggle'] }
 
 export class Toggleable extends Component<Props, State> {
-  state: State = initialState
+  readonly state: State = initialState
 
   render() {
     const { children, render } = this.props
@@ -332,48 +332,48 @@ export class Toggleable extends Component<Props, State> {
 
 const updateShowState = (prevState: State) => ({ show: !prevState.show })
 ```
+
+![render prop component](./img/render-props-component-1.png)
 
 Huh quite loot is happening in ther right? Let's take a closer look to each important part of our implementation:
 
 ```ts
 const initialState = { show: false }
-
 type State = Readonly<typeof initialState>
 ```
 
 * here we are declaring our state as in previous examples, nothing new
 
-Now we need to define our component props:
+Now we need to define our component props ( note that we are using Partial mapped type, as we know that all props are gonna be optional, instead of annotating every prop manually by `?` operator ):
 
 ```ts
-type Props = {
-  children?: RenderCallback
-  render?: RenderCallback
-}
+type Props = Partial<{
+  children: RenderCallback
+  render: RenderCallback
+}>
 
 type RenderCallback = (args: ToggleableComponentProps) => JSX.Element
 type ToggleableComponentProps = { show: State['show']; toggle: Toggleable['toggle'] }
 ```
 
-We wanna support both function as a child and render prop function, so both need to be optional. To makes things dry we are creating `RenderCallback` type alias of our render function definition: `type RenderCallback = (args: ToggleableComponentProps) => JSX.Element`
+We wanna support both function as a child and render prop function, so both need to be optional. To makes things DRY, we're creating `RenderCallback` type alias of our render function definition: `type RenderCallback = (args: ToggleableComponentProps) => JSX.Element`
 
-What is interesting is our last type alias, the `ToggleableComponentProps`!
+What may look strange to readers eye, is our last type alias, the `type ToggleableComponentProps`!
 
 ```ts
 type ToggleableComponentProps = { show: State['show']; toggle: Toggleable['toggle'] }
 ```
 
-Again we are using the power of typescript and lookup types, so we don't have to repeat ourselves when defining types:
+Again we are using the power of typescript and **lookup types**, so we don't have to repeat ourselves when defining types:
 
 * `show: State['show']` we are creating our `show` prop type by leveraging existing type definition within our state
 * `toggle: Toggleable['toggle']` we are leveraging type inference and structural nature of classes within TS by getting the type from our method implementation! nice and indeed powerful!
 
-The rest of the implementation is straight forward, classic render props/children as function pattern:
+The rest of the implementation is straightforward, standard _render props/children as function_ pattern:
 
 ```tsx
 export class Toggleable extends Component<Props, State> {
-  state: State = initialState
-
+  // ...
   render() {
     const { children, render } = this.props
     const renderProps = { show: this.state.show, toggle: this.toggle }
@@ -384,14 +384,11 @@ export class Toggleable extends Component<Props, State> {
 
     return isFunction(children) ? children(renderProps) : null
   }
-
-  private toggle = (event: MouseEvent<HTMLElement>) => this.setState(updateShowState)
+  // ...
 }
-
-const updateShowState = (prevState: State) => ({ show: !prevState.show })
 ```
 
-Now we can pass a function as our Toggleable component children:
+Now we can pass a function as children to Toggleable component:
 
 ```tsx
 <Toggleable>
@@ -405,6 +402,8 @@ Now we can pass a function as our Toggleable component children:
   )}
 </Toggleable>
 ```
+
+![render prop component](./img/render-props-component-1-with-children.png)
 
 or we can pass a function to render prop:
 
@@ -421,9 +420,11 @@ or we can pass a function to render prop:
 />
 ```
 
+![render prop component](./img/render-props-component-1-with-render.png)
+
 Thanks to Typescript we got also intellisense at our disposal and proper type checking of our render prop arguments
 
-@ GIF HERE
+![render prop component type safety](./img/render-props-component-1.gif)
 
 If we want to reuse it (for multiple menus or so), we could simply create a new component that uses Toggleable logic:
 
@@ -443,6 +444,8 @@ const ToggleableMenu: SFC<Props> = ({ title, children }) => (
 )
 ```
 
+![ToggleableMenu via Toggleable render props](./img/toggleable-menu-1.png)
+
 Our brand new ToggleableMenu component is ready to be used:
 
 ```tsx
@@ -459,6 +462,12 @@ export class Menu extends Component {
 }
 ```
 
+![ToggleableMenu via Toggleable render props](./img/menu-1.png)
+
+And it works as expected:
+
+![Menu Demo](./img/menu-demo.gif)
+
 This approach is really useful when we want to change the rendered content itself regardless of state manipulation: as you can see, we’ve moved our render logic to our ToggleableMenu children function, but kept the state logic to our Toggleable component!
 
 ## Component Injection
@@ -471,17 +480,25 @@ What is Component Injection pattern? If you're familiar with React-Router, you a
 <Route path="/foo" component={MyView}>
 ```
 
-So instead of passing a function we are "injecting" Component via `component` prop. For this to work, we can refactor our inline render prop function to a reusable stateless component:
+So instead of passing a function via render/children props, we are "injecting" Component via `component` prop. For this to work, we can refactor our inline render prop function to a reusable stateless component:
 
 ```tsx
+import { ToggleableComponentProps } from './toggleable'
+
 type MenuItemProps = { title: string }
-const MenuItem: SFC<MenuItemProps & ToggleableComponentProps> = ({ title, toggle, show, children }) => (
+const MenuItem: SFC<MenuItemProps & ToggleableComponentProps> = ({
+  title,
+  toggle,
+  show,
+  children,
+}) => (
   <>
     <div onClick={toggle}>
       <h1>{title}</h1>
     </div>
     {show ? children : null}
   </>
+)
 ```
 
 With that we can refactor our `ToggleableMenu` with render prop to:
@@ -499,21 +516,34 @@ const ToggleableMenu: SFC<Props> = ({ title, children }) => (
 )
 ```
 
-Let's define new API - let's implement `component` prop.
+Now with that done, let's define our new API - `component` prop.
 
 We need update our props API.
 
 * `children` can be now function or ReactNode ( when component prop is used)
-* `component` is our new API which accepts component that needs to implement `ToggleableComponentProps` on it's props
+* `component` is our new API which accepts component that needs to implement `ToggleableComponentProps` on it's props and it needs to be generic and set to `any`, so if arbitrary component that implements other properties than `ToggleableComponentProps` will pass TS validaion
 * `props` we are introducing props property for passing down arbitrary props, this is a common pattern. It is defined as index type with any type, so we are loosing here strict type safety...
 
 ```tsx
-type Props = {
-  children?: RenderCallback | ReactNode
-  render?: RenderCallback
-  component?: ComponentType<ToggleableComponentProps>
-  props?: { [name: string]: any }
-}
+// We need create defaultProps with our arbitrary prop type -> props which is gonna be empty object by default
+const defaultProps = { props: {} as { [name: string]: any } }
+type Props = Partial<
+  {
+    children: RenderCallback | ReactNode
+    render: RenderCallback
+    component: ComponentType<ToggleableComponentProps<any>>
+  } & DefaultProps
+>
+type DefaultProps = typeof defaultProps
+```
+
+Next we need to add new props API to our `ToggleableComponentProps`, so consumer will be allowed to use `props` prop on `<Toggleable props={...}/>`:
+
+```tsx
+export type ToggleableComponentProps<P extends object = object> = {
+  show: State['show']
+  toggle: Toggleable['toggle']
+} & P
 ```
 
 Now we need to update our `render` method
@@ -523,7 +553,7 @@ render() {
     const { component: InjectedComponent, children, render, props } = this.props
     const renderProps = { show: this.state.show, toggle: this.toggle }
 
-    // InjectedComponent is first, with that children is ReactNode not a function
+    // when component prop api is used children is ReactNode not a function
     if (InjectedComponent) {
       return (
         <InjectedComponent {...props} {...renderProps}>
@@ -541,19 +571,26 @@ render() {
   }
 ```
 
+**Whole implementation of Toogleable component with Render Props, Children as a Function, Component Injection with arbitrary props support:**
+
+![Toggleable with RP, CaaF, CI](./img/render-props-component-2-with-c-injection.png)
+
 Our final `ToggleableMenuViaComponentInjection` component which leverages `component` prop looks like this:
 
 ```tsx
-const ToggleableMenuViaComponentInjection: SFC<ToggleableMenuItemProps> = ({ title, children }) => (
+type ToggleableMenuProps = MenuItemProps
+const ToggleableMenuViaComponentInjection: SFC<ToggleableMenuProps> = ({ title, children }) => (
   <Toggleable component={MenuItem} props={{ title }}>
     {children}
   </Toggleable>
 )
 ```
 
-Note that we have no type safety within our arbitrary custom `props`
+![Toggleable Menu via CI](./img/toggleable-menu-2-with-c-injection.png)
 
-// @ ADD GIF
+Note though, that we have no type safety within our arbitrary custom `props` prop, because it's defined as indexed object map `{ [name: string]: any }`
+
+![Toggleable Menu via CI issue](./img/toggleable-menu-2-with-c-injection-issue.gif)
 
 We can now use our `ToggleableMenuViaComponentInjection` for menu rendering as before
 
@@ -584,20 +621,22 @@ When we implemented "component injection pattern" we lost strict type safety on 
 First we need to make our props generic. We are using default generic parameters so we don't have to provide it explicitly when we don't want to ( for render props/children as a function).
 
 ```ts
-type Props<R extends {} = {}> = {
-  show?: State['show']
-  children?: RenderCallback | ReactNode
-  render?: RenderCallback
-  component?: ComponentType<ToggleableComponentProps<R>>
-  props?: R
-}
+type Props<P extends object = object> = Partial<
+  {
+    children: RenderCallback | ReactNode
+    render: RenderCallback
+    component: ComponentType<ToggleableComponentProps<P>>
+  } & DefaultProps<P>
+>
 ```
 
-We also need to update our `ToggleableComponentProps` to be generic.
-With that we won't get any TS compile errors when our `MenuItem` will be passed down via `component` prop
+We also need to update our `ToggleableComponentProps` to be generic. Oh wait it already is ;). So no changes on this front.
 
-```ts
-type ToggleableComponentProps<T = {}> = { show: State['show']; toggle: Toggleable['toggle'] } & T
+What needs to be changed though is definition of `type DefaultProps` as it is impossible to get generic type definition from implementation, we need to refactor it to old fashioned way **type definition -> implementaion**
+
+```tsx
+type DefaultProps<P extends object = object> = { props: P }
+const defaultProps: DefaultProps = { props: {} }
 ```
 
 Almost done!
@@ -615,28 +654,37 @@ Bad news, we can't ...
 We need to introduce `ofType` generic component factory pattern
 
 ```tsx
-export class Toggleable<T = {}> extends Component<Props<T>, State> {
-  static ofType<T>() {
-    return (Toggleable as any) as new () => Toggleable<T>
+export class Toggleable<T extends object = object> extends Component<Props<T>, State> {
+  static ofType<T extends object>() {
+    return Toggleable as Constructor<Toggleable<T>>
   }
 }
 ```
+
+**Whole implementation of Toogleable component with Render Props, Children as a Function, Component Injection with genenric props support:**
+
+![Toggleable with RP, CaaF, CI with generics](./img/render-props-component-3-with-c-injection.png)
 
 Now with `static ofType` factory method, we can create our properly typed generic component
 
 ```tsx
 type MenuItemProps = { title: string }
+// ofType is kind identity function, returns the same implementation of Toggleable Component
+// with proper props={...} type definition
 const ToggleableWithTitle = Toggleable.ofType<MenuItemProps>()
 
-const ToggleableMenuViaComponentInjection: SFC<MenuItemProps> = ({ title, children }) => (
+type ToggleableMenuProps = MenuItemProps
+const ToggleableMenuViaComponentInjection: SFC<ToggleableMenuProps> = ({ title, children }) => (
   <ToggleableWithTitle component={MenuItem} props={{ title }}>
     {children}
   </ToggleableWithTitle>
 ```
 
+![Toggleable Menu via CI](./img/toggleable-menu-3-with-c-injection.png)
+
 And everything will work as before, this time with proper type safety for our `props={}` prop. High five !
 
-// @ ADD GIF
+![Toggleable Menu via CI issue solved via generics](./img/toggleable-menu-3-with-c-injection-issue-solved.gif)
 
 ## High Order Components
 

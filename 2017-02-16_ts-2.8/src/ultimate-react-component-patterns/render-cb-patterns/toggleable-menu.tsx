@@ -1,6 +1,8 @@
 import React, { SFC, Component, Fragment } from 'react'
 
 import { Toggleable, ToggleableComponentProps } from './toggleable'
+// import { Toggleable, ToggleableComponentProps } from './toggleable-without-generics'
+// import { Toggleable, ToggleableComponentProps } from './toggleable-with-generics'
 import { withToogleable } from './with-toggleable'
 
 {
@@ -59,12 +61,12 @@ const MenuItem: SFC<MenuItemProps & ToggleableComponentProps> = ({
   show,
   children,
 }) => (
-  <Fragment>
+  <>
     <div onClick={toggle}>
       <h1>{title}</h1>
     </div>
     {show ? children : null}
-  </Fragment>
+  </>
 )
 
 // Wrapped Stateless MenuItem with  Toggleable via children as a function ( render prop pattern )
@@ -90,6 +92,23 @@ const ToggleableMenuViaComponentInjection: SFC<ToggleableMenuProps> = ({
     {children}
   </ToggleableWithTitle>
 )
+
+// DEMO: Component Injection without Generics & Controlled Component
+//
+// const ToggleableMenuViaComponentInjection: SFC<ToggleableMenuProps> = ({ title, children }) => (
+//   <Toggleable component={MenuItem} props={{ title }}>
+//     {children}
+//   </Toggleable>
+// )
+
+// DEMO: Component Injection with Generics & without Controlled Component
+//
+// const ToggleableWithTitle = Toggleable.ofType<MenuItemProps>()
+// const ToggleableMenuViaComponentInjection: SFC<ToggleableMenuProps> = ({ title, children }) => (
+//   <ToggleableWithTitle component={MenuItem} props={{ title }}>
+//     {children}
+//   </ToggleableWithTitle>
+// )
 
 // Wrapped Stateless MenuItem with withToggleable HOC pattern
 const ToggleableMenuViaHOC = withToogleable(MenuItem)
