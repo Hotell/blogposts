@@ -224,7 +224,8 @@ Everything is defined once -> implementaion and action type definition. Ellegant
 > This can be mitigated via custom middleware, which sprads the created instance to become pure Object
 >
 > ```ts
-> export const actionToPlainObject: MiddlewareFn<{}, Action> = store => next => action => next({ ...action })
+> export const actionToPlainObject: MiddlewareFn<{}, Action> = store => next => action =>
+>   next({ ...action })
 > ```
 >
 > If you're using @ngrx/store you don't need to do this because it allows any objects types

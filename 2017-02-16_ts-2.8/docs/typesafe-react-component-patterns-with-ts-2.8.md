@@ -6,11 +6,11 @@
 
 > [live Demo ](https://codesandbox.io/s/7k236m64w6)
 
-If you know me, you already know that I don't write javascript without types, so yeah I'm really into Typescript, since version 0.9. Beside typed JS I really love React, and when React + Typescript are combined, I just feel like in heaven :D. Complete type safety within whole app and VDOM templates it's just marvelous.
+If you know me, you already know that I don't write javascript without types, so yeah I'm really into Typescript, since version 0.9. Beside typed JS I really love React, and when React + Typescript are combined, I just feel like in heaven :D. Full type safety within whole app and VDOM templates it's just marvelous and joy to work with.
 
-So what is this post all about? Well, there are various articles about React Component patterns on the internet, but none describes how to apply those patterns with Typescript. Also upcoming version of TS 2.8 brings new exciting features to the table, like conditional mapped types, which allows us create easily common react patterns and other things...
+So what is this post all about? Well, there are various articles about React Component patterns on the internet, but none describes how to apply those patterns with Typescript. Also upcoming version of TS 2.8 brings new exciting features to the table, like conditional types, new predefined conditional types within standard library, homomorphic mapped types modifiers..., which allows us to create easily common react patterns in type safe way...
 
-So please sit back and relax, while you master Ultimate React Component Patterns with Typescript!
+This post is gonna be quite long, so please just sit back and relax, while you master Ultimate React Component Patterns with Typescript!
 
 > all patterns/examples use typescript 2.8 and strict mode
 
@@ -23,7 +23,7 @@ yarn add -D typescript@next
 yarn add tslib
 ```
 
-With that we can initilazie our typescript config:
+With that we can initialize our typescript config:
 
 ```sh
 // this will create tsconfig.json within our project with sane compiler defaults
@@ -48,7 +48,9 @@ Like in vanilla JS we need to import React and so on
 ```ts
 import React from 'react'
 
-const Button = ({ onClick: handleClick, children }) => <button onClick={handleClick}>{children}</button>
+const Button = ({ onClick: handleClick, children }) => (
+  <button onClick={handleClick}>{children}</button>
+)
 ```
 
 Although now compiler will emit errors! We need to be explicit and tell the component/function what is the type of our props. Let's define our props:
@@ -57,7 +59,9 @@ Although now compiler will emit errors! We need to be explicit and tell the comp
 import React, { MouseEvent, ReactNode } from 'react'
 type Props = { onClick(e: MouseEvent<HTMLElement>): void; children?: ReactNode }
 
-const Button = ({ onClick: handleClick, children }: Props) => <button onClick={handleClick}>{children}</button>
+const Button = ({ onClick: handleClick, children }: Props) => (
+  <button onClick={handleClick}>{children}</button>
+)
 ```
 
 We get rid of all errors! great! But we can do even better!
@@ -70,7 +74,9 @@ So the finall declaration is following
 import React, { MouseEvent, SFC } from 'react'
 type Props = { onClick(e: MouseEvent<HTMLElement>): void }
 
-const Button: SFC<Props> = ({ onClick: handleClick, children }) => <button onClick={handleClick}>{children}</button>
+const Button: SFC<Props> = ({ onClick: handleClick, children }) => (
+  <button onClick={handleClick}>{children}</button>
+)
 ```
 
 ## Stateful Component
@@ -151,7 +157,10 @@ To satisfy TS compiler we can use 3 techniques:
 * create reusable `withDefaultProps` High order function, which will update our props type definition and will set our default props. This is the most clean solution, IMHO
 
 ```ts
-const withDefaultProps = <P extends object, DP extends P = P>(Cmp: ComponentType<P>, defaultProps: DP) => {
+const withDefaultProps = <P extends object, DP extends P = P>(
+  Cmp: ComponentType<P>,
+  defaultProps: DP
+) => {
   // we are extracting props that need to be required
   type RequiredProps = Omit<P, keyof DP>
   // we are re-creating our props definition by creating and intersection type between
@@ -484,9 +493,15 @@ export class Menu extends Component {
   render() {
     return (
       <>
-        <ToggleableMenuViaComponentInjection title="First Menu">Some content</ToggleableMenuViaComponentInjection>
-        <ToggleableMenuViaComponentInjection title="Second Menu">Another content</ToggleableMenuViaComponentInjection>
-        <ToggleableMenuViaComponentInjection title="Third Menu">More content</ToggleableMenuViaComponentInjection>
+        <ToggleableMenuViaComponentInjection title="First Menu">
+          Some content
+        </ToggleableMenuViaComponentInjection>
+        <ToggleableMenuViaComponentInjection title="Second Menu">
+          Another content
+        </ToggleableMenuViaComponentInjection>
+        <ToggleableMenuViaComponentInjection title="Third Menu">
+          More content
+        </ToggleableMenuViaComponentInjection>
       </>
     )
   }
@@ -581,7 +596,9 @@ const withToogleable = <OriginalProps extends object>(
     render() {
       const { ...rest } = this.props
 
-      return <Toggleable render={renderProps => <UnwrappedComponent {...rest} {...renderProps} />} />
+      return (
+        <Toggleable render={renderProps => <UnwrappedComponent {...rest} {...renderProps} />} />
+      )
     }
   }
 
@@ -728,7 +745,12 @@ export const withToogleable = <OriginalProps extends object>(
     render() {
       const { show, ...rest } = this.props
 
-      return <Toggleable show={show} render={renderProps => <UnwrappedComponent {...rest} {...renderProps} />} />
+      return (
+        <Toggleable
+          show={show}
+          render={renderProps => <UnwrappedComponent {...rest} {...renderProps} />}
+        />
+      )
     }
   }
 
