@@ -62,7 +62,7 @@ const SET_AGE = '[user] SET_AGE'
 const setAge = (age: number) => ({ type: SET_AGE, payload: age })
 ```
 
-![Action type with Action creator](./img/simple-action-creator)
+![Action type with Action creator](./img/simple-action-creator.png)
 
 Now we need to get somehow the return type of our FSA creator.
 
