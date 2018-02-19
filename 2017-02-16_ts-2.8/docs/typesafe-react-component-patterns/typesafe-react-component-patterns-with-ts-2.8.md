@@ -1,4 +1,4 @@
-# Ultimate React Component Patterns with Typescript 2.8
+# Ultimate React Component Patterns with TypeScript 2.8
 
 > Stateful x Stateless, Default Props, Render Callbacks, Component Injection, Generic Components, High Order Components, Controlled Components
 
@@ -6,25 +6,25 @@
 
 > [live Demo ](https://codesandbox.io/s/7k236m64w6)
 
-If you know me, you already know that I don't write javascript without types, so yeah I'm really into Typescript, since version 0.9. Beside typed JS I really love React, and when React + Typescript are combined, I just feel like in heaven :D. Full type safety within whole app and VDOM templates it's just marvelous and joy to work with.
+If you know me, you already know that I don't write javascript without types, so yeah I'm really into TypeScript, since version 0.9. Beside typed JS I really love React, and when React + TypeScript are combined, I just feel like in heaven :D. Full type safety within whole app and VDOM templates it's just marvelous and joy to work with.
 
-So what is this post all about? Well, there are various articles about React Component patterns on the internet, but none describes how to apply those patterns with Typescript. Also upcoming version of TS 2.8 brings new exciting features to the table, like conditional types, new predefined conditional types within standard library, homomorphic mapped types modifiers..., which allows us to create easily common react patterns in type safe way...
+So what is this post all about? Well, there are various articles about React Component patterns on the internet, but none describes how to apply those patterns with TypeScript. Also upcoming version of TS 2.8 brings new exciting features to the table, like conditional types, new predefined conditional types within standard library, homomorphic mapped types modifiers..., which allows us to create easily common react patterns in type safe way...
 
-This post is gonna be quite long, so please just sit back and relax, while you master Ultimate React Component Patterns with Typescript!
+This post is gonna be quite long, so please just sit back and relax, while you master Ultimate React Component Patterns with TypeScript!
 
-> all patterns/examples use typescript 2.8 and strict mode
+> all patterns/examples use typeScript 2.8 and strict mode
 
 ## Start
 
-First off we need to install typescript and tslib helpers so our emitted code is smaller
+First off we need to install typeScript and tslib helpers so our emitted code is smaller
 
 ```sh
-yarn add -D typescript@next
+yarn add -D typeScript@next
 # tslib will be leveraged only for features that are not natively supported by your compile target
 yarn add tslib
 ```
 
-With that we can initialize our typescript config:
+With that we can initialize our typeScript config:
 
 ```sh
 # this will create tsconfig.json within our project with sane compiler defaults
@@ -42,7 +42,7 @@ Great! Now let's hop into those component patterns, shall we ?
 
 ## Stateless Component
 
-You guess it, those are components without **state** ( they are also called presentational ). Most of the time they are just pure functions. Let's create contrived Button stateless compoennt with Typescript.
+You guess it, those are components without **state** ( they are also called presentational ). Most of the time they are just pure functions. Let's create contrived Button stateless compoennt with TypeScript.
 
 Like in vanilla JS we need to import React which allows us to use JSX
 
@@ -93,7 +93,7 @@ First of we need define `initialState`
 const initialState = { clicksCount: 0 }
 ```
 
-Now we will use Typescript to infer State type from our implementation.
+Now we will use TypeScript to infer State type from our implementation.
 
 > By doing this we don't have to maintain types and implementation separately, we have only source of thruth, which is the implementation. nice !
 
@@ -156,7 +156,7 @@ const decrementClicksCount = (prevState: State) => ({ clicksCount: prevState.cli
 
 ![Stateful component](./img/stateful-component.png 'Stateful component')
 
-You've may noticed that we've extracted state update functions to pure functions outside the class. This is a common pattern, as we can test those with ease, without any knowledge of renderer layer. Also because we are using typescript and we mapped State to be explicitly read-only, it will prevent us to do any mutations within those functions as well
+You've may noticed that we've extracted state update functions to pure functions outside the class. This is a common pattern, as we can test those with ease, without any knowledge of renderer layer. Also because we are using typeScript and we mapped State to be explicitly read-only, it will prevent us to do any mutations within those functions as well
 
 ```ts
 const decrementClicksCount = (prevState: State) => ({ clicksCount: prevState.clicksCount-- })
@@ -393,7 +393,7 @@ What may look strange to readers eye, is our last type alias, the `type Toggleab
 type ToggleableComponentProps = { show: State['show']; toggle: Toggleable['toggle'] }
 ```
 
-Again we are using the power of typescript and **lookup types**, so we don't have to repeat ourselves when defining types:
+Again we are using the power of typeScript and **lookup types**, so we don't have to repeat ourselves when defining types:
 
 * `show: State['show']` we are creating our `show` prop type by leveraging existing type definition within our state
 * `toggle: Toggleable['toggle']` we are leveraging type inference and structural nature of classes within TS by getting the type from our method implementation! nice and indeed powerful!
@@ -451,7 +451,7 @@ or we can pass a function to render prop:
 
 ![render prop component](./img/render-props-component-1-with-render.png)
 
-Thanks to Typescript we got also intellisense at our disposal and proper type checking of our render prop arguments
+Thanks to TypeScript we got also intellisense at our disposal and proper type checking of our render prop arguments
 
 ![render prop component type safety](./img/render-props-component-1.gif)
 
@@ -947,9 +947,9 @@ export const withToogleable = <OriginalProps extends object>(
 
 ## Summary
 
-Implementing proper type safe components with React and Typescript can be tricky. With new functionality added to Typescript 2.8, we have almost everything at our disposal to write type safe components by adhering to common React component patterns.
+Implementing proper type safe components with React and TypeScript can be tricky. With new functionality added to TypeScript 2.8, we have almost everything at our disposal to write type safe components by adhering to common React component patterns.
 
-In this super long post ( sorry about that !) we learned how to implement components with various patterns in strict type safe way thanks to Typescript.
+In this super long post ( sorry about that !) we learned how to implement components with various patterns in strict type safe way thanks to TypeScript.
 
 Most powerfull pattern overall is indeed Render Props, which allows us to implement other common patterns like **Component Injection** or **HOC** without much additional churn.
 
@@ -960,4 +960,4 @@ Also it is very important to realise, that type safety within templates like dem
 * Angular templates with Language service provide type safety, but soundness fails on simple constructs like checking within ngFor etc...
 * Vue has nothing like Angular implemented yet for templates, so their templates and data binding are just magical strings ( but this may change in the future. Although you can use VDOM for templates it's cumbersome to use because various types of props definition ( "snabdom takes the blame..." ) )
 
-As always ping me here or on twitter( my handle @martin_hotell) if you have any questions, beside that, happy type checking folks! Cheers!
+As always, don't hasitate to ping me if you have any questions here or on twitter (my handle [@martin_hotell](https://twitter.com/martin_hotell)) and besides that, happy type checking folks and 'till next time! Cheers!
