@@ -5,7 +5,7 @@ import { isFunction, getHocComponentName } from '../utils'
 const initialState = { show: false }
 const defaultProps: DefaultProps = { ...initialState, props: {} }
 type State = Readonly<typeof initialState>
-type Props<P extends object = object> = Partial<
+export type Props<P extends object = object> = Partial<
   {
     children: RenderCallback | ReactNode
     render: RenderCallback
@@ -18,7 +18,6 @@ export type ToggleableComponentProps<P extends object = object> = {
   toggle: Toggleable['toggle']
 } & P
 type DefaultProps<P extends object = object> = { props: P } & Pick<State, 'show'>
-export type OwnProps = Pick<Props, 'show'>
 
 export class Toggleable<T extends object = object> extends Component<Props<T>, State> {
   static ofType<T extends object>() {

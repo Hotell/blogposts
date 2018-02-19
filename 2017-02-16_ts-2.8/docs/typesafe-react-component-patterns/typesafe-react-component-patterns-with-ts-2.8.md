@@ -699,17 +699,30 @@ We need to create:
 * leverage `hoistNonReactStatics` from `hoist-non-react-statics` npm package
 
 ```tsx
+import React, { ComponentType, Component } from 'react'
+import hoistNonReactStatics from 'hoist-non-react-statics'
+
+import { getHocComponentName } from '../utils'
+
+import { Toggleable, Props as ToggleableProps, ToggleableComponentProps } from './toggleable'
+
+// OwnProps is for any public props that should be available on internal Component.props
+// and for WrappedComponent
+type OwnProps = object
 type InjectedProps = ToggleableComponentProps
 
-const withToogleable = <OriginalProps extends object>(
+export const withToogleable = <OriginalProps extends object>(
   UnwrappedComponent: ComponentType<OriginalProps & InjectedProps>
 ) => {
-  // we are leveragin TS 2.0 conditional mapped types to get proper final prop types
-  type Props = Omit<OriginalProps, keyof InjectedProps>
+  // we are leveraging TS 2.8 conditional mapped types to get proper final prop types
+  type Props = Omit<OriginalProps, keyof InjectedProps> & OwnProps
 
   class WithToggleable extends Component<Props> {
-    static displayName = getHocComponentName(WithToggleable.displayName, UnwrappedComponent)
-    static WrappedComponent = UnwrappedComponent
+    static readonly displayName = getHocComponentName(
+      WithToggleable.displayName,
+      UnwrappedComponent
+    )
+    static readonly WrappedComponent = UnwrappedComponent
     render() {
       const { ...rest } = this.props
 
@@ -719,15 +732,19 @@ const withToogleable = <OriginalProps extends object>(
     }
   }
 
-  return WithToggleable
+  return hoistNonReactStatics(WithToggleable, UnwrappedComponent)
 }
 ```
+
+![Toggleable via HOC](./img/hoc-component.png)
 
 Now we can create our Toogleable menu item via HOC as well, with correct type safety of props!
 
 ```tsx
 const ToggleableMenuViaHOC = withToogleable(MenuItem)
 ```
+
+![ToggleableMenu via HOC](./img/toggleable-menu-4-with-hoc.png)
 
 ```tsx
 export class Menu extends Component {
@@ -743,15 +760,17 @@ export class Menu extends Component {
 }
 ```
 
-// @ ADD GIF
+And everything works and is covered by types as well ! yay!
+
+![ToggleableMenu via HOC](./img/toggleable-menu-4-with-hoc.gif)
 
 ## Controlled Components
 
-We are in finale ! Let's say we wanna make our `Toggleable` highly configurable by controlling it from parent. This is very powerful pattern indeed. Let's do this.
+We are in the finale ! Let's say we wanna make our `Toggleable` highly configurable by controlling it from parent. This is very powerful pattern indeed. Let's do this.
 
 What I mean by Controlled Component ? I wanna controll if content is shown directly for all my `ToggleableMenu` components from within `Menu` component.
 
-// @ ADD GIF ( app from codesandbox )
+![ToggleableMenu via HOC](./img/menu-demo-controlled-component.gif)
 
 **Implementation of our ToggleableMenus via various patterns:**
 
@@ -760,11 +779,11 @@ What I mean by Controlled Component ? I wanna controll if content is shown direc
 type Props = MenuItemProps & { show?: boolean }
 
 // NOTE:
-// we are creating aliases to not shadow render callback show arguments
+// we are creating variable aliases via desctructuring, to not shadow render callback 'show' argument
 // -> {show: showContent}
 
 // Render Props
-const ToggleableMenu: SFC<ToggleableMenuItemProps> = ({ title, children, show: showContent }) => (
+export const ToggleableMenu: SFC<ToggleableMenuItemProps> = ({ title, children, show: showContent }) => (
   <Toggleable show={showContent}>
     {({ show, toggle }) => (
       <MenuItem title={title} toggle={toggle} show={show}>
@@ -777,21 +796,25 @@ const ToggleableMenu: SFC<ToggleableMenuItemProps> = ({ title, children, show: s
 // Component Injection
 const ToggleableWithTitle = Toggleable.ofType<MenuItemProps>()
 
-const ToggleableMenuViaComponentInjection: SFC<Props> = ({ title, children, show: showContent }) => (
+export const ToggleableMenuViaComponentInjection: SFC<Props> = ({ title, children, show: showContent }) => (
   <ToggleableWithTitle component={MenuItem} props={{ title }} show={showContent}>
     {children}
   </ToggleableWithTitle>
 
 // HOC without changes
-const ToggleableMenuViaHOC = withToogleable(MenuItem)
+export const ToggleableMenuViaHOC = withToogleable(MenuItem)
 ```
+
+![Final ToggleableMenu implementations](./img/final-toggleable-menu.png)
 
 Now our **Menu component** will look like this:
 
 ```tsx
-type MenuState = { showContents: boolean }
-export class Menu extends Component<object, MenuState> {
-  state = { showContents: false }
+const initialState = { showContents: false }
+type State = Readonly<typeof initialState>
+
+export class Menu extends Component<object, State> {
+  readonly state: State = initialState
   render() {
     const { showContents } = this.state
 
@@ -813,26 +836,28 @@ export class Menu extends Component<object, MenuState> {
   }
 ```
 
+![Final menu](./img/final-menu.png)
+
 Let's update our `Toggleable` one last time for ultimate power and flexibility
 
-First we need to update props API
+To make our Toggleable controlled component we need to do following:
+
+1. add `show` to our `Props` API
+2. update default props ( because show is optional)
+3. update initial Component.state to be set from Props.show, because now the source of truth for setting our state may come via props from parent.
+4. componentWillReceiveProps Life cycle hook to properly update state from public props
+
+**1 & 2:**
 
 ```tsx
-// Own props is type alias for public Props on `Toggleable`
-type OwnProps = Partial<Pick<State, 'show'>>
+const initialState = { show: false }
+const defaultProps: DefaultProps = { ...initialState, props: {} }
 
-type Props<R extends {} = {}> = {
-  children?: RenderCallback | ReactNode
-  render?: RenderCallback
-  component?: ComponentType<ToggleableComponentProps<R>>
-  props?: R
-} & OwnProps
+type State = Readonly<typeof initialState>
+type DefaultProps<P extends object = object> = { props: P } & Pick<State, 'show'>
 ```
 
-Now let's add following:
-
-* default props ( because show is optional) and update initial state as well, because now the source of truth for setting our state may come via props from parent.
-* componentWillReceiveProps Life cycle hook to properly update state from public props
+**3 & 4:**
 
 ```tsx
 export class Toggleable<T = {}> extends Component<Props<T>, State> {
@@ -850,15 +875,29 @@ export class Toggleable<T = {}> extends Component<Props<T>, State> {
 }
 ```
 
-* propagate `show` prop value within our HoC
+**Final Toggleable**
+
+![Controlled Toggleable](./img/final-component.png)
+
+**Final withToggleable HoC via Toggleable**
+
+We need to propagate `show` prop value within our HoC and update our `OwnProps` API
 
 ```tsx
+type OwnProps = Pick<ToggleableProps, 'show'>
+
 export const withToogleable = <OriginalProps extends object>(
   UnwrappedComponent: ComponentType<OriginalProps & InjectedProps>
 ) => {
   type Props = Omit<OriginalProps, keyof InjectedProps> & OwnProps
 
   class WithToggleable extends Component<Props> {
+    static readonly displayName = getHocComponentName(
+      WithToggleable.displayName,
+      UnwrappedComponent
+    )
+    static readonly WrappedComponent = UnwrappedComponent
+
     render() {
       const { show, ...rest } = this.props
 
@@ -871,9 +910,11 @@ export const withToogleable = <OriginalProps extends object>(
     }
   }
 
-  return WithToggleable
+  return hoistNonReactStatics(WithToggleable, UnwrappedComponent)
 }
 ```
+
+![Controlled Toggleable via HOC](./img/final-hoc-component.png)
 
 ## Summary
 
@@ -882,5 +923,12 @@ Implementing proper type safe components with React and Typescript can be tricky
 In this super long post ( sorry about that !) we learned how to implement components with various patterns in strict type safe way thanks to Typescript.
 
 Most powerfull pattern overall is indeed Render Props, which allows us to implement other common patterns like **Component Injection** or **HOC** without much additional churn.
+
+All demos can be found at [my Github repo](https://github.com/Hotell/blogposts/tree/master/2017-02-16_ts-2.8/src/ultimate-react-component-patterns) for this post.
+
+Also it is very important to realise, that type safety within templates like demonstrated in this article, is possible only within libraries that use VDOM/JSX
+
+* Angular templates with Language service provide type safety, but soundness fails on simple constructs like checking within ngFor etc...
+* Vue has nothing like Angular implemented yet for templates, so their templates and data binding are just magical strings ( but this may change in the future. Although you can use VDOM for templates it's cumbersome to use because various types of props definition ( "snabdom takes the blame..." ) )
 
 As always ping me here or on twitter( my handle @martin_hotell) if you have any questions, beside that, happy type checking folks! Cheers!

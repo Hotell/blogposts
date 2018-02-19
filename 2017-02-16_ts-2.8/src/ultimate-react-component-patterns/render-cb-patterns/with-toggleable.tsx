@@ -3,13 +3,20 @@ import hoistNonReactStatics from 'hoist-non-react-statics'
 
 import { getHocComponentName } from '../utils'
 
-import { Toggleable, OwnProps, ToggleableComponentProps } from './toggleable'
+import {
+  Toggleable,
+  Props as ToggleableProps,
+  ToggleableComponentProps as InjectedProps,
+} from './toggleable'
 
-type InjectedProps = ToggleableComponentProps
+// OwnProps is for any public props that should be available on internal Component.props
+// and for WrappedComponent
+type OwnProps = Pick<ToggleableProps, 'show'>
 
 export const withToogleable = <OriginalProps extends object>(
   UnwrappedComponent: ComponentType<OriginalProps & InjectedProps>
 ) => {
+  // we are leveraging TS 2.8 conditional mapped types to get proper final prop types
   type Props = Omit<OriginalProps, keyof InjectedProps> & OwnProps
   class WithToggleable extends Component<Props> {
     static readonly displayName = getHocComponentName(
