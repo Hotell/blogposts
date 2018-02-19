@@ -27,14 +27,14 @@ export class Toggleable extends HTMLElement {
     shadowRoot.innerHTML = Toggleable.template
 
     this[viewProp] = {
-      title: this.shadowRoot!.querySelector('.title') as HTMLElement,
-      content: this.shadowRoot!.querySelector('.content') as HTMLSlotElement,
+      title: shadowRoot.querySelector('.title') as HTMLElement,
+      content: shadowRoot.querySelector('.content') as HTMLElement,
     }
   }
 
   [viewProp]: {
     title: HTMLElement
-    content: HTMLSlotElement
+    content: HTMLElement
   };
 
   [titleProp] = 'No title provided'

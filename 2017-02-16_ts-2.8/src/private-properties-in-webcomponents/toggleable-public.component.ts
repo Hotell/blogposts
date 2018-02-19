@@ -19,11 +19,12 @@ export class Toggleable extends HTMLElement {
   constructor() {
     super()
     const shadowRoot = this.attachShadow({ mode: 'open' })
+
     shadowRoot.innerHTML = Toggleable.template
 
     this.view = {
-      title: this.shadowRoot!.querySelector('.title') as HTMLElement,
-      content: this.shadowRoot!.querySelector('.content') as HTMLSlotElement,
+      title: shadowRoot.querySelector('.title') as HTMLElement,
+      content: shadowRoot.querySelector('.content') as HTMLSlotElement,
     }
   }
 
@@ -31,6 +32,7 @@ export class Toggleable extends HTMLElement {
     title: HTMLElement
     content: HTMLSlotElement
   }
+
   private _title = 'No title provided'
   set title(value: string) {
     this._title = value
