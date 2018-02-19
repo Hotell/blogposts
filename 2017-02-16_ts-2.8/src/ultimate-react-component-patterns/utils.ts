@@ -8,19 +8,20 @@ export const getComponentName = (component: ComponentType<any>) =>
 export const getHocComponentName = (hocName: string, component: ComponentType<any>) =>
   `${hocName}(${getComponentName(component)})`
 
-export const withDefaultProps = <P extends object, DP extends P = P>(
-  Cmp: ComponentType<P>,
-  defaultProps: DP
+export const withDefaultProps = <P extends object, DP extends Partial<P> = Partial<P>>(
+  defaultProps: DP,
+  Cmp: ComponentType<P>
 ) => {
   // we are extracting props that need to be required
   type RequiredProps = Omit<P, keyof DP>
-  // we are re-creating our props definition by creating and intersection type between
-  // all original props mapped to be optional and required to be required
-  type Props = Partial<P> & Required<RequiredProps>
+  // we are re-creating our props definition by creating and intersection type
+  // between all original props mapped to be optional and required to be required
+  type Props = Partial<DP> & Required<RequiredProps>
 
   // here we set our defaultProps
   Cmp.defaultProps = defaultProps
 
-  // we override return type definition by turning type checker off and setting the correct return type
-  return (Cmp as any) as ComponentType<Props>
+  // we override return type definition by turning type checker off
+  // for original props  and setting the correct return type
+  return (Cmp as ComponentType<any>) as ComponentType<Props>
 }
