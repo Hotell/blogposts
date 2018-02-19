@@ -1,0 +1,16 @@
+{
+  "name": "blogposts",
+  "version": "1.0.0",
+  "description": "my medium blog posts with demos",
+  "main": "index.js",
+  "repository": "git@github.com:Hotell/blogposts.git",
+  "author": "Martin Hochel <hochelmartin@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "format": "prettier --write \"201*/**/*.{ts,tsx,md,html,css,less,sass}\""
+  },
+  "devDependencies": {
+    "prettier": "1.10.2"
+  }
+}
