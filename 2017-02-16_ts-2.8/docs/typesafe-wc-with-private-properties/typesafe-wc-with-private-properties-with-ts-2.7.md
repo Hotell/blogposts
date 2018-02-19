@@ -2,7 +2,7 @@
 
 Hey everyone! As you've may noticed, TypeScript 2.7 was released not that long time ago, neverheless it brings a lot of new features to the table.
 
-In this article we will focus primarily on **Unique Symbol Types** support, in particular within ES2015 classes, which are also a main building blocks of WebComponents.
+In this article we will focus primarily on [**Unique Symbol Types**](https://github.com/Microsoft/TypeScript/pull/15473) support, in particular within ES2015 classes, which are also a main building blocks of WebComponents.
 
 For our demonstration purpose, we will implement a simple `Toggleable Custom Element` with following featurs:
 
