@@ -9,7 +9,9 @@ type InjectedProps = {
 }
 type ExternalProps = {}
 
-const withLoading = <OriginalProps extends object>(Cmp: ComponentType<OriginalProps & InjectedProps>) => {
+const withLoading = <OriginalProps extends object>(
+  Cmp: ComponentType<OriginalProps & InjectedProps>
+) => {
   // type InternalProps = Omit<OriginalProps, keyof InternalState>
   type InternalProps = Omit<OriginalProps, keyof InternalState> & ExternalProps
   type InternalState = { isLoading: boolean }

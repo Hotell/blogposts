@@ -12,7 +12,9 @@ type InjectedProps = {
   onClick(event: MouseEvent<HTMLElement>): void
 }
 
-export function withToggle<OriginalProps>(UnwrappedComponent: ComponentType<OriginalProps & InjectedProps>) {
+export function withToggle<OriginalProps>(
+  UnwrappedComponent: ComponentType<OriginalProps & InjectedProps>
+) {
   // type InternalProps = Props & Omit<OriginalProps, keyof InjectedProps>
   // type Props = Exclude<OriginalProps, InjectedProps> & OwnProps
   type Props = Omit<OriginalProps, keyof InjectedProps> & OwnProps
@@ -30,7 +32,8 @@ export function withToggle<OriginalProps>(UnwrappedComponent: ComponentType<Orig
         </>
       )
     }
-    private toggle = (event: MouseEvent<HTMLElement>) => this.setState(prevState => ({ show: !prevState.show }))
+    private toggle = (event: MouseEvent<HTMLElement>) =>
+      this.setState(prevState => ({ show: !prevState.show }))
   }
 
   return hoistNonReactStatics(WithToggle, UnwrappedComponent as any) as ComponentType<Props>

@@ -1,12 +1,17 @@
 import { Children, ReactNode, ComponentType } from 'react'
 
 export const isEmptyChildren = (children: ReactNode) => Children.count(children) === 0
-export const isFunction = <T extends Function>(value: any): value is T => typeof value === 'function'
-export const getComponentName = (component: ComponentType<any>) => component.displayName || (component as any).name
+export const isFunction = <T extends Function>(value: any): value is T =>
+  typeof value === 'function'
+export const getComponentName = (component: ComponentType<any>) =>
+  component.displayName || (component as any).name
 export const getHocComponentName = (hocName: string, component: ComponentType<any>) =>
   `${hocName}(${getComponentName(component)})`
 
-export const withDefaultProps = <P extends object, DP extends P = P>(Cmp: ComponentType<P>, defaultProps: DP) => {
+export const withDefaultProps = <P extends object, DP extends P = P>(
+  Cmp: ComponentType<P>,
+  defaultProps: DP
+) => {
   // we are extracting props that need to be required
   type RequiredProps = Omit<P, keyof DP>
   // we are re-creating our props definition by creating and intersection type between

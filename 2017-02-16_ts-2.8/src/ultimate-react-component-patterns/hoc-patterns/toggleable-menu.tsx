@@ -4,7 +4,6 @@ import { withToggle, WithToggleInjectedProps } from './with-toggle'
 
 type Props = {
   title: string
-  // onClick(event: MouseEvent<HTMLElement>): void
 } & WithToggleInjectedProps
 class MenuItem extends Component<Props> {
   render() {
@@ -18,16 +17,4 @@ class MenuItem extends Component<Props> {
   }
 }
 
-const ToggleableMenu = withToggle(MenuItem)
-
-class Menu extends Component {
-  render() {
-    return (
-      <>
-        <ToggleableMenu title="First Menu">Some content</ToggleableMenu>
-        <ToggleableMenu title="Second Menu">Another content</ToggleableMenu>
-        <ToggleableMenu title="Third Menu">More content</ToggleableMenu>
-      </>
-    )
-  }
-}
+export const ToggleableMenu = withToggle(MenuItem)
