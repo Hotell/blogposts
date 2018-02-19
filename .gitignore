@@ -5,6 +5,7 @@ dist
 dist-server
 tmp
 out-tsc
+.cache
 
 # dependencies
 node_modules

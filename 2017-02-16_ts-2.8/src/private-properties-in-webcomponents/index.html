@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>WC</title>
+  <style>
+    body {
+      font-family: 'sans-serif';
+      text-align: center;
+    }
+
+    button {
+      cursor: pointer;
+      padding: 0.75rem;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+      transition: background-color ease-out 50ms;
+      outline: none;
+    }
+
+    button:active {
+      box-shadow: inset 0px 2px 10px -5px;
+      background-color: #eee;
+    }
+  </style>
+  <script src="https://cdn.rawgit.com/webcomponents/webcomponentsjs/bdd52039/custom-elements-es5-adapter.js"></script>
+  <script src="./index.ts" type="module"></script>
+</head>
+
+<body>
+  <button>Toggle show contents</button>
+  <hr>
+  <my-toggleable>
+    <p>Some text Lorem ipsum dolor sit amet.</p>
+  </my-toggleable>
+  <my-toggleable-public>
+    <p>Some text Lorem ipsum dolor sit amet.</p>
+  </my-toggleable-public>
+</body>
+
+</html>
