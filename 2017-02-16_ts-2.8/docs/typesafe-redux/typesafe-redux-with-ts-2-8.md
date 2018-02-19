@@ -4,7 +4,7 @@ Disclaimer:
 
 This post was created in the sky, when I was returning from awesome Japan and yes that guy in the title picture is me, ridding the best powder on the planet in Japan :D ( sorry I just had to do this, you can hate me later ok? )
 
-Some time ago [I wrote about how to effectively leverage TypeScript to write type-safe action creators and reducers](<(https://medium.com/@martin_hotell/redux-typescript-typed-actions-with-less-keystrokes-d984063901d)>).
+Some time ago [I wrote about how to effectively leverage TypeScript to write type-safe action creators and reducers](https://medium.com/@martin_hotell/redux-typescript-typed-actions-with-less-keystrokes-d984063901d).
 
 At that time ( pre TS 2.8 era ) there wasn't a clean solution how to get the return type of an function without some hacks.
 
