@@ -171,9 +171,38 @@ Cool right ? ;)
 
 ## Default Props
 
-Let's demonstrate this on our `Button` component
+Let’s extend our Button component with an color prop of type string.
 
-If we wanna define `defaultProps` we can do it via `Button.defaultProps = {...}`. By doing that we need to change our `Props` definition to have defaultProps optional. While this works for this simple example, there is one gotcha. Becasuse we are in strict mode, optional props are both undefined or defined type.
+```tsx
+type Props = { onClick(e: MouseEvent<HTMLElement>): void; color: string }
+```
+
+If we wanna define defaultProps we can do it via `Button.defaultProps = {...}` on our component.
+
+By doing that we need to change our Props type definition to mark props that are default as optional.
+
+So something like this ( notice the `?` operator )
+
+```tsx
+type Props = { onClick(e: MouseEvent<HTMLElement>): void; color?: string }
+```
+
+and our Component looks like this:
+
+```tsx
+const Button: SFC<Props> = ({ onClick: handleClick, color, children }) => (
+  <button style={{ color }} onClick={handleClick}>
+    {children}
+  </button>
+)
+```
+
+While this works for this simple example, there is one gotcha. Because we are in strict mode, optional props are union of type `undefined | string` for our `color`.
+
+Let's say we would like to do something with that particular prop, TS would throw an error because it doesn't know,
+that it is defined by `Component.defaultProps` React construct.
+
+![Default props issue](./img/default-props-issue.gif)
 
 To satisfy TS compiler we can use 3 techniques:
 
