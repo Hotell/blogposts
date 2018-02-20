@@ -1,3 +1,5 @@
+import '@webcomponents/webcomponentsjs/custom-elements-es5-adapter'
+
 import { Toggleable, showProp, titleProp } from './toggleable.component'
 import { Toggleable as ToggleablePublic } from './toggleable-public.component'
 
