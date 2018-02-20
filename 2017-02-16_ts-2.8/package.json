@@ -9,10 +9,11 @@
     "@types/react-dom": "16.0.4",
     "@types/react-redux": "5.0.15",
     "@types/react-router-dom": "4.2.4",
-    "parcel-bundler": "1.6.1",
+    "parcel-bundler": "1.6.2",
     "typescript": "2.8.0-dev.20180217"
   },
   "dependencies": {
+    "@webcomponents/webcomponentsjs": "1.1.0",
     "hoist-non-react-statics": "2.5.0",
     "redux": "3.7.2",
     "tslib": "1.9.0"
