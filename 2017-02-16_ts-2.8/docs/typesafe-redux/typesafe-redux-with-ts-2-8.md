@@ -299,9 +299,10 @@ Everything is defined once -> implementaion and action type definition. Elegant 
 
 > _Update thanks to provided comments_
 
-So until now I've preffered and used action creators created via classes. Thanks to @Igor Bezkrovnyi comment, I've revisited and got following ultimate solution working --> It uses first boilerplate reduction pattern - **createAction** helper.
+So until now I’ve preferred and used action creators created via classes. Thanks to **Igor Bezkrovnyi** comment, I’ve revisited and got following ultimate solution working!
+It uses first boilerplate reduction pattern  --> **the createAction function helper**
 
-Our action types and action creators with Action Union type for reducer ( leveraging discriminant unions )
+Our action types and action creators with Action Union type for reducer ( leveraging discriminant unions ) →
 
 ```ts
 // actions.ts
@@ -335,9 +336,9 @@ export type ActionsUnion<A extends { [ac: string]: FunctionType }> = ReturnType<
 
 ![custom-mapped-type](./img/custom-mapped-type.png)
 
-Now let's grab some beer and popcorn and enjoy your 100% reducer:
+Now let’s grab some beer and popcorn and enjoy your 100% type-safe reducer:
 
-![final-type-safe-reducer](./img/final-type-safe-reducer.png)
+![final-type-safe-reducer](./img/final-type-safe-reducer.gif)
 
 ## Summary
 
