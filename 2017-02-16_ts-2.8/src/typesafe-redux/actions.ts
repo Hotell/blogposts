@@ -1,4 +1,4 @@
-import { ActionsUnion, Action, ActionWithPayload } from './types'
+import { ActionsUnion } from './types'
 import { createAction } from './action-helpers'
 
 export const SET_AGE = '[core] set age'
