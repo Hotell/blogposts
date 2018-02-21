@@ -1,8 +1,10 @@
 # Improved Redux type safety with TypeScript 2.8
 
-Disclaimer:
+> **Disclaimer:**
+>
+> This post was created 35000 feet above the ground in the sky, during my return flight from awesome Japan and yes that guy in the title picture is me, ridding the best powder on the planet in Japan :D ( sorry I just had to do this, you can hate me later ok? / later === after reading this post )
 
-This post was created in the sky, when I was returning from awesome Japan and yes that guy in the title picture is me, ridding the best powder on the planet in Japan :D ( sorry I just had to do this, you can hate me later ok? )
+---
 
 Some time ago [I wrote about how to effectively leverage TypeScript to write type-safe action creators and reducers](https://medium.com/@martin_hotell/redux-typescript-typed-actions-with-less-keystrokes-d984063901d).
 
@@ -72,7 +74,7 @@ Now we need to get somehow the return type of our FSA creator.
 >
 > We wanna leverage [discriminant unions](https://basarat.gitbooks.io/typescript/docs/types/discriminated-unions.html) for 100% type safe reducers and for handling side effects via epics ([redux-observable](https://github.com/redux-observable/redux-observable/blob/master/docs/Troubleshooting.md#typescript-oftype-operator-wont-narrow-to-proper-observable-type)) or effects (@ngrx/store)
 
-So as I've already mentioned bilion times until now ( sorry :D ), we can leverage new mapped type -> `ReturnType<T>`:
+So as I’ve already mentioned billion times until now ( sorry :D ), we can leverage new mapped type -> `ReturnType<T>`:
 
 ```ts
 type SetAgeAction = ReturnType<typeof setAge>
@@ -128,7 +130,7 @@ Now our inferred type is correct
 
 * explicitly casting `type` property within action creator
 
-## Reducing the action boilerplate
+## Reducing the action boilerplate (createAction)
 
 I don't know about how you, but I don't like to cast `type` property explicitly within every action creator! Bah! Huh!
 
@@ -138,20 +140,20 @@ Let's write a super tiny utility function for creating our FSA action object:
 interface Action<T extends string> {
   type: T
 }
+
 interface ActionWithPayload<T extends string, P> extends Action<T> {
   payload: P
 }
-
 function createAction<T extends string>(type: T): Action<T>
 function createAction<T extends string, P>(type: T, payload: P): ActionWithPayload<T, P>
-function createAction(type: string, payload?: any) {
+function createAction<T extends string, P>(type: T, payload?: P) {
   return payload ? { type, payload } : { type }
 }
 ```
 
 ![createAction helper](./img/create-action-helper.png)
 
-> We are using typescript function overloading so we get proper types by argument arity
+> We are using TypeScript function overloading so we get proper types by argument arity
 
 Now we can define our action creator like this:
 
@@ -183,7 +185,7 @@ type SetAgeAction = ReturnType<typeof setAge>
 
 * none I guess ? :)
 
-## Reducing the action boilerplate further
+## Reducing the action boilerplate further (action)
 
 We can push it even further by creating custom `action` helper.
 
@@ -292,6 +294,50 @@ Everything is defined once -> implementaion and action type definition. Elegant 
 * constructor parameter named genericaly `payload`, which may not be very descriptive if payload is a primitive type
 * (if you're using redux ) you need to provide custom middleware for flattening custom class instance to pure object
 * using `new SetAgeAction(18)` may feel strange or just wrong to some functional purists, I don't mind personaly 😎, it makes it even more visible within component code that I'm creating a FSA
+
+## And the winner is
+
+> _Update thanks to provided comments_
+
+So until now I've preffered and used action creators created via classes. Thanks to @Igor Bezkrovnyi comment, I've revisited and got following ultimate solution working --> It uses first boilerplate reduction pattern - **createAction** helper.
+
+Our action types and action creators with Action Union type for reducer ( leveraging discriminant unions )
+
+```ts
+// actions.ts
+import { ActionsUnion } from './types'
+import { createAction } from './action-helpers'
+
+export const SET_AGE = '[core] set age'
+export const SET_NAME = '[core] set name'
+export const RELOAD_URL = '[router] Reload Page'
+
+export const actions = {
+  setAge: (age: number) => createAction(SET_AGE, age),
+  setName: (name: string) => createAction(SET_NAME, name),
+  reloadUrl: () => createAction(RELOAD_URL),
+}
+
+export type Actions = ActionsUnion<typeof actions>
+```
+
+![final-actions-pattern](./img/final-actions-pattern.png)
+
+Wonder what that `ActionsUnion` custom mapped type is ?
+
+It just leverages our new best friend `ReturnType` and returns all action types union, even less typing for us! yay!
+
+```ts
+// types.ts
+export type FunctionType = (...args: any[]) => any
+export type ActionsUnion<A extends { [ac: string]: FunctionType }> = ReturnType<A[keyof A]>
+```
+
+![custom-mapped-type](./img/custom-mapped-type.png)
+
+Now let's grab some beer and popcorn and enjoy your 100% reducer:
+
+![final-type-safe-reducer](./img/final-type-safe-reducer.png)
 
 ## Summary
 
