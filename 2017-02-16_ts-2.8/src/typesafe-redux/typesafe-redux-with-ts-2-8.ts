@@ -1,14 +1,4 @@
-// interface Action<T extends string, P> {
-//   type: T
-//   payload?: P
-// }
-interface Action<T extends string> {
-  type: T
-}
-
-interface ActionWithPayload<T extends string, P> extends Action<T> {
-  payload: P
-}
+import { Action, ActionWithPayload } from './types'
 
 type ActionFn<T extends string> = () => Action<T>
 type ActionWithPayloadFn<T extends string, P> = (payload: P) => ActionWithPayload<T, P>
