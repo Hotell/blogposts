@@ -184,11 +184,145 @@ And add commit hook via custom npm script, which will be recognised by `husky` a
 
 Now everytime we will commit to the repo, our staged files will be formatted and linting violations fixed by TSLint, if they are autofixable, otherwise our commit will fail ! Excellent, you will never ever argue with your PR reviewer about semicolons vs no-semicolons 👌.
 
-With that said, let's switch to more serious stuff.
+With that said, let's switch to more serious stuff...
 
 ### Unit Testing
 
+> If you're not testing your codebase I will find you and I will... :D
+
+Angular CLI comes with Karma test runner and Jasmine expectation/spy library. Those tests are run usually against browser.
+
+Karma is indeed an old tool ( levorutionary at one point some years ago ) but let's be honest, it's slow, debugging test is cumbersome and it needs extensive configuration. We can look outside our Angular boundaries and we will discover the "ultimate salvation".
+
+Everyone please welcome:
+
+[**Jest**](https://facebook.github.io/jest/)
+
+![Jest - Delightful Javascript Testing](./img/jest-logo.png)
+
+Jest is a complete testing solution that includes both test runner and assertion/spy library.
+
+It's super easy to setup, it’s blazingly fast and introduces a brand new type of testing - snapshot testing ( which can be leveraged to anything that is serializable - component snapshots, state snapshots, image snapshots ...)
+
+To integrate Jest with Angular CLI we need to install jest and [jest-preset-angular](https://github.com/thymikee/jest-preset-angular), which handles everything for test environment setup specific to Angular ( zones and stuff ya know ? )
+
+```sh
+yarn add -D jest jest-preset-angular
+```
+
+Now we need to configure jest, to consume our preset:
+
+```js
+// jest.config.js
+module.exports = {
+  preset: 'jest-preset-angular',
+  setupTestFrameworkScriptFile: '<rootDir>/src/setupJest.ts',
+}
+```
+
+> [For more info see the docs](https://github.com/thymikee/jest-preset-angular#exposed-configuration)
+
+Now we can add new npm-scripts for testing:
+
+```json
+{
+  "scripts": {
+    "test": "jest --watch",
+    "test:ci": "jest --runInBand",
+    "test:coverage": "jest --coverage"
+  }
+}
+```
+
+**Jest speed**
+
+I briefly mentioned, that Jest is fast. How fast ?
+
+![Unit testing speed comparison](./img/unit-testing-speed.png)
+
+Why is it so fast ? Well it runs against Node and [JSDOM](https://github.com/jsdom/jsdom), tests are executed in parallel and efficiently cached.
+
+**Jest snapshot testing**
+
+Jest comes with snapshot testing, you just need to use `toMatchSnapshot` matcher within your test expectation on component fixture:
+
+![Snapshot assertion](./img/unit-testing-to_match_snapshot.png)
+
+This will save physically on disk a snapshot footprint of your component in that particular moment(state)
+and, when something has changed in the component implementation, you’ll get following failing test with DIFF about what changed:
+
+![Compoment Snapshot diff](./img/unit-testing-snapshot-diff.png)
+
+I love this !
+
+**Jest interactive mode**
+
+Jest comes with advanced watch mode - a CLI like tool with lot of perks, like filtering, running only tests that changed and various other features:
+
+Behold - Jest interactive watch mode:
+
+![Jest interactive watch mode](./img/unit-testing-interactive-cli.gif)
+
+Beautiful isn’t it ?!
+
+**Other Jest features**
+
+There are moar things that comes with Jest, I will name just few:
+
+* Powerful mocking features ( ES2015 modules, assets )
+* Code coverage - 0CJS `jest --coverage`
+* Pluggable ( run Puppeteer with Jest )
+* Huge ecosystem: [jest-axe](https://github.com/nickcolley/jest-axe) ( a11y ), [jest-images-snapshots](https://github.com/americanexpress/jest-image-snapshot)
+
 ### E2E Testing
+
+End to End testing is equally or even more important than unit testing. Let's see what we get by default with CLI.
+
+* Protractor with Selenium
+
+Uh?! what did you just said? Selenium ? I dunno about you but everytime I hear “SELENIUM” I wanna fight someone...
+
+Selenium was indeed useful at some point in our development carrer history, but it's 2018 and there are much better tools for this job.
+
+Please welcome
+
+[**TestCafe**](https://devexpress.github.io/testcafe/)
+
+TestCafe is pure NodeJS, non framework specific, open source tool for all our E2E scenario needs !
+
+It's 100% reliable, fast, zero config solution, works cross platform, cross browser( even works on custom environments like Windows Subsystem Linux or custom browsers ). Last but not least I forgot to mention that Typescript is 1st class citizen for writing e2e scenarios, so yay for type safety within your E2E tests!
+
+Install
+
+```sh
+yarn add -D testcafe testcafe-live
+```
+
+Now we can add new npm-scripts for testing:
+
+```json
+{
+  "scripts": {
+    "e2e": "testcafe-live chrome e2e/**/*.e2e-spec.ts",
+    "e2e:ci": "testcafe all e2e/**/*.e2e-spec.ts --app 'yarn start' --app-init-delay 5000"
+  }
+}
+```
+
+On CI, we wanna run our suite against all browsers and by providing `--app` flag, we are telling testcafe to boot UI for us and then execute the scenarios on it, so for those purposes we will execute `yarn e2e:ci`
+
+For development we will use `yarn e2e` which runs e2e tests in watch mode in chrome, so after every change our tests are re-run. Dx experience at it's best !
+
+Let's see it in action
+
+**TestCafe example**
+
+In following scenario we are testing creation of new Pizza, and after it's created,
+we delete it to clean after ourselves. What might not be visible is taht when you wanna delete a pizza a browser native dialog is shown, TestCafe handles all of this without ease. We are also adding toppings to the pizza just to showcase complex UI entities selection within our test. Whole test scenario is powered by traditional PageObject pattern with custom helpers for our particular needs.
+
+![TestCafe create new pizza](./img/e2e-demo.gif)
+
+### Components Development
 
 ## Architecture
 
