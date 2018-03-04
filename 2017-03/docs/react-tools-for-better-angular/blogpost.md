@@ -422,7 +422,7 @@ Those common patterns can be applied in 2 most important parts of every app:
 
 Following image compares both Angular and React in terms of Component creation patterns, and as we can see those are almost identical.
 
-![Component patterns comparison](./img/ng-tools-replacing-with-react-tools.png)
+![Component patterns comparison](./img/component-patterns.png)
 
 * React.Component/@Component
 * HOC/@Directive ( HOC just decorates behaviour in immutable way, Directive can do the same in Angular )
