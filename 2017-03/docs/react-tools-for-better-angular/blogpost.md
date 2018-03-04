@@ -317,12 +317,93 @@ Let's see it in action
 
 **TestCafe example**
 
-In following scenario we are testing creation of new Pizza, and after it's created,
-we delete it to clean after ourselves. What might not be visible is taht when you wanna delete a pizza a browser native dialog is shown, TestCafe handles all of this without ease. We are also adding toppings to the pizza just to showcase complex UI entities selection within our test. Whole test scenario is powered by traditional PageObject pattern with custom helpers for our particular needs.
+In following scenario we are testing the creation of new pizza, and after it's created,
+we delete it to clean up after ourselves.
+
+What might not be visible from the demo is, that when you wanna delete a pizza, browser native confirm dialog is shown, TestCafe handles all of this with ease.
+
+After initial runs, we are also adding toppings to the pizza, just to showcase complex UI entities selection within our test.
+
+Whole test scenario is powered by traditional **PageObject pattern** with custom helpers for our particular needs.
 
 ![TestCafe create new pizza](./img/e2e-demo.gif)
 
 ### Components Development
+
+Angular CLI doesn't come with anything related to developing Components in isolation or for building a Demo project with components showcased in various state. Thanks to React community we can leverage [**Storybook**](https://github.com/storybooks/storybook) !
+
+**Storybook**
+
+Storybook is powered by React under the hood and generates whole UI catalague of your component demos, called stories. In terms of Angular it supports much more than just components. You can write stories for Services, Modules etc...
+
+This is how the UI looks like:
+
+![Storybook Demo](./img/storybook-showcase-demo.gif)
+
+Storybook is also capable to build our stories app, so we can deploy it on server, and with that to provide a documentation for our component consumers. You can see it deployed with various [Angular stories examples here](https://storybooks-angular.netlify.com/)
+
+**Storybook CLI integration**
+
+To add Storybook to Angular CLI, we will leverage storybook CLI:
+
+```sh
+npx @storybook/cli@alpha getstorybook
+```
+
+While we are enjoying our morning quick shot of espresso, everything is setup for us. Amazing!
+
+![Storybook - Angular CLI Integration](./img/storybook-install-demo.gif)
+
+Then we can just execute
+
+```sh
+yarn storybook
+```
+
+and our local storybook app is ready to use!
+
+**Storybook Addons**
+
+Storybook comes also with various plugins, although framework support varies. [You can learn more here](https://github.com/storybooks/storybook/blob/master/ADDONS_SUPPORT.md)
+
+**Storybook: write a story**
+
+Let's look very quickly how to write a story for simple button component:
+
+```ts
+storiesOf('Button', module).add('with some emoji', () => ({
+  template: `
+    <my-button
+      [text]="text"
+      (onClick)="onClick($event)"
+    ></my-button>`,
+  props: {
+    text: '',
+    onClick: (event: Event) => {
+      console.log(event)
+    },
+  },
+}))
+```
+
+![Storybook - Component Story](./img/story-description.png)
+
+**Storybook: Component folder srtucture**
+
+With storybook covered, our final component folder structure should look like this:
+
+![Storybook - Component folder structure](./img/storybook-final-component-folder-structure.png)
+
+* implementation
+* unit test with snapshots
+* external styles
+* story
+
+### Tooling summary
+
+Thanks to other communities and ecosystems, we are able to leverage better exisitng tools for our Angular toolkit:
+
+![Better tools for our development](./img/ng-tools-replacing-with-react-tools.png)
 
 ## Architecture
 
