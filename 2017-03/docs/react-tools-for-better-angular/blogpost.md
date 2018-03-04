@@ -326,7 +326,7 @@ After initial runs, we are also adding toppings to the pizza, just to showcase c
 
 Whole test scenario is powered by traditional **PageObject pattern** with custom helpers for our particular needs.
 
-![TestCafe create new pizza](./img/e2e-demo.gif)
+![TestCafe create new pizza](./img/e2e-demo-create-pizza.gif)
 
 ### Components Development
 
