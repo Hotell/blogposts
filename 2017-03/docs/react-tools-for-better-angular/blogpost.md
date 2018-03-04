@@ -401,14 +401,146 @@ With storybook covered, our final component folder structure should look like th
 
 ### Tooling summary
 
-Thanks to other communities and ecosystems, we are able to leverage better exisitng tools for our Angular toolkit:
+Thanks to other communities and ecosystems, we are able to leverage better exisitng tools for our Angular toolkit.
 
-![Better tools for our development](./img/ng-tools-replacing-with-react-tools.png)
+We replaced Karma/Jasmine with Jest, Protractor/Selenium with TestCafe, TSlint with Prettier for formatting and added husky with lint-staged for adhering to styleguides automatically and as last step we added Storybook for developing components in isolation.
+
+![Better tools for Angular development](./img/ng-tools-replacing-with-react-tools.png)
 
 ## Architecture
 
+Let's talk briefly about architecture which is the 2nd category we mentioned in the beginning.
+
+We can use similar patterns that are effectively used within other libraries ( in our case with React ), to re-use same design patterns and principles in Angular and beyond.
+
+Those common patterns can be applied in 2 most important parts of every app:
+
+* Components
+* State management
+
+### Architecture: Components
+
+Following image compares both Angular and React in terms of Component creation patterns, and as we can see those are almost identical.
+
+![Component patterns comparison](./img/ng-tools-replacing-with-react-tools.png)
+
+* React.Component/@Component
+* HOC/@Directive ( HOC just decorates behaviour in immutable way, Directive can do the same in Angular )
+* render JSX/Inline template ( Always use Inline templates to have everything in one file, logic + rendering )
+* Inline/External CSS
+* Immutable props/@Input with CDS.OnPush ( React triggers re-render only when reference changes, Angular allows the same via OnPush strategy )
+
+Also very important pattern to for building components [Stateful<->Stateless component pattern](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0).
+
+### Architecture: State management
+
+How to handle state ?
+
+It can be handled similarly in both React and Angular:
+
+![State management types](./img/state-management-types.png)
+
+* Local Component state ( this.state ) / @Component|@Directive instance state => suitable for private state ( mostly UI state)
+* Hierarchical Context API supported by SOA / Hierarchical DI in Angular => suitable for whole app state
+* FLUX architecture powered by Redux => **most suitable for app state, and universal for both Angular and React**
+
+So as we can see, **Redux is the ultimate solution for both React and Angular** in terms of true State separation. Thanks to this separation we can write Redux boilerplate once and literally reuse it in both Angular or React. With FLUX architecture, only feature that we're leveraging in any UI framework is hydratation of data to our view ( components ) and rendering.
+
+That's it !
+
+> **NOTE:** This pattern is definitely not suitable for some weekend pet project, I'm talking about enterprise level or similar
+
 ## Libraries
+
+Ok we are almost done. Let's talk about what libraries can be used in both React and Angular so we can reuse our knowledge.
+
+We know now, that only true separation of state/logic can be achieved via Redux. So yup, you guess it, we can use pure Redux library in both Angular in React, altough in Angular world `ngrx/store` is the "industry solution" with one important "problem" for our use-case: it's tightly coupled to Angular, which is a no go in terms of our reusable patterns methodology. Also when we're using pure Redux, we can leverage all existing ecosystem around it ( mostly middleware and tooling ).
+
+> **NOTE:** don't get me wrong ngrx/store is great, if you're using solely Angular, probably stick to it, again principles/patterns are very similar for both Epics/Effects
+
+So let's install redux and redux bindings for Angular:
+
+```sh
+yarn add redux @angular-redux/store
+```
+
+To abstract our state shape we also need to use Selectors, and to make them performant we should reach for [reselect](https://github.com/reactjs/reselect)
+
+```sh
+yarn add reselect
+```
+
+**Handling Side Effects**
+
+What about handling side effects? Well again, in Angular world, there is another package from ngrx -> `@ngrx/effects`, which is unfortunatelly for us, again, coupled to Angular.
+
+Have no fear a have universal solution is here:
+
+[Redux-observable](redux-observable.js.org) - RxJS 5 - based middleware for Redux which uses Epics.
+
+```
+yarn add redux-observable rxjs
+```
+
+**What is an Epic?**
+
+It's similar to Effects with 2 important distinctions:
+
+* Epics are executed after all reducers
+* Epic needs to always return an Action Stream ( Actions in, Actions out - thanks to that, it prevents us to introduce anti-patterns, that can be observed within ngrx/effects, for instance using `tap` and similar noop operators, for triggering side effects within effects )
+
+> **NOTE:** If you have absolutely no other option and need to execute side effect like within Effects, you can do that and comlplete the current stream so nothing get's emitted futher via [`ignoreElements` Rx operator](https://www.learnrxjs.io/operators/filtering/ignoreelements.html).
+
+![Epic](./img/what-is-an-epic.gif)
+
+**Http Client**
+
+Last thing to cover. How to communicate with our API. Angular has build in solution `HttpClient` which is great! But...
+This may be quite controversial but do you really need that Observable lazyness for executing GET/POST request? Especially when those are executed via Epics which use Observables, so you get all that lazyness and composition over there?
+_So yeah, probably not, at least I didn't found use for it during last year..._
+
+My services for REST endpoints look something like this ( in both Angular/React):
+
+```ts
+const base = 'users'
+class HeroService {
+  constructor(private httpClient: HttpClient) {}
+  getOne(id: number): Promise<User> {
+    return this.httpClient.get<User>(`${users}/${id}`).then(normalize)
+  }
+  getAll(): Promise<User[]> {
+    return this.httpClient.get<User[]>(base).then(normalize)
+  }
+  create(payload: NewUser): Promise<User> {
+    return this.httpClient.post(base, payload).then(normalize)
+  }
+  update(payload: User): Promise<User> {
+    return this.httpClient.put(base, payload).then(normalize)
+  }
+  remove(id: number): Promise<boolean> {
+    return this.httpClient.delete(base, payload).then(normalize)
+  }
+}
+```
+
+Where `httpClient` is axios instance injected via Angular DI in case of React a custom DI mechanism is applied.
+
+So yup you can definitely ditch `@angular/common/http` and use [`axios`](https://github.com/axios/axios).
+
+With promise based Service calls, your Epics will contain also less boilerplate, like can be seen on this diff:
+
+![Using Axios instead of HttpClient](./img/epic-diff-axios-vs-http-client.png)
+
+And with that covered, we are at the end!
 
 ---
 
 ## Summary
+
+In this article we covered what tools, architecture and libraries from React ecosystem can be used for Angular app development and for reusing existing solutions, so in the end we leverage the same tools and knowledge, no matter what rendering solution/Component framework are we using.
+
+With that we destroyed boundaries that you might encounter when using Angular and it's ecosystem and in the end instead of fighting, we embraced the knowledge provided by outside world ( React etc ) and we became best friends and will live in piece forever :)
+
+Our final Angular CLI solution looks like this:
+
+![Better Angular CLI defaults](./img/summary-beter-ng-cli-defaults.png)
