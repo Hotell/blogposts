@@ -491,6 +491,8 @@ It's similar to Effects with 2 important distinctions:
 
 > **NOTE:** If you have absolutely no other option and need to execute side effect like within Effects, you can do that and comlplete the current stream so nothing get's emitted futher via [`ignoreElements` Rx operator](https://www.learnrxjs.io/operators/filtering/ignoreelements.html).
 
+> **NOTE 2:** Redux-observable provides currently no "default" lazy loading mechanism (ngrx/effects does!), it needs to be implemented on your own as there is no "official" solution yet. We have our own custom solution, which will be open sourced soon.
+
 ![Epic](./img/what-is-an-epic.gif)
 
 **Http Client**
@@ -541,6 +543,17 @@ In this article we covered what tools, architecture and libraries from React eco
 
 With that we destroyed boundaries that you might encounter when using Angular and it's ecosystem and in the end instead of fighting, we embraced the knowledge provided by outside world ( React etc ) and we became best friends and will live in piece forever :)
 
+![Angular and React - BFF](./img/summary-best-friends.png)
+
 Our final Angular CLI solution looks like this:
 
 ![Better Angular CLI defaults](./img/summary-beter-ng-cli-defaults.png)
+
+You can find everything that I've covered in this article open sourced on my GitHub repo:
+
+* [Better Angular CLI defaults](https://github.com/Hotell/react-tools-for-better-angular-apps)
+* [Example app](https://github.com/Hotell/react-tools-for-better-angular-apps/tree/example-app)
+
+---
+
+As always, don't hesitate to ping me if you have any questions here or on twitter (my handle [@martin_hotell](https://twitter.com/martin_hotell)) and besides that, happy type checking folks and 'till next time! Cheers!
