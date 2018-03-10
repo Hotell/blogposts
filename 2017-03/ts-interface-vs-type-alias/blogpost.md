@@ -35,10 +35,14 @@ type PointType = {
 }
 ```
 
+![Point types](./img/0-point-types.png)
+
 ```ts
 const getRectangleAreaInterface = (args: PointInterface) => args.x * args.y
 const getRectangleAreaAliased = (args: PointType) => args.x * args.y
 ```
+
+![get rect area](./img/0-rect-area-fn.png)
 
 ```ts
 // ERRORS:
@@ -54,6 +58,8 @@ getRectangleAreaInterface({ x: 12 })
 getRectangleAreaAliased({ x: 12 })
 ```
 
+![1st incorrect difference](./img/0-falsy-difference.gif)
+
 _"A second more important difference is that type aliases cannot be extended or implemented from"_
 
 **Again, that's incorect**
@@ -66,6 +72,8 @@ interface ThreeDimesions extends PointType {
 }
 ```
 
+![2nd incorrect difference](./img/1-exteds-implenets-a.png)
+
 Or use type for implementing a Class constraint
 
 ```ts
@@ -74,6 +82,8 @@ class Rectangle implements PointType {
   y = 4
 }
 ```
+
+![2nd incorrect difference](./img/1-exteds-implenets-b.png)
 
 Or use interface extended by an type for implementing a Class constraint
 
@@ -84,6 +94,8 @@ class RectanglePrism implements ThreeDimesions {
   z = 4
 }
 ```
+
+![2nd incorrect difference](./img/1-exteds-implenets-c.png)
 
 We can also combine both type alias and interface for implementing a Class constraint
 
@@ -106,6 +118,8 @@ class Rectangle implements PointType, Shape, Perimeter {
   }
 }
 ```
+
+![2nd incorrect difference](./img/1-exteds-implenets-d.png)
 
 _type aliases canot extend/implement other types_
 
@@ -139,9 +153,9 @@ class Rectangle implements RectangleShape {
     return 2 * (this.x + this.y)
   }
 }
-
-const rectangle: RectangleShape = {}
 ```
+
+![3nd incorrect difference](./img/2-ta-cannot-extend-others-a.png)
 
 We can also leverage mapped types for various transforms of both interface and type alias.
 
@@ -169,6 +183,8 @@ class PartialRectangle implements RectangleShape {
 }
 ```
 
+![3nd incorrect difference](./img/2-ta-cannot-extend-others-b.png)
+
 Also weak type detection works correctly:
 
 ```ts
@@ -184,9 +200,109 @@ const rectangle: RectangleShape = {
 }
 ```
 
+![3nd incorrect difference](./img/2-ta-cannot-extend-others-c.gif)
+
+### Hybrid Types with both type alias and interface
+
+You might occasionally want to define an object that that acts as both a function and an object, with additional properties.
+
+What we are talking here about, is defining a type for a function ( callable object ) and static properties on that function.
+
+> This pattern might be also seen, when interacting with 3rd-party JavaScript, to fully describe the shape of the type.
+
+```ts
+interface Counter {
+  // callable part
+  (start: number): string
+  // static properties
+  interval: number
+  reset(): void
+}
+
+const getCounter = () => {
+  const counter = ((start: number) => {}) as Counter
+  counter.interval = 123
+  counter.reset = () => {}
+  return counter
+}
+
+const callable = getCounter()
+callable(10)
+callable.reset()
+callable.interval = 5.0
+```
+
+![Hybrid Types via Type Interface](./img/hybrid-type-via-interface.png)
+
+It works equally with type alias!
+
+```ts
+type Counter = {
+  // callable part
+  (start: number): string
+  // static properties
+  interval: number
+  reset(): void
+}
+```
+
+![Hybrid Types via Type Alias](./img/hybrid-type-via-ta.png)
+
+There is a very suble difference though. You will get the particular shape type in IDE instead of refference to the `Counter` type.
+
+![Hybrid Types differences](./img/hybrid-types.gif)
+
+What is usually a good idea/practice, is to disect our hybrid definition in two parts:
+
+* callable object (function) type alias
+
+```ts
+// via type alias
+type CounterFn = (start: number) => string
+
+// via interface
+interface CounterFn {
+  (start: number): string
+}
+```
+
+![Hybrid Types Functions](./img/hybrid-types-1.png)
+
+* static properties object shape
+
+```ts
+// via type alias
+type CounterStatic = {
+  interval: number
+  reset(): void
+}
+
+// via interface
+interface CounterStatic {
+  interval: number
+  reset(): void
+}
+```
+
+![Hybrid Types Static shapes](./img/hybrid-types-2.png)
+
+and create result type:
+
+```ts
+// via type alias
+type Counter = CounterFn & CounterStatic
+
+// via interface
+interface Counter extends CounterFn, CounterStatic {}
+```
+
+![Hybrid Types result](./img/hybrid-types-3.png)
+
+---
+
 ## So what's the difference between type alias and interface again?
 
-1. you cannot use `implements` on an class with type alias if you use `union` operator within your type definition
+### 1. you cannot use `implements` on an class with type alias if you use `union` operator within your type definition
 
 This will trigger compile errors:
 
@@ -215,7 +331,32 @@ class Rectangle implements RectangleShape {
 }
 ```
 
-2. you cannot use `extends` on an interface with type alias if you use `union` operator within your type definition
+![Difference 1](./img/differnce-1.gif)
+
+Which makes complete sense! A class blueprint, cannot implement one or another shape structure, so nothing surprising on this front.
+
+Where union makes sense and also works, is for object definition via object literal, so following is valid and will produce compile error, because our object has to define on of `perimeter()` or `area()` method, or both:
+
+```ts
+// Type '{ x: number; y: number; }' is not assignable to type 'RectangleShape'.
+//   Type '{ x: number; y: number; }' is not assignable to type 'Perimeter & Point'.
+//    Type '{ x: number; y: number; }' is not assignable to type 'Perimeter'.
+//      Property 'perimiter' is missing in type '{ x: number; y: number; }'.
+const rectangle: RectangleShape = {
+  x: 12,
+  y: 133,
+  // perimiter() {
+  //   return 2 * (rectangle.x + rectangle.y)
+  // },
+  // area() {
+  //   return rectangle.x * rectangle.y
+  // },
+}
+```
+
+![Difference 1a](./img/differnce-1-a.gif)
+
+### 2. you cannot use `extends` on an interface with type alias if you use `union` operator within your type definition
 
 ```ts
 // ERROR:
@@ -223,7 +364,11 @@ class Rectangle implements RectangleShape {
 interface RectangleShape extends Shape | Perimeter, Point {}
 ```
 
-3. declaration merging doesn't work with type alias
+![Difference 2](./img/differnce-2.gif)
+
+Again, similarly to classes `implements`, interface is a "static" blueprint, it cannot exists in one or another shape, so cannot be `extended` by union type merge.
+
+### 3. declaration merging doesn't work with type alias
 
 While declaration merging works with interfaces, it fails short with type aliases.
 
@@ -244,6 +389,8 @@ interface Box {
 const box: Box = { height: 5, width: 6, scale: 10 }
 ```
 
+![Difference 3](./img/difference-3-interface-merging.png)
+
 This doesn't work with type aliases, because type is an unique type entity ( for both global or module scope ):
 
 ```ts
@@ -252,27 +399,45 @@ type Box = {
   height: number
   width: number
 }
-
+// ERROR:
+// Duplicate identifier 'Box'.
 type Box = {
   scale: number
 }
-
+// ERROR:
+// Type '{ height: number; width: number; scale: number; }' is not assignable to type 'Box'.
+// Object literal may only specify known properties, and 'scale' does not exist in type 'Box'.
 const box: Box = { height: 5, width: 6, scale: 10 }
 ```
 
-Declaration merging via interfaces is very important when we are writting 3rd party ambient type definitions, so consumer can extend them if some definition are missing! Also if we are writing our library with TypeScript we wanna provide public types via interface, so consumers can extend them if they wanna do some kind of extension/monkey patching with our implementation.
+![Difference 3](./img/difference-3-ta-merging.gif)
 
-This is the only use case, where you should always use interfaces!
+Declaration merging via interfaces is very important, when we are writing 3rd party ambient type definitions for libraries that are not authored with TypeScript, so consumer has option to extend them, if some definition are missing.
 
-## What should I use for React `Props` and `State`
+Same applies if our library is written in TypeScript and ambient type definitions are generated automatically.
+
+This is the only use case, where you definitely should always use interface instead of type alias !
+
+### What should I use for React `Props` and `State`
 
 In general, use what you want ( type aliase / interface ) just be consistent, but personally, I recomend to use type aliases:
 
 * it's shorter to write `type Props = {}`
 * your syntax is consistent ( you are not mixin interfaces with type aliase for possible type intersections )
-* your component Props/State implementation cannot be monkey patched and for that reason, consumer of your component should never need to leverage interface declaration merging. For extension there are clearly defined patterns like HOC etc...
+* your component Props/State implementation cannot be monkey patched and for that reason, consumer of your component should never need to leverage interface declaration merging. For extension there are clearly defined patterns like HOC and so on.
 
 ## Summary
+
+In this article we learned what is the difference between `interface` and `type` alias in latest TypeScript.
+
+With that covered, we came to an conclusion what method of defining compile time types should be used in a particular scenario.
+
+Let's recap:
+
+* type aliases can act sort of like interfaces, however, there are 3 important differences ( union types, declaration merging)
+* use whatever suites you and your team, just be consistent
+* always use `interface` for public API's definition when authoring a library or 3rd party ambient type definitions
+* consider using `type` for your React Component Props and State
 
 ---
 

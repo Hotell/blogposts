@@ -119,13 +119,19 @@ class RectanglePrism implements ThreeDimesions {
       return 12
     }
   }
+  //
+  //
+  //
 
   const rectangle: RectangleShape = {
     x: 12,
     y: 133,
-    areaaaaaa() {
-      // ...
+    areeeea() {
+      return 123
     },
+    // perimiter() {
+    //   return 123
+    // },
   }
 }
 
@@ -140,9 +146,9 @@ class RectanglePrism implements ThreeDimesions {
   type Perimeter = {
     perimiter(): number
   }
-
   type RectangleShape = (Shape | Perimeter) & Point
-  // interface RectangleShape extends (Shape | Perimeter), Point {}
+  // type ShapeOrPerimeter = Shape | Perimeter
+  // interface RectangleShape extends ShapeOrPerimeter, Point {}
 
   class Rectangle implements RectangleShape {
     x = 2
@@ -158,11 +164,13 @@ class RectanglePrism implements ThreeDimesions {
     perimiter() {
       return 2 * (rectangle.x + rectangle.y)
     },
-    // area() {
-    //   return rectangle.x * rectangle.y
-    // },
+    area() {
+      return rectangle.x * rectangle.y
+    },
   }
 
+  //
+  //
   {
     // Declaration merging
     interface Box {
@@ -179,14 +187,67 @@ class RectanglePrism implements ThreeDimesions {
 
   {
     // Declaration merging NOPE!
-    // type Box = {
-    //   height: number
-    //   width: number
+    type Box = {
+      height: number
+      width: number
+    }
+    type Box = {
+      scale: number
+    }
+    const box: Box = { height: 5, width: 6, scale: 10 }
+  }
+
+  // Hybrid types
+  {
+    interface Counter {
+      (start: number): string
+      interval: number
+      reset(): void
+    }
+
+    const getCounter = () => {
+      const counter = ((start: number) => {}) as Counter
+      counter.interval = 123
+      counter.reset = function() {}
+      return counter
+    }
+
+    const callable = getCounter()
+    callable(10)
+    callable.reset()
+    callable.interval = 5.0
+  }
+
+  {
+    type CounterFn = (start: number) => string
+    // via interface
+    // interface CounterFn {
+    //   (start: number): string
     // }
-    // type Box = {
-    //   scale: number
+    // type Constructable = new (start: number) => string
+    type CounterStatic = {
+      interval: number
+      reset(): void
+    }
+    // via interface
+    // interface CounterStatic {
+    //   interval: number
+    //   reset(): void
     // }
-    // const box: Box = { height: 5, width: 6, scale: 10 }
+    // type Counter = CounterFn & CounterStatic
+    interface Counter extends CounterStatic, CounterFn {}
+
+    const getCounter = () => {
+      const counter = ((start: number) => {}) as Counter
+      counter.interval = 123
+      counter.reset = function() {}
+      return counter
+    }
+
+    const callable = getCounter()
+    callable(10)
+    callable.reset()
+    callable.interval = 5.0
   }
 }
 ////
