@@ -331,7 +331,7 @@ class Rectangle implements RectangleShape {
 }
 ```
 
-![Difference 1](./img/differnce-1.gif)
+![Difference 1](./img/difference-1.gif)
 
 Which makes complete sense! A class blueprint, cannot implement one or another shape structure, so nothing surprising on this front.
 
@@ -354,7 +354,7 @@ const rectangle: RectangleShape = {
 }
 ```
 
-![Difference 1a](./img/differnce-1-a.gif)
+![Difference 1a](./img/difference-1-a.gif)
 
 ### 2. you cannot use `extends` on an interface with type alias if you use `union` operator within your type definition
 
@@ -364,7 +364,7 @@ const rectangle: RectangleShape = {
 interface RectangleShape extends Shape | Perimeter, Point {}
 ```
 
-![Difference 2](./img/differnce-2.gif)
+![Difference 2](./img/difference-2.gif)
 
 Again, similarly to classes `implements`, interface is a "static" blueprint, it cannot exists in one or another shape, so cannot be `extended` by union type merge.
 
@@ -410,7 +410,7 @@ type Box = {
 const box: Box = { height: 5, width: 6, scale: 10 }
 ```
 
-![Difference 3](./img/difference-3-ta-merging.gif)
+![Difference 3](./img/difference-3-interface-merging.gif)
 
 Declaration merging via interfaces is very important, when we are writing 3rd party ambient type definitions for libraries that are not authored with TypeScript, so consumer has option to extend them, if some definition are missing.
 
