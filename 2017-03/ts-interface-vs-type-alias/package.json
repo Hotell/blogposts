@@ -1,0 +1,11 @@
+{
+  "name": "ts-interface-vs-type-alias",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Martin Hochel <hochelmartin@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "typescript": "2.7.2"
+  }
+}
