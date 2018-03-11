@@ -7,10 +7,10 @@ export enum ActionTypes {
   RELOAD_URL = '[router] Reload Page',
 }
 
-export const actions = {
+export const Actions = {
   setAge: (age: number) => createAction(ActionTypes.SET_AGE, age),
   setName: (name: string) => createAction(ActionTypes.SET_NAME, name),
   reloadUrl: () => createAction(ActionTypes.RELOAD_URL),
 }
 
-export type Actions = ActionsUnion<typeof actions>
+export type Actions = ActionsUnion<typeof Actions>
