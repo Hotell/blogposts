@@ -5,10 +5,10 @@ export const SET_AGE = '[core] set age'
 export const SET_NAME = '[core] set name'
 export const RELOAD_URL = '[router] Reload Page'
 
-export const actions = {
+export const Actions = {
   setAge: (age: number) => createAction(SET_AGE, age),
   setName: (name: string) => createAction(SET_NAME, name),
   reloadUrl: () => createAction(RELOAD_URL),
 }
 
-export type Actions = ActionsUnion<typeof actions>
+export type Actions = ActionsUnion<typeof Actions>

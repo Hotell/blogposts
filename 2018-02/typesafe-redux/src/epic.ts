@@ -2,7 +2,7 @@ import { Epic, ofType } from 'redux-observable'
 import { of } from 'rxjs/observable/of'
 import { tap, map } from 'rxjs/operators'
 
-import { Actions, SET_AGE, actions } from './actions'
+import { Actions, SET_AGE } from './actions'
 import { State } from './store'
 import { ActionsOfType } from './types'
 
@@ -13,7 +13,7 @@ const epic: Epic<Actions, State> = actions$ => {
     ofType<Actions, SetAgeAction>(SET_AGE),
     map(action => {
       const { type, payload: newAge } = action
-      return actions.reloadUrl()
+      return Actions.reloadUrl()
     })
   )
 }
@@ -22,7 +22,7 @@ const epicWithChainOfType: Epic<Actions, State> = actions$ => {
   return actions$.ofType<SetAgeAction>(SET_AGE).pipe(
     map(action => {
       const { type, payload: newAge } = action
-      return actions.reloadUrl()
+      return Actions.reloadUrl()
     })
   )
 }
