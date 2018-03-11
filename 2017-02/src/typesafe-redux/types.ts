@@ -10,5 +10,8 @@ export interface ActionWithPayload<T extends string, P> extends Action<T> {
   payload: P
 }
 
-export type FunctionType = (...args: any[]) => any
-export type ActionsUnion<A extends { [ac: string]: FunctionType }> = ReturnType<A[keyof A]>
+type FunctionType = (...args: any[]) => any
+type ActionCreatorsMapObject = { [actionCreator:string]:FunctionType }
+
+export type ActionsUnion<A extends ActionCreatorsMapObject> = ReturnType<A[keyof A]>
+export type ActionByType<ActionUnion, ActionType extends string> = ActionUnion extends Action<ActionType> ? ActionUnion : never;
