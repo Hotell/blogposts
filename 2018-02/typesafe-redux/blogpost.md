@@ -313,7 +313,7 @@ export const SET_AGE = '[core] set age'
 export const SET_NAME = '[core] set name'
 export const RELOAD_URL = '[router] Reload Page'
 
-export const actions = {
+export const Actions = {
   setAge: (age: number) => createAction(SET_AGE, age),
   setName: (name: string) => createAction(SET_NAME, name),
   reloadUrl: () => createAction(RELOAD_URL),
@@ -324,19 +324,56 @@ export type Actions = ActionsUnion<typeof actions>
 
 ![final-actions-pattern](./img/final-actions-pattern.png)
 
-Wonder what that `ActionsUnion` custom mapped type is ?
+or if you prefer **string enums** ( which is not valid JavaScript construct - TypeScript specific feature )
+
+```ts
+import { ActionsUnion } from './types'
+import { createAction } from './action-helpers'
+
+export enum ActionTypes {
+  SET_AGE = '[core] set age',
+  SET_NAME = '[core] set name',
+  RELOAD_URL = '[router] Reload Page',
+}
+
+export const Actions = {
+  setAge: (age: number) => createAction(ActionTypes.SET_AGE, age),
+  setName: (name: string) => createAction(ActionTypes.SET_NAME, name),
+  reloadUrl: () => createAction(ActionTypes.RELOAD_URL),
+}
+
+export type Actions = ActionsUnion<typeof Actions>
+```
+
+![final-actions-pattern with enums](./img/final-actions-pattern-with-enums.png)
+
+> Wonder what that `ActionsUnion` custom mapped type is ?
 
 It just leverages our new best friend `ReturnType` and returns all action types union, even less typing for us! yay!
 
 ```ts
 // types.ts
-export type FunctionType = (...args: any[]) => any
-export type ActionsUnion<A extends { [ac: string]: FunctionType }> = ReturnType<A[keyof A]>
+type FunctionType = (...args: any[]) => any
+type ActionCreatorsMapObject = { [actionCreator: string]: FunctionType }
+
+export type ActionsUnion<A extends ActionCreatorsMapObject> = ReturnType<A[keyof A]>
 ```
 
 ![custom-mapped-type](./img/custom-mapped-type.png)
 
-Now let’s grab some beer and popcorn and enjoy your 100% type-safe reducer:
+> Wonder why both action creators implementation and action types union are named the same ? Action ?
+
+TypeScript supports **type declaration merging**, which we are leveraging to full extent here.
+
+Thanks to this feature, we have united implementation and Discriminant type unions of our implementation under one token, which reduces the boilerplate even more, when we're importing our actions to reducer implementation, to component for dispatching or to epic for filtering.
+
+![type and implementation declaration merging](./img/action-type-declaration-merge.png)
+
+Usage:
+
+![type and implementation declaration merging](./img/action-type-declaration-merge.gif)
+
+With that said, let’s grab some beer and popcorn and enjoy your 100% type-safe reducer:
 
 ![final-type-safe-reducer](./img/final-type-safe-reducer.gif)
 
