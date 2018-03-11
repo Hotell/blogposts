@@ -4,9 +4,9 @@ import { tap, map } from 'rxjs/operators'
 
 import { Actions, ActionTypes } from './actions-with-enums'
 import { State } from './store'
-import { ActionByType } from './types'
+import { ActionsOfType } from './types'
 
-type SetAgeAction = ActionByType<Actions, ActionTypes.SET_AGE>
+type SetAgeAction = ActionsOfType<Actions, ActionTypes.SET_AGE>
 
 const epic: Epic<Actions, State> = actions$ => {
   return actions$.pipe(
