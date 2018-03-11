@@ -6,7 +6,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "parcel -p 8080 index.html"
+    "start": "parcel -p 8080 src/index.html"
   },
   "dependencies": {
     "@webcomponents/webcomponentsjs": "1.1.0"

@@ -1,0 +1,11 @@
+{
+  "name": "typesafe-redux",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Martin Hochel <hochelmartin@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "typescript": "2.8.0-dev.20180308"
+  }
+}
