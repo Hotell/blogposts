@@ -24,7 +24,9 @@ export function withToggle<OriginalProps>(
     state = { show: false }
     render() {
       const { show } = this.state
-      const { children, ...rest } = this.props
+      // Generics and spread issue
+      // https://github.com/Microsoft/TypeScript/issues/10727
+      const { children, ...rest } = this.props as any
       return (
         <>
           <UnwrappedComponent {...rest} onClick={this.toggle} />
