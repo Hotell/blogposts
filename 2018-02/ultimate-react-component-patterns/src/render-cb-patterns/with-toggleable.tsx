@@ -25,7 +25,9 @@ export const withToogleable = <OriginalProps extends object>(
     )
     static readonly WrappedComponent = UnwrappedComponent
     render() {
-      const { show, ...rest } = this.props
+      // Generics and spread issue
+      // https://github.com/Microsoft/TypeScript/issues/10727
+      const { show, ...rest } = this.props as Pick<Props, 'show'> // we need to explicitly pick props we wanna destructure, rest is gonna be type `{}`
 
       return (
         <Toggleable
