@@ -1,7 +1,6 @@
 import React, {
   SFC,
   cloneElement,
-  isValidElement,
   Children,
   ReactElement,
   Component,
@@ -251,14 +250,14 @@ const App1 = () => {
 /**
  * whoops! now we have a compile error, well because we didn't provided props to childCmp explicitly but via cloneElements from within Parent component,
  * which is kinda a black magic, don't you think ?
- * 
+ *
  * Question is how to solve this?
- * 
- * - we can make all <ChildCmp> props optional via Partial mapped type. 
- * That's the quickest solution, problem is that now, our implementation may not be accurate, 
+ *
+ * - we can make all <ChildCmp> props optional via Partial mapped type.
+ * That's the quickest solution, problem is that now, our implementation may not be accurate,
  * if we wanna distinct between required and optional props on ChildCmp, not to mention that if you're doing some operations with those props within component,
  * now you must use safe navigation operator `!` to tell TS that hey this is not undefined | T, it's T trust me! So with solving one issue we introduced a new one, ugh.... :-/
- * 
+ *
  * ```ts
  * const ChildCmp: SFC<Partial<ChildrenProps>> = ({who, callMe}) => (
   <>
@@ -267,7 +266,7 @@ const App1 = () => {
     <button onClick={callMe}>call me</button>
   </>
 )
- * ``` 
+ * ```
  */
 
 /**
@@ -417,4 +416,53 @@ const TabsAppWorks = () => {
       createElement(Tab, { title: 'two' })
     )
   )
+}
+
+// ======================= //
+// ======================= //
+// ======================= //
+{
+  class MyAwesomeComponent extends Component {
+    render() {
+      return <div>Hello</div>
+    }
+  }
+  class NotMyAwesomeComponent extends Component<{ age: number }> {
+    render() {
+      return this.props.age
+    }
+  }
+
+  class Foo extends Component<{
+    cmp: ReactElement<MyAwesomeComponent>
+  }> {
+    render() {
+      return <>{this.props.cmp}</>
+    }
+  }
+  const foo: React.ReactElement<MyAwesomeComponent> = <MyAwesomeComponent /> // Okay
+  const bar: React.ReactElement<MyAwesomeComponent> = <NotMyAwesomeComponent age={123} /> // Error!
+  const App = () => (
+    <>
+      <Foo cmp={MyAwesomeComponent} />
+      <Foo cmp={<NotMyAwesomeComponent age={123} />} />
+    </>
+  )
+
+  const TestApp = () => {
+    return (
+      <>
+        {/* as we can see there are no errors, cause children is a black box and supports only ReactNode */}
+        <Foo cmp={<MyAwesomeComponent />} children={<NotMyAwesomeComponent age={31} />} />
+        <Foo
+          cmp={<NotMyAwesomeComponent age={31} />}
+          children={<NotMyAwesomeComponent age={31} />}
+        />
+        <Foo cmp={<MyAwesomeComponent />} children={<MyAwesomeComponent />} />
+        <Foo cmp={<MyAwesomeComponent />}>
+          <MyAwesomeComponent />
+        </Foo>
+      </>
+    )
+  }
 }
