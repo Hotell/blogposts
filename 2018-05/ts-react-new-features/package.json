@@ -5,16 +5,19 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+    "start-demo": "parcel src/demo-meetup/index.html",
     "format": "prettier --write \"**/*.{ts,tsx,md,css,less,sass,scss}\""
   },
   "devDependencies": {
-    "@types/react": "^16.3.14",
-    "@types/react-dom": "^16.0.5",
+    "@types/react": "16.3.14",
+    "@types/react-dom": "16.0.5",
+    "parcel-bundler": "1.8.1",
     "prettier": "prettier/prettier",
-    "typescript": "^2.9.0-rc"
+    "typescript": "2.9.0-rc"
   },
   "dependencies": {
     "react": "^16.3.2",
     "react-dom": "^16.3.2"
-  }
+  },
+  "author": "Martin Hochel <hochelmartin@gmail.com>"
 }
