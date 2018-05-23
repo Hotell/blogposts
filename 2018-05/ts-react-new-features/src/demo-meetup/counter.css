@@ -1,0 +1,17 @@
+:root {
+  --font-size: 2rem;
+  --padding: 1rem;
+}
+.counter {
+  display: flex;
+}
+
+.counter button {
+  padding: var(--padding);
+  font-size: var(--font-size);
+}
+.counter code {
+  display: block;
+  padding: var(--padding);
+  font-size: var(--font-size);
+}
