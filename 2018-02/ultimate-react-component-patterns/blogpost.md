@@ -871,10 +871,10 @@ Let's update our `Toggleable` one last time for ultimate power and flexibility
 
 To make our Toggleable controlled component we need to do following:
 
-1. add `show` to our `Props` API
-2. update default props ( because show is optional)
-3. update initial Component.state to be set from Props.show, because now the source of truth for setting our state may come via props from parent.
-4. componentWillReceiveProps Life cycle hook to properly update state from public props
+1.  add `show` to our `Props` API
+2.  update default props ( because show is optional)
+3.  update initial Component.state to be set from Props.show, because now the source of truth for setting our state may come via props from parent.
+4.  componentWillReceiveProps Life cycle hook to properly update state from public props
 
 **1 & 2:**
 
