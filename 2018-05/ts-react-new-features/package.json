@@ -4,13 +4,16 @@
   "main": "index.js",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "format": "prettier --write \"**/*.{ts,tsx,md,css,less,sass,scss}\""
+  },
   "devDependencies": {
     "@types/react": "^16.3.14",
     "@types/react-dom": "^16.0.5",
+    "prettier": "prettier/prettier",
     "typescript": "^2.9.0-rc"
   },
   "dependencies": {
-    "preact": "^8.2.9",
     "react": "^16.3.2",
     "react-dom": "^16.3.2"
   }
