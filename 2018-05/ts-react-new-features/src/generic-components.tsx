@@ -16,22 +16,28 @@ class User<T> extends Component<UserProps<T>> {
   }
 }
 
-interface JsSkills<T=void> {
-    implement(): T
-    test(): T
-    refactor(): T
+interface JsSkills<T = void> {
+  implement(): T
+  test(): T
+  refactor(): T
 }
 
 const App = () => {
   return (
     <>
-      <User <boolean> 
-        name="Martin" 
-        email="foo@bar.com" 
+      <User<boolean>
+        name="Martin"
+        email="foo@bar.com"
         skills={{
-          implement(){ return true },
-          refactor(){ return true },
-          test(){ return false }
+          implement() {
+            return true
+          },
+          refactor() {
+            return true
+          },
+          test() {
+            return false
+          },
         }}
       />
     </>

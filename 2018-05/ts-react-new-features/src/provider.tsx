@@ -1,4 +1,13 @@
-import React, { SFC, cloneElement, isValidElement, Children, ReactElement, Component, ComponentType, createElement } from 'react'
+import React, {
+  SFC,
+  cloneElement,
+  isValidElement,
+  Children,
+  ReactElement,
+  Component,
+  ComponentType,
+  createElement,
+} from 'react'
 
 /**
  * 1. clone children
@@ -203,24 +212,28 @@ const Provider2Generic = <T extends object>({ children }: ProviderProps2Generic<
   return <div>{extendedElement}</div>
 }
 
-const Child: SFC<Partial<ChildrenProps>> = ({who}) => <div>hello {who}</div>
+const Child: SFC<Partial<ChildrenProps>> = ({ who }) => <div>hello {who}</div>
 
 const GenericProviderApp = () => {
-  <>
-      {/* no compile errors :( */}
-    <Provider2Generic <ChildrenProps>><Child /></Provider2Generic>
-    <Provider2Generic <ChildrenProps>><div>Hello</div></Provider2Generic>
+  ;<>
+    {/* no compile errors :( */}
+    <Provider2Generic<ChildrenProps>>
+      <Child />
+    </Provider2Generic>
+    <Provider2Generic<ChildrenProps>>
+      <div>Hello</div>
+    </Provider2Generic>
   </>
 }
 
 /**
  * 3. using children props for `cloneElements` strict typing
- * 
+ *
  * As we showcased in step 2. we can constraint `cloneElement` to strictly typed props.
  * This is ok, but creates kinda tight coupling, so it's not very feasible for generic provider like components.
  * So let's use Provider2 with new Child component which implements props that gonna be added via cloneElement/
  */
-const ChildCmp: SFC<ChildrenProps> = ({who, callMe}) => (
+const ChildCmp: SFC<ChildrenProps> = ({ who, callMe }) => (
   <>
     <div>hello {who}</div>
     <button onClick={callMe}>call me</button>
@@ -229,7 +242,9 @@ const ChildCmp: SFC<ChildrenProps> = ({who, callMe}) => (
 
 const App1 = () => {
   return (
-    <Provider><ChildCmp/></Provider>
+    <Provider>
+      <ChildCmp />
+    </Provider>
   )
 }
 
@@ -255,22 +270,25 @@ const App1 = () => {
  * ``` 
  */
 
-
- /**
-  * 3. fix A
-  * we can destructure within our function instead in arguments declaration and cast props back to be non optional
-  */
-const ChildCmpFix1: SFC<Partial<ChildrenProps>> = (props) => {
-  const {who,callMe} = props as Required<ChildrenProps>
-  return <>
-    <div>hello {who}</div>
-    <button onClick={callMe}>call me</button>
-  </>
+/**
+ * 3. fix A
+ * we can destructure within our function instead in arguments declaration and cast props back to be non optional
+ */
+const ChildCmpFix1: SFC<Partial<ChildrenProps>> = props => {
+  const { who, callMe } = props as Required<ChildrenProps>
+  return (
+    <>
+      <div>hello {who}</div>
+      <button onClick={callMe}>call me</button>
+    </>
+  )
 }
 
 const App2 = () => {
   return (
-    <Provider><ChildCmpFix1/></Provider>
+    <Provider>
+      <ChildCmpFix1 />
+    </Provider>
   )
 }
 
@@ -282,112 +300,121 @@ type ProviderPropsSmart = {
   children: ReactElement<any>
 }
 type ProviderEnhancedProps = {
-  result: number,
-  onDecrement(): void,
-  onIncrement(): void,
+  result: number
+  onDecrement(): void
+  onIncrement(): void
 }
 class ProviderSmart extends Component {
-  static withEnhancedProps<P extends object>(ChildCmp: ComponentType<P>){
+  static withEnhancedProps<P extends object>(ChildCmp: ComponentType<P>) {
     type PropsExcludingEnhanced = Omit<P, keyof ProviderEnhancedProps>
     // type PropsExcludingEnhanced = Pick<P, Exclude<keyof P, keyof ProviderEnhancedProps>>
     type RecomposedProps = Partial<ProviderEnhancedProps> & PropsExcludingEnhanced
     // type PropsExcludingDefaultProps = Pick<Props, Exclude<keyof Props, keyof DefaultProps>>;
-// type RecomposedProps = Partial<DefaultProps> & PropsExcludingDefaultProps;
+    // type RecomposedProps = Partial<DefaultProps> & PropsExcludingDefaultProps;
     // return ChildCmp as ComponentType<any> as ComponentType<Omit<P,keyof ProviderEnhancedProps>>
-    return ChildCmp as ComponentType<any> as ComponentType<RecomposedProps>
+    return (ChildCmp as ComponentType<any>) as ComponentType<RecomposedProps>
   }
-  render(){
-    const {children} = this.props
+  render() {
+    const { children } = this.props
     const extendedElement = cloneElement<ProviderEnhancedProps>(Children.only(children), {
       result: 1,
       onDecrement() {},
       onIncrement() {},
     })
-  
+
     return <div>{extendedElement}</div>
   }
 }
 
 type ChildProps = {
-  result: number,
-  onDecrement(): void,
-  onIncrement(): void,
-  who: string,
+  result: number
+  onDecrement(): void
+  onIncrement(): void
+  who: string
   callMe(): boolean
 }
-const ChildCmpFix2 = (props:ChildProps) => {
-  
-  const {who,callMe,result,onIncrement,onDecrement} = props
-  return <>
-    <div>hello {who}</div>
-    <button onClick={callMe}>call me</button>
-    <hr/>
-    <div>Result: {result}</div>
-    <button onClick={onIncrement}>inc</button>
-    <button onClick={onDecrement}>dec</button>
-  </>
+const ChildCmpFix2 = (props: ChildProps) => {
+  const { who, callMe, result, onIncrement, onDecrement } = props
+  return (
+    <>
+      <div>hello {who}</div>
+      <button onClick={callMe}>call me</button>
+      <hr />
+      <div>Result: {result}</div>
+      <button onClick={onIncrement}>inc</button>
+      <button onClick={onDecrement}>dec</button>
+    </>
+  )
 }
 
 const ChildCmpFix2Modified = ProviderSmart.withEnhancedProps(ChildCmpFix2)
 
 const App3 = () => {
   return (
-    <Provider><ChildCmpFix2Modified who="Martin" callMe={()=>true}/></Provider>
+    <Provider>
+      <ChildCmpFix2Modified who="Martin" callMe={() => true} />
+    </Provider>
   )
 }
 
 /**
  * Summary:
- * 
+ *
  * As we saw enhancing children via `cloneElement` is rather tricky to maintain appropriate compile time safety
  * For those reasons it is always better to use renderProps pattern, or DI pattern via context + HoC.
- * 
+ *
  * Typesafety within templates remains superb with React ( JSX ) in comparison with any existing solutions nowadays ( angular - some type safety, vue - none)
  */
 
- /**
-  * Bonus:
-  * Escaping the JSX children types Black box
-  * 
-  * As described in "2. making Provider generic" if we annotate children with anything more specific than default JSX.Element | JSX.Element[] | string | number | boolean | null ,
-  * compiler will not catch this, and our efforts are uselles. That's by design as TS cannot innfer deep recursive trees ( which JSX is ofc ).
-  * We can mitigate this by avoiding JSX and using imperative calls instead
-  * 
-  * Example:
-  */
+/**
+ * Bonus:
+ * Escaping the JSX children types Black box
+ *
+ * As described in "2. making Provider generic" if we annotate children with anything more specific than default JSX.Element | JSX.Element[] | string | number | boolean | null ,
+ * compiler will not catch this, and our efforts are uselles. That's by design as TS cannot innfer deep recursive trees ( which JSX is ofc ).
+ * We can mitigate this by avoiding JSX and using imperative calls instead
+ *
+ * Example:
+ */
 
 type TabsProps = {
   children: ReactElement<TabProps>[]
 }
-const Tabs = ({children}: TabsProps) => {
+const Tabs = ({ children }: TabsProps) => {
   return <div>{children}</div>
 }
 
 type TabProps = {
-  active?: boolean,
+  active?: boolean
   title: string
 }
-const Tab: SFC<TabProps> = ({children}) => {
+const Tab: SFC<TabProps> = ({ children }) => {
   return <div>{children}</div>
 }
- 
+
 // This doesn't work
 const TabsApp = () => {
-  return <div>
-    <Tabs>
-      <div>sdfdsf</div>
-      <Tab title="one"/>
-      <Tab title="two"/>
-    </Tabs>
-  </div>
+  return (
+    <div>
+      <Tabs>
+        <div>sdfdsf</div>
+        <Tab title="one" />
+        <Tab title="two" />
+      </Tabs>
+    </div>
+  )
 }
 
 const TabsAppWorks = () => {
-  return createElement('div',null,
-    createElement<TabsProps>(Tabs,null,
+  return createElement(
+    'div',
+    null,
+    createElement<TabsProps>(
+      Tabs,
+      null,
       createElement('div'),
-      createElement(Tab,{title:'one'}),
-      createElement(Tab,{title:'two'})
+      createElement(Tab, { title: 'one' }),
+      createElement(Tab, { title: 'two' })
     )
   )
 }
