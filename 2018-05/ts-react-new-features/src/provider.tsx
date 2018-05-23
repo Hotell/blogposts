@@ -1,4 +1,4 @@
-import React, { SFC, cloneElement, isValidElement, Children, ReactElement, Component, ComponentType } from 'react'
+import React, { SFC, cloneElement, isValidElement, Children, ReactElement, Component, ComponentType, createElement } from 'react'
 
 /**
  * 1. clone children
@@ -288,7 +288,8 @@ type ProviderEnhancedProps = {
 }
 class ProviderSmart extends Component {
   static withEnhancedProps<P extends object>(ChildCmp: ComponentType<P>){
-    type PropsExcludingEnhanced = Pick<P, Exclude<keyof P, keyof ProviderEnhancedProps>>
+    type PropsExcludingEnhanced = Omit<P, keyof ProviderEnhancedProps>
+    // type PropsExcludingEnhanced = Pick<P, Exclude<keyof P, keyof ProviderEnhancedProps>>
     type RecomposedProps = Partial<ProviderEnhancedProps> & PropsExcludingEnhanced
     // type PropsExcludingDefaultProps = Pick<Props, Exclude<keyof Props, keyof DefaultProps>>;
 // type RecomposedProps = Partial<DefaultProps> & PropsExcludingDefaultProps;
@@ -335,5 +336,58 @@ const App3 = () => {
   )
 }
 
+/**
+ * Summary:
+ * 
+ * As we saw enhancing children via `cloneElement` is rather tricky to maintain appropriate compile time safety
+ * For those reasons it is always better to use renderProps pattern, or DI pattern via context + HoC.
+ * 
+ * Typesafety within templates remains superb with React ( JSX ) in comparison with any existing solutions nowadays ( angular - some type safety, vue - none)
+ */
 
+ /**
+  * Bonus:
+  * Escaping the JSX children types Black box
+  * 
+  * As described in "2. making Provider generic" if we annotate children with anything more specific than default JSX.Element | JSX.Element[] | string | number | boolean | null ,
+  * compiler will not catch this, and our efforts are uselles. That's by design as TS cannot innfer deep recursive trees ( which JSX is ofc ).
+  * We can mitigate this by avoiding JSX and using imperative calls instead
+  * 
+  * Example:
+  */
+
+type TabsProps = {
+  children: ReactElement<TabProps>[]
+}
+const Tabs = ({children}: TabsProps) => {
+  return <div>{children}</div>
+}
+
+type TabProps = {
+  active?: boolean,
+  title: string
+}
+const Tab: SFC<TabProps> = ({children}) => {
+  return <div>{children}</div>
+}
  
+// This doesn't work
+const TabsApp = () => {
+  return <div>
+    <Tabs>
+      <div>sdfdsf</div>
+      <Tab title="one"/>
+      <Tab title="two"/>
+    </Tabs>
+  </div>
+}
+
+const TabsAppWorks = () => {
+  return createElement('div',null,
+    createElement<TabsProps>(Tabs,null,
+      createElement('div'),
+      createElement(Tab,{title:'one'}),
+      createElement(Tab,{title:'two'})
+    )
+  )
+}
