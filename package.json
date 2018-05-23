@@ -8,9 +8,9 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "format": "prettier --write \"201*/**/*.{ts,tsx,md,html,css,less,sass}\""
+    "format": "prettier --write \"201*/**/*.{ts,tsx,md,css,less,sass,scss}\""
   },
   "devDependencies": {
-    "prettier": "1.11.1"
+    "prettier": "1.12.1"
   }
 }
