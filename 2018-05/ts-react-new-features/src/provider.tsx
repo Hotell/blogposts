@@ -422,6 +422,7 @@ const TabsAppWorks = () => {
 // ======================= //
 // ======================= //
 {
+  // @TODO https://twitter.com/martin_hotell/status/999300964061458432
   class MyAwesomeComponent extends Component {
     render() {
       return <div>Hello</div>
@@ -444,7 +445,7 @@ const TabsAppWorks = () => {
   const bar: React.ReactElement<MyAwesomeComponent> = <NotMyAwesomeComponent age={123} /> // Error!
   const App = () => (
     <>
-      <Foo cmp={MyAwesomeComponent} />
+      <Foo cmp={<MyAwesomeComponent />} />
       <Foo cmp={<NotMyAwesomeComponent age={123} />} />
     </>
   )

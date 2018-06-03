@@ -52,3 +52,22 @@ export const withDefaultProps = <P extends object, DP extends Partial<P> = Parti
   // return Cmp as ComponentType<any>
   return Cmp as ComponentType<any>
 }
+
+type GetDefaultProps<P extends object, DP extends Partial<P> = Partial<P>> = DP &
+  Pick<P, Exclude<keyof P, keyof DP>>
+type GetDefaultPropsFactory<P extends object, DP extends Partial<P> = Partial<P>> = (
+  defaultProps: DP
+) => (props: P) => GetDefaultProps<P, DP>
+
+export const createPropsGetter = <DP extends object>(defaultProps: DP) => {
+  return <P extends Partial<DP>>(props: P): GetDefaultProps<P, DP> =>
+    ({ ...(defaultProps as object), ...(props as object) } as any)
+}
+export const getProps = <P extends object, DP extends Partial<P> = Partial<P>>(
+  props: P,
+  defaultProps: DP
+): GetDefaultProps<P, DP> => {
+  // type PropsExcludingDefaults = Pick<P, Exclude<keyof P, keyof DP>>
+  // type RecomposedProps = DP & PropsExcludingDefaults
+  return { ...(defaultProps as object), ...(props as object) } as any
+}

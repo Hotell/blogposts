@@ -1,4 +1,4 @@
-import React, { Component, SFC } from 'react'
+import React, { Component, SFC, ComponentType } from 'react'
 import { render } from 'react-dom'
 
 import { withDefaultProps } from './utils'
@@ -61,17 +61,18 @@ import { withDefaultProps } from './utils'
 
 // =========== //
 // @TODO resolve how to use this pattern with generic components
-type Props<T> = {
+type Props<T = {}> = {
   compiler: string
   framework: string
 }
 const defaultProps = { compiler: 'Typescript' }
+
 {
   const Hello = withDefaultProps(
     defaultProps,
     class Hello<T> extends Component<Props<T>> {
       render() {
-        const compiler = this.props.compiler!
+        const compiler = this.props.compiler
         return (
           <div>
             <div>{compiler}</div>
@@ -81,20 +82,27 @@ const defaultProps = { compiler: 'Typescript' }
       }
     }
   )
+  class HelloGeneric<T> extends Component<Props<T>> {
+    render() {
+      const compiler = this.props.compiler!
+      return (
+        <div>
+          <div>{compiler}</div>
+          <div>{this.props.framework}</div>
+        </div>
+      )
+    }
+  }
 
   render(
     <Hello framework="React" />, // TypeScript React
+    // <HelloGeneric<boolean> framework="React"/>
     document.getElementById('root')
   )
 }
 
 // =========== //
 {
-  type Props = {
-    compiler: string
-    framework: string
-  }
-  const defaultProps = { compiler: 'Typescript' }
   const Hello = withDefaultProps(defaultProps, ({ compiler, framework }: Props) => {
     return (
       <div>
