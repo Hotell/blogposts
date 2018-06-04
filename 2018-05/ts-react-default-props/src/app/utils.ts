@@ -61,7 +61,8 @@ type GetDefaultPropsFactory<P extends object, DP extends Partial<P> = Partial<P>
 
 export const createPropsGetter = <DP extends object>(defaultProps: DP) => {
   return <P extends Partial<DP>>(props: P): GetDefaultProps<P, DP> =>
-    ({ ...(defaultProps as object), ...(props as object) } as any)
+    // ({ ...(defaultProps as object), ...(props as object) } as any)
+    props as any
 }
 export const getProps = <P extends object, DP extends Partial<P> = Partial<P>>(
   props: P,

@@ -16,6 +16,7 @@ const defaultProps = {
 const getProps = createPropsGetter(defaultProps)
 
 class Button extends Component<Props> {
+  static defaultProps = defaultProps
   render() {
     const { onClick: handleClick, color, type, children } = getProps(this.props)
 
@@ -29,7 +30,7 @@ class Button extends Component<Props> {
   }
 }
 
-const ButtonSFC = (props: Props) => {
+const ButtonSFC: SFC<Props> = (props) => {
   const { onClick: handleClick, color, type, children } = getProps(props)
 
   const cssClass = resolveColorTheme(color)
@@ -40,6 +41,7 @@ const ButtonSFC = (props: Props) => {
     </button>
   )
 }
+ButtonSFC.defaultProps = defaultProps
 
 const resolveColorTheme = (color: DefaultProps['color']) => {
   const btnThemes = {
@@ -58,6 +60,7 @@ class App extends Component {
     return (
       <div>
         <Button onClick={this.handleClick}>Click me!</Button>
+        <ButtonSFC onClick={this.handleClick}>Click me!</ButtonSFC>
       </div>
     )
   }

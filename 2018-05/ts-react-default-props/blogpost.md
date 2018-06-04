@@ -219,6 +219,17 @@ We can create our component via anonymoys class and assign it to constant which 
 ![default props solution 2](./img/solution-2.png)
 
 ```tsx
+type Props = {
+  onClick(e: MouseEvent<HTMLElement>): void
+} & Partial<DefaultProps>
+
+type DefaultProps = Readonly<typeof defaultProps>
+
+const defaultProps = {
+  color: 'blue' as 'blue' | 'green' | 'red',
+  type: 'button' as 'button' | 'submit',
+}
+
 const Button = class extends Component<Props & DefaultProps> {
   static defaultProps = defaultProps
   render() {
@@ -242,6 +253,17 @@ We can define a factory function/high order function, for declaring defaultProps
 ![default props solution 3](./img/solution-3.png)
 
 ```tsx
+type Props = {
+  onClick(e: MouseEvent<HTMLElement>): void
+} & DefaultProps
+
+type DefaultProps = Readonly<typeof defaultProps>
+
+const defaultProps = {
+  color: 'blue' as 'blue' | 'green' | 'red',
+  type: 'button' as 'button' | 'submit',
+}
+
 const Button = withDefaultProps(
   defaultProps,
   class extends Component<Props> {
@@ -250,11 +272,7 @@ const Button = withDefaultProps(
 
       const cssClass = resolveColorTheme(color)
 
-      return (
-        <button type={type} className={cssClass} onClick={handleClick}>
-          {children}
-        </button>
-      )
+      return (...)
     }
   }
 )
@@ -324,9 +342,9 @@ Well I don't know if it's ultimate, but it works and covers all previously menti
 
 ### 4. Props getter function
 
-Behold! the humble factory/closure pattern with conditional types mapping.
+Behold! the humble factory/closure identity function pattern with conditional types mapping.
 
-> Note that we are leveraging similar type mapping constucts like we did for `withDefaultProps` function except that we don't map defaultProps to be optional, because they are not within our implementation.
+> Note that we are leveraging similar type mapping constructs like we did for `withDefaultProps` function except that we don't map defaultProps to be optional as they are not optional within our component implementation.
 
 ![prop getter factory function](./img/solution-4-function.png)
 
@@ -340,17 +358,18 @@ export const createPropsGetter = <DP extends object>(defaultProps: DP) => {
     // between Props without Defaults and NonNullable DefaultProps
     type RecomposedProps = DP & PropsExcludingDefaults
 
-    // pure javascript object spread
-    // we need to cast to objects, as there is a bug within TypeScript when spreading generics
-    // last but not least we are turning off compiler an casting the type to our new RecomposedProps type
-    return ({ ...(defaultProps as object), ...(props as object) } as any) as RecomposedProps
+    // we are returning the same props that we got as argument - identity function.
+    // Also we are turning off compiler and casting the type to our new RecomposedProps type
+    return (props as any) as RecomposedProps
   }
 }
 ```
 
-Our function creates closure and with that stores defaultProps, and then just returns merged props with default props. With this, we are not using React API, rather leveraging pure JavaScript. Also note that we are explicitly setting `children` prop to our public API, to be exact that our Button needs to have one child node. If child would be missing, compiler will notify us by compile error. Mucho gusto!
+Our function creates closure and with that stores/infers defaultProps type information via generic parameter. Then the function just returns merged `props` with `defaultProps` and from the runtime perspective it returns the same props that we passed, so standard React API is used for runtime props aquisition/resolution.
 
-Let's use this baby!
+> Also note that we are explicitly setting `children` prop to our public Props API, which is saying that our Button needs to have one child of type ReactNode. If consumer of our component would not provide ReactNode as child, compiler would notify us by compile error. Gracias TypeScript !
+
+Let's use this within our component implementation !
 
 ![solution 4 component](./img/solution-4-component.png)
 
@@ -369,12 +388,17 @@ const defaultProps = {
 const getProps = createPropsGetter(defaultProps)
 
 class Button extends Component<Props> {
+  static defaultProps = defaultProps
   render() {
     const { onClick: handleClick, color, type, children } = getProps(this.props)
 
     const cssClass = resolveColorTheme(color)
 
-    return (...)
+    return (
+      <button type={type} className={cssClass} onClick={handleClick}>
+        {children}
+      </button>
+    )
   }
 }
 ```
@@ -388,7 +412,7 @@ This is very slick, don't you think ?
 We are done here, this final solution covers all former issues:
 
 * no need for escape hatches by using non null assertion operator
-* no need to cast our component to other types with more indiriection ( additional const Button )
+* no need to cast our component to other types with more indirection ( additional const Button )
 * we don't have to re-create component implementation and thus loosing any types in the process ( withDefaultProps function )
 * works with generic components
 * easy to reason about and future proof ( TypeScript 3.0 )
@@ -399,7 +423,7 @@ If you think that TypeScript team didn't noticed this "million dollar problem", 
 
 **TL;DR**:
 
-TypeScript will implement generic way (powered by conditional types, no magic strings or tightly coupling in compiler for specific technology/React) how to obtain **default props** and will reflect those within JSX, by looking up factory function definition, which is responsible for creating VirtualDom objects ( for React - `createElement` , for Preact - `h`,...).
+TypeScript will implement generic way (powered by conditional types, no magic strings or tightly coupling in compiler for specific technology/React) how to obtain **default props** and will reflect those within JSX, by looking up factory function definition, which is responsible for creating VirtualDom objects ( for React - `createElement` , for Preact - `h`,...). Also that's one of the reason why are we preserving React API for defining defaultProps in our last solution.
 
 With that said, we are at the end of our jorney for solving the million dollar problem, yay !
 
