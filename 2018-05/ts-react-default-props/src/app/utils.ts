@@ -49,7 +49,7 @@ export const withDefaultProps = <P extends object, DP extends Partial<P> = Parti
 
   // we override return type definition by turning type checker off
   // for original props  and setting the correct return type
-  // return Cmp as ComponentType<any>
+  // return Cmp as ComponentType<any> as ComponentType<RecomposedProps>
   return Cmp as ComponentType<any>
 }
 

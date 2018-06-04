@@ -1,10 +1,10 @@
-# React,Typescript and defaultProps dilema, aka "Solving a milion dollar problem".
+# React,TypeScript and defaultProps dilema, aka "Solving a milion dollar problem".
 
 Let's say, you wanna use/are using React, and you made a decision to use a typed JavaScript with it ... and you pick TypeScript for the job. Let me congratulate you for this decision in a first place, as your Dev life is going to be much easier from now on thanks to the type safety and top notch DX in the first place! Anyways, you'll start developing your first pieces of your React app with TypeScript. Everyhing will go flawlessly, until you'll come to this first "huge" issue. Dealing with `defaultProps` in your components...
 
 > This post is based on TypeScript 2.9 and uses a strict mode. If you don't use strict mode, turn it on ASAP because not using strict mode is like cheating on your girlfriend and you don't wanna do that. right? ( if you're in gradual migration phase from js to TS, nonStrict is OK ! )
 
-> In this article I will demonstrate the issue and how to solve it for both type of Components (component as a function/class components).
+> In this article I will demonstrate the issue and how to solve it via class Components.
 
 So let's define a `Button` component, with following API, which will be used across this blogpost.
 
@@ -14,7 +14,9 @@ So let's define a `Button` component, with following API, which will be used acr
 * color ( what color will be used )
 * type (button type 'button' or 'submit')
 
-With marking `color` and `type` as optional with defaultProps defined for those.
+We will annotate `color` and `type` as optional, because they will be defined via defaultProps, so consumer of our component doesn't have to provide those.
+
+![Button with default props](./img/button-initial-implementation.png)
 
 ```tsx
 import { SFC, MouseEvent, Component } from 'react'
@@ -32,7 +34,7 @@ class Button extends Component<Props> {
     type: 'button',
   }
   render() {
-    const { onClick: handleClick, color, type, children } = props
+    const { onClick: handleClick, color, type, children } = this.props
 
     return (
       <button type={type} style={{ color }} onClick={handleClick}>
@@ -43,7 +45,7 @@ class Button extends Component<Props> {
 }
 ```
 
-Now we can use our component in our app and we got correct optional and required props compile time checking:
+Now when we use it within our root App component, we get correct optional and required props compile time checking/intellisense:
 
 ![Button with default props](./img/button-default-props-0.gif)
 
@@ -62,20 +64,22 @@ class App extends Component {
 }
 ```
 
-Nice everything works and it's typed. We can go home now... Well not so fast my friends!
+Everything works and it's typed. Beautiful. We can go home now... Well not so fast my friends!
 
-Our `Button` defaultProps are not typed at all, because type checker just cannot infer types from generic class extentions to its static properties.
+Our `Button`s `defaultProps` are not typed at all, because type checker cannot infer types from generic class extentions definition to its static properties.
 
 What does that even mean?
 
 * you can set anything to your `static defaultProps`
-* your are defining same things on 2 places ( types and implementation )
+* your are defining same things twice ( types and implementation )
 
-Not typed defaultProps:
+No type checking for defaultProps:
+
 ![Button with default props not type safe](./img/button-default-props-0.1.gif)
 
-We can fix this by extracting `color` and `type` type properties to separate type and then use type intersection with mapping our defaults to be optional via `Partial` mapped type helper.
-With that we need to explicitly annotate our `static defaultProps: DefaultProps` which will get us proper type safety/DX within our implementation!
+We can fix this by extracting `color` and `type` type properties to separate type and then use type intersection by mapping our defaults to be optional via `Partial` mapped type helper from ts standard library.
+
+Then we need to explicitly annotate our `static defaultProps: DefaultProps` which will get us proper type safety/DX within our defaultProps implementation!
 
 ```tsx
 type Props = {
@@ -98,9 +102,9 @@ class Button extends Component<Props> {
 
 ![Button with type safe default props](./img/button-default-props-1.gif)
 
-Now what I tend to do is to extract `defaultProps` and `initialState`(if state is used) to separate constants, which will give you also another benefit -> getting type definition from implementation, which introduces less boilerplate in your codebase and only one source of truth which is a win win.
+Last thing what I tend to do, is to extract `defaultProps` and `initialState`(if state is used) to separate constants, which will give us also another benefit -> obtaining type definition from implementation, which introduces less boilerplate in your codebase and only one source of truth --> the implementation.
 
-![default props as source of truth](./img/button-default-props-1.1.png)
+![Default props as source of truth](./img/button-default-props-1.1.png)
 
 ```tsx
 type Props = {
@@ -121,11 +125,18 @@ class Button extends Component<Props> {
 
 So far so good.
 
-Let's introduce some logic to our component. Let's say we don't wanna use just css inline styles ( which is not very good pattern anyway ), and based on `color` prop we wanna generate appropriate css class with some styles.
+Let's introduce some logic to our component shall we?
 
-We'll define some `resolveColorTheme` function which will accept our color prop and as outcome we will get css className.
+Let's say we don't wanna use just css inline styles ( which is an antipattern/bad performance ), and based on `color` prop, we wanna generate appropriate css class with some pre defined style definition.
+
+We'll define a `resolveColorTheme` function, which will accept our color prop and as outcome we will get css className.
+
+![Button with logic](./img/button-with-logic.png)
 
 ```tsx
+type Props = {
+  onClick(e: MouseEvent<HTMLElement>): void
+} & Partial<DefaultProps>
 type DefaultProps = Readonly<typeof defaultProps>
 
 const defaultProps = {
@@ -158,7 +169,7 @@ class Button extends Component<Props> {
 }
 ```
 
-With this we will get a compile error! oh no! panic!
+**With this we will get a compile error! oh no! panic!**
 
 ```
 Type 'undefined' is not assignable to type '"blue" | "green" | "red"'
@@ -166,7 +177,7 @@ Type 'undefined' is not assignable to type '"blue" | "green" | "red"'
 
 ![compile error](./img/button-default-props-2-compile-error.gif)
 
-Why do we get an error now? Well `color` is optional, and we are in strict mode, which means, that the type union is extended by an `undefined`/`void` type, but our function doesn't accept `undefined`. This is also compiler at it's best, which tries to protect us to adhere to proper program execution ( remember the times `undefined is not a function` ).
+Why do we get an error now? Well `color` is optional, and we are in strict mode, which means, that the type union is extended by an `undefined`/`void` type, but our function doesn't accept `undefined`. This is also compiler at it's best, which tries to protect us to adhere to proper program execution ( remember the times `undefined is not a function` ? ).
 
 ## How to fix this aka solving the milion dollar problem?
 
@@ -183,16 +194,16 @@ Let's take a look at those one by one.
 
 This solution is a no brainer, all you need to do is tell the type checker explicitly that hey dude, this won't be null or undefined, trust me I'm an human...ehm 🤖... This is achieved by non-null assertion operator `!`
 
+![default props solution 1](./img/solution-1.png)
+
 ```tsx
 const { onClick: handleClick, color, type, children } = this.props
 const cssClass = resolveColorTheme(color!)
-```
 
-or
+// OR
 
-```tsx
 const color = this.props.color!
-const cssClass = resolveColorTheme(color!)
+const cssClass = resolveColorTheme(color)
 ```
 
 This might be ok for simple use cases ( like small props API, accesing particular props only in render method ), but once your component starts to grow, it can get messy and confusing pretty quickly. Also you need to double check all the time which prope is defined as defaultProps -> more cognitive overhead for developer === bad DX / error prone
@@ -202,6 +213,8 @@ This might be ok for simple use cases ( like small props API, accesing particula
 So how to solve our problem with mitigating all the pittfals mentioned in first solution?
 
 We can create our component via anonymoys class and assign it to constant which we will cast to final outcome component with proper prop types while keeping all "defaultProps" as NonNullable within our implementation
+
+![default props solution 2](./img/solution-2.png)
 
 ```tsx
 const Button = class extends Component<Props & DefaultProps> {
@@ -216,13 +229,15 @@ const Button = class extends Component<Props & DefaultProps> {
 } as ComponentClass<Props>
 ```
 
-This solves our former problem, but I don't know, I have bad feeling about this ( Still feels like a dirty hack to me ).
+This solves our former problem, but somehow it feels like a dirty hack to me.
 
-Can we improve this somehow? Well TypeScript 2.8 introduced a very powerful feature - conditional types. Let's use the new and shinny feature with more functional approach, shall we ?
+Can we improve this somehow? Well TypeScript 2.8 introduced a very powerful feature - **conditional types**. Let's use the new and shinny feature with more functional approach, shall we ?
 
 ### 3. High order function for defining defaultProps
 
-We can define a function factory/high order function, for declaring defaultProps and leveraging conditional types to correctly resolve our props API.
+We can define a factory function/high order function, for declaring defaultProps and leveraging conditional types to correctly resolve our props API.
+
+![default props solution 3](./img/solution-3.png)
 
 ```tsx
 const Button = withDefaultProps(
@@ -264,13 +279,15 @@ export const withDefaultProps = <P extends object, DP extends Partial<P> = Parti
 
   // we override return type definition by turning type checker off
   // for original props  and setting the correct return type
-  return (Cmp as ComponentType<any>) as RecomposedProps
+  return (Cmp as ComponentType<any>) as ComponentType<RecomposedProps>
 }
 ```
 
 This is awesome! So are we done here Martin? Of course. Hmm.. but wait... what about Generic Components? Oh no, I completely forgot about that usecase.
 
-> Generic props ?
+> Excuse me ! What do you mean by Component with generic props?
+
+![generic component issue](./img/solution-3-generic-issue.png)
 
 ```tsx
 class Button<T> extends Component<Props<T>> {...}
@@ -307,6 +324,10 @@ Well I don't know if it's ultimate, but it works and covers all previously menti
 
 Behold! the humble factory/closure pattern with conditional types mapping.
 
+> Note that we are leveraging similar type mapping constucts like we did for `withDefaultProps` function except that we don't map defaultProps to be optional, because they are not within our implementation.
+
+![prop getter factory function](./img/solution-4-function.png)
+
 ```tsx
 export const createPropsGetter = <DP extends object>(defaultProps: DP) => {
   return <P extends Partial<DP>>(props: P) => {
@@ -325,39 +346,48 @@ export const createPropsGetter = <DP extends object>(defaultProps: DP) => {
 }
 ```
 
-Our function privately saves defaultProps, and then just returns merged props with default props. With this we are not using React API, rather leveraging pure JavaScript
+Our function creates closure and with that stores defaultProps, and then just returns merged props with default props. With this, we are not using React API, rather leveraging pure JavaScript. Also note that we are explicitly setting `children` prop to our public API, to be exact that our Button needs to have one child node. If child would be missing, compiler will notify us by compile error. Mucho gusto!
 
 Let's use this baby!
 
+![solution 4 component](./img/solution-4-component.png)
+
 ```tsx
+type Props = {
+  onClick(e: MouseEvent<HTMLElement>): void
+  children: ReactNode
+} & Partial<DefaultProps>
+
+type DefaultProps = Readonly<typeof defaultProps>
+
 const defaultProps = {
   color: 'blue' as 'blue' | 'green' | 'red',
   type: 'button' as 'button' | 'submit',
 }
-const props = createPropsGetter(defaultProps)
+const getProps = createPropsGetter(defaultProps)
 
 class Button extends Component<Props> {
   render() {
-    const { onClick: handleClick, color, type, children } = props(this.props)
+    const { onClick: handleClick, color, type, children } = getProps(this.props)
 
     const cssClass = resolveColorTheme(color)
 
-    return (
-      <button type={type} className={cssClass} onClick={handleClick}>
-        {children}
-      </button>
-    )
+    return (...)
   }
 }
 ```
 
+Further explanation what's going on:
+
+![solution 4 explanation](./img/solution-4.png)
+
 This is very slick, don't you think ?
 
-We are done here, this covers all previous issues:
+We are done here, this final solution covers all former issues:
 
-* no need for escape hatches by using non null assertion
-* no need to cast our component to other types
-* we don't have to re-create component and thus loosing any types in the process
+* no need for escape hatches by using non null assertion operator
+* no need to cast our component to other types with more indiriection ( additional const Button )
+* we don't have to re-create component implementation and thus loosing any types in the process ( withDefaultProps function )
 * works with generic components
 * easy to reason about and future proof ( TypeScript 3.0 )
 
@@ -367,8 +397,10 @@ If you think that TypeScript team didn't noticed this "milion dollar problem", y
 
 **TL;DR**:
 
-TypeScript will implement generic way how to obtain **default props** and will reflect those within JSX by looking up factory function definition which is responsible for creating VirtualDom objects ( for React - `createElement` , for Preact - `h`).
+TypeScript will implement generic way (powered by conditional types, no magic strings or tightly coupling in compiler for specific technology/React) how to obtain **default props** and will reflect those within JSX, by looking up factory function definition, which is responsible for creating VirtualDom objects ( for React - `createElement` , for Preact - `h`,...).
 
-## With that said, we are at the end of our jorney for solving the milion dollar problem, yay !
+With that said, we are at the end of our jorney for solving the milion dollar problem, yay !
+
+---
 
 As always, don't hesitate to ping me if you have any questions here or on twitter (my handle [@martin_hotell](https://twitter.com/martin_hotell)) and besides that, happy type checking folks and 'till next time! Cheers!
