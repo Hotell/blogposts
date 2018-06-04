@@ -1,6 +1,6 @@
 import { SFC, MouseEvent, Component, ReactElement, ReactNode } from 'react'
 import React from 'react'
-import { getProps, createPropsGetter } from './utils'
+import { createPropsGetter } from './utils'
 
 type Props = {
   onClick(e: MouseEvent<HTMLElement>): void
@@ -13,11 +13,11 @@ const defaultProps = {
   color: 'blue' as 'blue' | 'green' | 'red',
   type: 'button' as 'button' | 'submit',
 }
-const props = createPropsGetter(defaultProps)
+const getProps = createPropsGetter(defaultProps)
 
 class Button extends Component<Props> {
   render() {
-    const { onClick: handleClick, color, type, children } = props(this.props)
+    const { onClick: handleClick, color, type, children } = getProps(this.props)
 
     const cssClass = resolveColorTheme(color)
 
@@ -27,6 +27,18 @@ class Button extends Component<Props> {
       </button>
     )
   }
+}
+
+const ButtonSFC = (props: Props) => {
+  const { onClick: handleClick, color, type, children } = getProps(props)
+
+  const cssClass = resolveColorTheme(color)
+
+  return (
+    <button type={type} className={cssClass} onClick={handleClick}>
+      {children}
+    </button>
+  )
 }
 
 const resolveColorTheme = (color: DefaultProps['color']) => {
