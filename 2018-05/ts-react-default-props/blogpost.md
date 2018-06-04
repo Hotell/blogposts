@@ -1,6 +1,8 @@
-# React,TypeScript and defaultProps dilema, aka "Solving a milion dollar problem".
+# React,TypeScript and defaultProps dilemma,
 
-Let's say, you wanna use/are using React, and you made a decision to use a typed JavaScript with it ... and you pick TypeScript for the job. Let me congratulate you for this decision in a first place, as your Dev life is going to be much easier from now on thanks to the type safety and top notch DX in the first place! Anyways, you'll start developing your first pieces of your React app with TypeScript. Everyhing will go flawlessly, until you'll come to this first "huge" issue. Dealing with `defaultProps` in your components...
+> a.k.a "Solving a million dollar problem"
+
+Let's say, you wanna use/are using React, and you made a decision to use a typed JavaScript with it ... and you pick TypeScript for the job. Let me congratulate you for this decision in a first place, as your Dev life is going to be much easier from now on thanks to the type safety and top notch DX in the first place! Anyways, you'll start developing your first pieces of your React app with TypeScript. Everything will go flawlessly, until you'll come to this first "huge" issue. Dealing with `defaultProps` in your components...
 
 > This post is based on TypeScript 2.9 and uses a strict mode. If you don't use strict mode, turn it on ASAP because not using strict mode is like cheating on your girlfriend and you don't wanna do that. right? ( if you're in gradual migration phase from js to TS, nonStrict is OK ! )
 
@@ -179,7 +181,7 @@ Type 'undefined' is not assignable to type '"blue" | "green" | "red"'
 
 Why do we get an error now? Well `color` is optional, and we are in strict mode, which means, that the type union is extended by an `undefined`/`void` type, but our function doesn't accept `undefined`. This is also compiler at it's best, which tries to protect us to adhere to proper program execution ( remember the times `undefined is not a function` ? ).
 
-## How to fix this aka solving the milion dollar problem?
+## How to fix this aka solving the million dollar problem?
 
 As of today _June 2018/TypeScript 2.9_ there are 4 options how to fix this:
 
@@ -206,7 +208,7 @@ const color = this.props.color!
 const cssClass = resolveColorTheme(color)
 ```
 
-This might be ok for simple use cases ( like small props API, accesing particular props only in render method ), but once your component starts to grow, it can get messy and confusing pretty quickly. Also you need to double check all the time which prope is defined as defaultProps -> more cognitive overhead for developer === bad DX / error prone
+This might be ok for simple use cases ( like small props API, accessing particular props only in render method ), but once your component starts to grow, it can get messy and confusing pretty quickly. Also you need to double check all the time which prop is defined as defaultProps -> more cognitive overhead for developer === bad DX / error prone
 
 ### 2. Component type casting
 
@@ -393,13 +395,13 @@ We are done here, this final solution covers all former issues:
 
 ## TypeScript 3.0
 
-If you think that TypeScript team didn't noticed this "milion dollar problem", you're completely wrong. Those guys love the community and trying to gives us the best JS type checker on the planet. So yeah, Daniel Rosenwasser created an issue recently about [better support for default props in JSX](https://github.com/Microsoft/TypeScript/issues/23812) which is targeted for TypeScript 3.0
+If you think that TypeScript team didn't noticed this "million dollar problem", you're completely wrong. Those guys love the community and trying to gives us the best JS type checker on the planet. So yeah, Daniel Rosenwasser created an issue recently about [better support for default props in JSX](https://github.com/Microsoft/TypeScript/issues/23812) which is targeted for TypeScript 3.0
 
 **TL;DR**:
 
 TypeScript will implement generic way (powered by conditional types, no magic strings or tightly coupling in compiler for specific technology/React) how to obtain **default props** and will reflect those within JSX, by looking up factory function definition, which is responsible for creating VirtualDom objects ( for React - `createElement` , for Preact - `h`,...).
 
-With that said, we are at the end of our jorney for solving the milion dollar problem, yay !
+With that said, we are at the end of our jorney for solving the million dollar problem, yay !
 
 ---
 
