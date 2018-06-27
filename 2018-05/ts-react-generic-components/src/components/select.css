@@ -1,0 +1,17 @@
+:root {
+  --padding: 1rem;
+  --margin: 0.5rem;
+}
+.select {
+  display: flex;
+  flex-direction: column;
+  padding: var(--margin);
+  margin: var(--padding);
+  margin-top: 0;
+  box-shadow: 1px 1px 10px #ccc;
+}
+
+.select input {
+  font-size: 1rem;
+  padding: calc(var(--padding) / 2);
+}
