@@ -206,9 +206,9 @@ that it is defined by `Component.defaultProps` React construct.
 
 To satisfy TS compiler we can use 3 techniques:
 
-* use **Bang** operator to explicitly tell compiler that this won't be `undefined` within our render, although it is optional, like this: `<button onClick={handleClick!}>{children}</button>`
-* use **conditional statements/ternary operator** to make compiler understand that some particular prop is not undefined: `<button onClick={handleClick ? handleClick: undefined}>{children}</button>`
-* create reusable `withDefaultProps` High order function, which will update our props type definition and will set our default props. This is the most clean solution, IMHO
+- use **Bang** operator to explicitly tell compiler that this won't be `undefined` within our render, although it is optional, like this: `<button onClick={handleClick!}>{children}</button>`
+- use **conditional statements/ternary operator** to make compiler understand that some particular prop is not undefined: `<button onClick={handleClick ? handleClick: undefined}>{children}</button>`
+- create reusable `withDefaultProps` High order function, which will update our props type definition and will set our default props. This is the most clean solution, IMHO
 
 ```ts
 export const withDefaultProps = <P extends object, DP extends Partial<P> = Partial<P>>(
@@ -371,7 +371,7 @@ const initialState = { show: false }
 type State = Readonly<typeof initialState>
 ```
 
-* here we are declaring our state as in previous examples, nothing new
+- here we are declaring our state as in previous examples, nothing new
 
 Now we need to define our component props ( note that we are using Partial mapped type, as we know that all props are gonna be optional, instead of annotating every prop manually by `?` operator ):
 
@@ -395,8 +395,8 @@ type ToggleableComponentProps = { show: State['show']; toggle: Toggleable['toggl
 
 Again we are using the power of typeScript and **lookup types**, so we don't have to repeat ourselves when defining types:
 
-* `show: State['show']` we are creating our `show` prop type by leveraging existing type definition within our state
-* `toggle: Toggleable['toggle']` we are leveraging type inference and structural nature of classes within TS by getting the type from our method implementation! nice and indeed powerful!
+- `show: State['show']` we are creating our `show` prop type by leveraging existing type definition within our state
+- `toggle: Toggleable['toggle']` we are leveraging type inference and structural nature of classes within TS by getting the type from our method implementation! nice and indeed powerful!
 
 The rest of the implementation is straightforward, standard _render props/children as function_ pattern:
 
@@ -549,9 +549,9 @@ Now with that done, let's define our new API - `component` prop.
 
 We need update our props API.
 
-* `children` can be now function or ReactNode ( when component prop is used)
-* `component` is our new API which accepts component that needs to implement `ToggleableComponentProps` on it's props and it needs to be generic and set to `any`, so if arbitrary component that implements other properties than `ToggleableComponentProps` will pass TS validaion
-* `props` we are introducing props property for passing down arbitrary props, this is a common pattern. It is defined as index type with any type, so we are loosing here strict type safety...
+- `children` can be now function or ReactNode ( when component prop is used)
+- `component` is our new API which accepts component that needs to implement `ToggleableComponentProps` on it's props and it needs to be generic and set to `any`, so if arbitrary component that implements other properties than `ToggleableComponentProps` will pass TS validaion
+- `props` we are introducing props property for passing down arbitrary props, this is a common pattern. It is defined as index type with any type, so we are loosing here strict type safety...
 
 ```tsx
 // We need create defaultProps with our arbitrary prop type -> props which is gonna be empty object by default
@@ -723,9 +723,9 @@ Let's implement our HOC:
 
 We need to create:
 
-* displayName ( so we get nice debugging within devtools)
-* WrappedComponent ( so we can access original component - useful for testing )
-* leverage `hoistNonReactStatics` from `hoist-non-react-statics` npm package
+- displayName ( so we get nice debugging within devtools)
+- WrappedComponent ( so we can access original component - useful for testing )
+- leverage `hoistNonReactStatics` from `hoist-non-react-statics` npm package
 
 ```tsx
 import React, { ComponentType, Component } from 'react'
@@ -756,7 +756,7 @@ export const withToogleable = <OriginalProps extends object>(
       const { ...rest } = this.props
 
       return (
-        <Toggleable render={renderProps => <UnwrappedComponent {...rest} {...renderProps} />} />
+        <Toggleable render={(renderProps) => <UnwrappedComponent {...rest} {...renderProps} />} />
       )
     }
   }
@@ -933,7 +933,7 @@ export const withToogleable = <OriginalProps extends object>(
       return (
         <Toggleable
           show={show}
-          render={renderProps => <UnwrappedComponent {...rest} {...renderProps} />}
+          render={(renderProps) => <UnwrappedComponent {...rest} {...renderProps} />}
         />
       )
     }
@@ -957,7 +957,7 @@ All demos can be found at [my Github repo](https://github.com/Hotell/blogposts/t
 
 Also it is very important to realise, that type safety within templates like demonstrated in this article, is possible only within libraries that use VDOM/JSX
 
-* Angular templates with Language service provide type safety, but soundness fails on simple constructs like checking within ngFor etc...
-* Vue has nothing like Angular implemented yet for templates, so their templates and data binding are just magical strings ( but this may change in the future. Although you can use VDOM for templates it's cumbersome to use because various types of props definition ( "snabdom takes the blame..." ) )
+- Angular templates with Language service provide type safety, but soundness fails on simple constructs like checking within ngFor etc...
+- Vue has nothing like Angular implemented yet for templates, so their templates and data binding are just magical strings ( but this may change in the future. Although you can use VDOM for templates it's cumbersome to use because various types of props definition ( "snabdom takes the blame..." ) )
 
 As always, don't hesitate to ping me if you have any questions here or on twitter (my handle [@martin_hotell](https://twitter.com/martin_hotell)) and besides that, happy type checking folks and 'till next time! Cheers!

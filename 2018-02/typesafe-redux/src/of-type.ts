@@ -23,6 +23,6 @@ export function ofType<
 >(t1: T1, t2: T2, t3: T3): OperatorFunction<V, ActionsOfType<V, T1 | T2 | T3 | T4>>
 export function ofType(...types: string[]) {
   return function(source: Observable<any>) {
-    return source.pipe(filter(action => types.indexOf(action.type) !== -1)) as any
+    return source.pipe(filter((action) => types.indexOf(action.type) !== -1)) as any
   }
 }

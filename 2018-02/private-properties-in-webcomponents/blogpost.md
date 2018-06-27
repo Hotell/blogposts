@@ -6,9 +6,9 @@ In this article we will focus primarily on [**Unique Symbol Types**](https://git
 
 For our demonstration purpose, we will implement a simple `Toggleable Custom Element` with following featurs:
 
-* it is both stateful and controllable component
-* public API contains of 2 props: `title` and `show` and content projection via `slot`
-* onClick it will toggle visibility of projected content
+- it is both stateful and controllable component
+- public API contains of 2 props: `title` and `show` and content projection via `slot`
+- onClick it will toggle visibility of projected content
 
 **Usage:**
 
@@ -26,9 +26,9 @@ Ok let's implement our `Toggleable` Custom Element:
 
 As we know, standard pattern to impement Custom Element props is following
 
-* internal "private" class property which keeps current property value
-* getter to that "private" property for public use
-* setter for "private" property for public use
+- internal "private" class property which keeps current property value
+- getter to that "private" property for public use
+- setter for "private" property for public use
 
 So let's say for our `title` prop following needs to be implemented
 

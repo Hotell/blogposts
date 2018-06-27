@@ -21,6 +21,6 @@ export const App = () => (
         />
       )}
     </Provider>
-    <Provider>{props => <Counter {...props} title="children as a function" />}</Provider>
+    <Provider>{(props) => <Counter {...props} title="children as a function" />}</Provider>
   </>
 )

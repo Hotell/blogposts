@@ -254,7 +254,7 @@ There is a very suble difference though. You will get the particular shape type 
 
 What is usually a good idea/practice, is to disect our hybrid definition in two parts:
 
-* callable object (function) type alias
+- callable object (function) type alias
 
 ```ts
 // via type alias
@@ -268,7 +268,7 @@ interface CounterFn {
 
 ![Hybrid Types Functions](./img/hybrid-types-1.png)
 
-* static properties object shape
+- static properties object shape
 
 ```ts
 // via type alias
@@ -422,9 +422,9 @@ This is the only use case, where you definitely should always use interface inst
 
 In general, use what you want ( type aliase / interface ) just be consistent, but personally, I recomend to use type aliases:
 
-* it's shorter to write `type Props = {}`
-* your syntax is consistent ( you are not mixin interfaces with type aliase for possible type intersections )
-* your component Props/State implementation cannot be monkey patched and for that reason, consumer of your component should never need to leverage interface declaration merging. For extension there are clearly defined patterns like HOC and so on.
+- it's shorter to write `type Props = {}`
+- your syntax is consistent ( you are not mixin interfaces with type aliase for possible type intersections )
+- your component Props/State implementation cannot be monkey patched and for that reason, consumer of your component should never need to leverage interface declaration merging. For extension there are clearly defined patterns like HOC and so on.
 
 ## Summary
 
@@ -434,10 +434,10 @@ With that covered, we came to an conclusion what method of defining compile time
 
 Let's recap:
 
-* type aliases can act sort of like interfaces, however, there are 3 important differences ( union types, declaration merging)
-* use whatever suites you and your team, just be consistent
-* always use `interface` for public API's definition when authoring a library or 3rd party ambient type definitions
-* consider using `type` for your React Component Props and State
+- type aliases can act sort of like interfaces, however, there are 3 important differences ( union types, declaration merging)
+- use whatever suites you and your team, just be consistent
+- always use `interface` for public API's definition when authoring a library or 3rd party ambient type definitions
+- consider using `type` for your React Component Props and State
 
 ---
 

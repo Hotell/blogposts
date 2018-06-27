@@ -24,9 +24,9 @@ By looking outside Angular "ecosystem isolation", we can learn a lot from others
 
 To answer the question "How to leverage other ecosystems" we need to to introduce and take a look at 3 categories that are an integral part of software development:
 
-* Tools
-* Architecture
-* Libraries
+- Tools
+- Architecture
+- Libraries
 
 As a baseline we will use "Industry standard" for booting up new Angular apps - **Angular CLI**
 ![Angular CLI](https://user-images.githubusercontent.com/1560278/27637944-cfa5df36-5c11-11e7-8cb7-85be0017faf1.gif)
@@ -41,16 +41,16 @@ npx @angular/cli new my-app
 
 Let’s take a look what CLI gives us by default from perspective of our 3 defined categories:
 
-* Libraries - all @angular/\* packages and RxJs
+- Libraries - all @angular/\* packages and RxJs
 
-* Architecture - Component driven architecture with Service layer, but no restrictions on this front ( use what you want )
+- Architecture - Component driven architecture with Service layer, but no restrictions on this front ( use what you want )
 
-* Tools:
+- Tools:
 
-  * we’ve got webpack as a module bundler
-  * Protractor/Selenium for e2e testing
-  * Jasmine with Karma for unit testing
-  * and last but not least, the best thing that ever happened to JavaScript - Typescript with solid static analysis extensions for adhering to proper styleguides and - TSLint and Codelyzer
+  - we’ve got webpack as a module bundler
+  - Protractor/Selenium for e2e testing
+  - Jasmine with Karma for unit testing
+  - and last but not least, the best thing that ever happened to JavaScript - Typescript with solid static analysis extensions for adhering to proper styleguides and - TSLint and Codelyzer
 
 So far so good right ?!
 
@@ -150,8 +150,8 @@ Formatting/Linting Done! Although there is a room for improvement. I don't know 
 
 We can handle robots to do that for us. This can be achieved thanks to git-hooks and 2 node libraries:
 
-* [lint-staged](https://github.com/okonet/lint-staged) 🚫💩 — Run linters/formatters on git staged files
-* [husky](https://github.com/typicode/husky) 🐶 Git hooks made easy
+- [lint-staged](https://github.com/okonet/lint-staged) 🚫💩 — Run linters/formatters on git staged files
+- [husky](https://github.com/typicode/husky) 🐶 Git hooks made easy
 
 Install those:
 
@@ -269,16 +269,16 @@ Beautiful isn’t it ?!
 
 There are moar things that comes with Jest, I will name just few:
 
-* Powerful mocking features ( ES2015 modules, assets )
-* Code coverage - 0CJS `jest --coverage`
-* Pluggable ( run Puppeteer with Jest )
-* Huge ecosystem: [jest-axe](https://github.com/nickcolley/jest-axe) ( a11y ), [jest-images-snapshots](https://github.com/americanexpress/jest-image-snapshot)
+- Powerful mocking features ( ES2015 modules, assets )
+- Code coverage - 0CJS `jest --coverage`
+- Pluggable ( run Puppeteer with Jest )
+- Huge ecosystem: [jest-axe](https://github.com/nickcolley/jest-axe) ( a11y ), [jest-images-snapshots](https://github.com/americanexpress/jest-image-snapshot)
 
 ### E2E Testing
 
 End to End testing is equally or even more important than unit testing. Let's see what we get by default with CLI.
 
-* Protractor with Selenium
+- Protractor with Selenium
 
 Uh?! what did you just said? Selenium ? I dunno about you but everytime I hear “SELENIUM” I wanna fight someone...
 
@@ -394,10 +394,10 @@ With storybook covered, our final component folder structure should look like th
 
 ![Storybook - Component folder structure](./img/storybook-final-component-folder-structure.png)
 
-* implementation
-* unit test with snapshots
-* external styles
-* story
+- implementation
+- unit test with snapshots
+- external styles
+- story
 
 ### Tooling summary
 
@@ -415,8 +415,8 @@ We can use similar patterns that are effectively used within other libraries ( i
 
 Those common patterns can be applied in 2 most important parts of every app:
 
-* Components
-* State management
+- Components
+- State management
 
 ### Architecture: Components
 
@@ -424,11 +424,11 @@ Following image compares both Angular and React in terms of Component creation p
 
 ![Component patterns comparison](./img/component-patterns.png)
 
-* React.Component/@Component
-* HOC/@Directive ( HOC just decorates behaviour in immutable way, Directive can do the same in Angular )
-* render JSX/Inline template ( Always use Inline templates to have everything in one file, logic + rendering )
-* Inline/External CSS
-* Immutable props/@Input with CDS.OnPush ( React triggers re-render only when reference changes, Angular allows the same via OnPush strategy )
+- React.Component/@Component
+- HOC/@Directive ( HOC just decorates behaviour in immutable way, Directive can do the same in Angular )
+- render JSX/Inline template ( Always use Inline templates to have everything in one file, logic + rendering )
+- Inline/External CSS
+- Immutable props/@Input with CDS.OnPush ( React triggers re-render only when reference changes, Angular allows the same via OnPush strategy )
 
 Also very important pattern to for building components [Stateful<->Stateless component pattern](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0).
 
@@ -440,9 +440,9 @@ It can be handled similarly in both React and Angular:
 
 ![State management types](./img/state-management-types.png)
 
-* Local Component state ( this.state ) / @Component|@Directive instance state => suitable for private state ( mostly UI state)
-* Hierarchical Context API supported by SOA / Hierarchical DI in Angular => suitable for whole app state
-* FLUX architecture powered by Redux => **most suitable for app state, and universal for both Angular and React**
+- Local Component state ( this.state ) / @Component|@Directive instance state => suitable for private state ( mostly UI state)
+- Hierarchical Context API supported by SOA / Hierarchical DI in Angular => suitable for whole app state
+- FLUX architecture powered by Redux => **most suitable for app state, and universal for both Angular and React**
 
 So as we can see, **Redux is the ultimate solution for both React and Angular** in terms of true State separation. Thanks to this separation we can write Redux boilerplate once and literally reuse it in both Angular or React. With FLUX architecture, only feature that we're leveraging in any UI framework is hydratation of data to our view ( components ) and rendering.
 
@@ -486,8 +486,8 @@ yarn add redux-observable rxjs
 
 It's similar to Effects with 2 important distinctions:
 
-* Epics are executed after all reducers
-* Epic needs to always return an Action Stream ( Actions in, Actions out - thanks to that, it prevents us to introduce anti-patterns, that can be observed within ngrx/effects, for instance using `tap` and similar noop operators, for triggering side effects within effects )
+- Epics are executed after all reducers
+- Epic needs to always return an Action Stream ( Actions in, Actions out - thanks to that, it prevents us to introduce anti-patterns, that can be observed within ngrx/effects, for instance using `tap` and similar noop operators, for triggering side effects within effects )
 
 > **NOTE:** If you have absolutely no other option and need to execute side effect like within Effects, you can do that and comlplete the current stream so nothing get's emitted futher via [`ignoreElements` Rx operator](https://www.learnrxjs.io/operators/filtering/ignoreelements.html).
 
@@ -551,8 +551,8 @@ Our final Angular CLI solution looks like this:
 
 You can find everything that I've covered in this article open sourced on my GitHub repo:
 
-* [Better Angular CLI defaults](https://github.com/Hotell/react-tools-for-better-angular-apps)
-* [Example app](https://github.com/Hotell/react-tools-for-better-angular-apps/tree/example-app)
+- [Better Angular CLI defaults](https://github.com/Hotell/react-tools-for-better-angular-apps)
+- [Example app](https://github.com/Hotell/react-tools-for-better-angular-apps/tree/example-app)
 
 ---
 

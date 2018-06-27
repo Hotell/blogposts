@@ -35,7 +35,7 @@ export function withToggle<OriginalProps>(
       )
     }
     private toggle = (event: MouseEvent<HTMLElement>) =>
-      this.setState(prevState => ({ show: !prevState.show }))
+      this.setState((prevState) => ({ show: !prevState.show }))
   }
 
   return hoistNonReactStatics(WithToggle, UnwrappedComponent as any) as ComponentType<Props>

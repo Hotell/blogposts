@@ -32,7 +32,7 @@ export const withToogleable = <OriginalProps extends object>(
       return (
         <Toggleable
           show={show}
-          render={renderProps => <UnwrappedComponent {...rest} {...renderProps} />}
+          render={(renderProps) => <UnwrappedComponent {...rest} {...renderProps} />}
         />
       )
     }

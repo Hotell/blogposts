@@ -12,9 +12,9 @@ So let's define a `Button` component, with following API, which will be used acr
 
 **Button API**
 
-* onClick ( click handler )
-* color ( what color will be used )
-* type (button type 'button' or 'submit')
+- onClick ( click handler )
+- color ( what color will be used )
+- type (button type 'button' or 'submit')
 
 We will annotate `color` and `type` as optional, because they will be defined via defaultProps, so consumer of our component doesn't have to provide those.
 
@@ -72,8 +72,8 @@ Our `Button`s `defaultProps` are not typed at all, because type checker cannot i
 
 What does that even mean?
 
-* you can set anything to your `static defaultProps`
-* your are defining same things twice ( types and implementation )
+- you can set anything to your `static defaultProps`
+- your are defining same things twice ( types and implementation )
 
 No type checking for defaultProps:
 
@@ -185,10 +185,10 @@ Why do we get an error now? Well `color` is optional, and we are in strict mode,
 
 As of today _June 2018/TypeScript 2.9_ there are 4 options how to fix this:
 
-* Non-null assertion operator
-* Component type casting
-* High order function for defining defaultProps
-* Props getter function
+- Non-null assertion operator
+- Component type casting
+- High order function for defining defaultProps
+- Props getter function
 
 Let's take a look at those one by one.
 
@@ -411,11 +411,11 @@ This is very slick, don't you think ?
 
 We are done here, this final solution covers all former issues:
 
-* no need for escape hatches by using non null assertion operator
-* no need to cast our component to other types with more indirection ( additional const Button )
-* we don't have to re-create component implementation and thus loosing any types in the process ( withDefaultProps function )
-* works with generic components
-* easy to reason about and future proof ( TypeScript 3.0 )
+- no need for escape hatches by using non null assertion operator
+- no need to cast our component to other types with more indirection ( additional const Button )
+- we don't have to re-create component implementation and thus loosing any types in the process ( withDefaultProps function )
+- works with generic components
+- easy to reason about and future proof ( TypeScript 3.0 )
 
 ## TypeScript 3.0
 

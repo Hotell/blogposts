@@ -14,9 +14,9 @@ At that time ( pre TS 2.8 era ) there wasn't a clean solution how to get the ret
 
 You had to do it like this:
 
-* define type definition first,
-* then implement action creator with return type annotated with your defined type
-* when you changed one thing, you needed to manually update other and vice-versa, bleh...
+- define type definition first,
+- then implement action creator with return type annotated with your defined type
+- when you changed one thing, you needed to manually update other and vice-versa, bleh...
 
 ```ts
 // you need to define the shape first
@@ -44,11 +44,11 @@ Thanks to this addition, we can create new powerfull mapped types, let's say, fo
 
 Wait a second! It turns out we don't have to create anything at all, 'cause they are already a part of TS 2.8! We've got following new mapped types at our disposal:
 
-* `Exclude<T, U>` -- Exclude from T those types that are assignable to U.
-* `Extract<T, U>` -- Extract from T those types that are assignable to U.
-* `NonNullable<T>` -- Exclude null and undefined from T.
-* `ReturnType<T>` -- Obtain the return type of a function type.
-* `InstanceType<T>` -- Obtain the instance type of a constructor function type.
+- `Exclude<T, U>` -- Exclude from T those types that are assignable to U.
+- `Extract<T, U>` -- Extract from T those types that are assignable to U.
+- `NonNullable<T>` -- Exclude null and undefined from T.
+- `ReturnType<T>` -- Obtain the return type of a function type.
+- `InstanceType<T>` -- Obtain the instance type of a constructor function type.
 
 > for more info (check out this PR)[https://github.com/Microsoft/TypeScript/pull/21847]
 
@@ -124,11 +124,11 @@ Now our inferred type is correct
 
 **PROS:**
 
-* action type is inferred from implementation and because of that stays in sync!
+- action type is inferred from implementation and because of that stays in sync!
 
 **CONS:**
 
-* explicitly casting `type` property within action creator
+- explicitly casting `type` property within action creator
 
 ## Reducing the action boilerplate (createAction)
 
@@ -177,13 +177,13 @@ type SetAgeAction = ReturnType<typeof setAge>
 
 **PROS:**
 
-* ( as before ) action type is inferred from implementation and because of that, it stays in sync!
-* we don't have to cast our type
-* more concise than before
+- ( as before ) action type is inferred from implementation and because of that, it stays in sync!
+- we don't have to cast our type
+- more concise than before
 
 **CONS:**
 
-* none I guess ? :)
+- none I guess ? :)
 
 ## Reducing the action boilerplate further (action)
 
@@ -248,13 +248,13 @@ With that our `DoSomethingAction` will have following type:
 
 **PROS:**
 
-* ( as before ) action type is inferred from implementation and because of that, it stays in sync!
-* ( as before ) we don't have to cast our type
-* even more concise than `createAction`
+- ( as before ) action type is inferred from implementation and because of that, it stays in sync!
+- ( as before ) we don't have to cast our type
+- even more concise than `createAction`
 
 **CONS:**
 
-* if we wanna provide payload, we have to explicitly declare `typeof SET_AGE` as 1st generic argument, because TS isn't able to do that for us properly ( it will flatten string literal to just simple `string`)
+- if we wanna provide payload, we have to explicitly declare `typeof SET_AGE` as 1st generic argument, because TS isn't able to do that for us properly ( it will flatten string literal to just simple `string`)
 
 ## Reducing the action boilerplate by using classes
 
@@ -278,7 +278,7 @@ Everything is defined once -> implementaion and action type definition. Elegant 
 > This can be mitigated via custom middleware, which shalow copies created instance to pure Object
 >
 > ```ts
-> export const actionToPlainObject: MiddlewareFn<{}, Action> = store => next => action =>
+> export const actionToPlainObject: MiddlewareFn<{}, Action> = (store) => (next) => (action) =>
 >   next({ ...action })
 > ```
 >
@@ -286,14 +286,14 @@ Everything is defined once -> implementaion and action type definition. Elegant 
 
 **PROS:**
 
-* implementation is also type definition because structural origin of TypeScript Classes
-* concise and elegant
+- implementation is also type definition because structural origin of TypeScript Classes
+- concise and elegant
 
 **CONS:**
 
-* constructor parameter named genericaly `payload`, which may not be very descriptive if payload is a primitive type
-* (if you're using redux ) you need to provide custom middleware for flattening custom class instance to pure object
-* using `new SetAgeAction(18)` may feel strange or just wrong to some functional purists, I don't mind personaly 😎, it makes it even more visible within component code that I'm creating a FSA
+- constructor parameter named genericaly `payload`, which may not be very descriptive if payload is a primitive type
+- (if you're using redux ) you need to provide custom middleware for flattening custom class instance to pure object
+- using `new SetAgeAction(18)` may feel strange or just wrong to some functional purists, I don't mind personaly 😎, it makes it even more visible within component code that I'm creating a FSA
 
 ## And the winner is
 
@@ -381,8 +381,8 @@ With that said, let’s grab some beer and popcorn and enjoy your 100% type-safe
 
 TypeScript 2.8 comes with very important new features:
 
-* conditional types
-* new default conditional mapped types, from which we can leverage `ReturnType<T>` to get return types of a function
+- conditional types
+- new default conditional mapped types, from which we can leverage `ReturnType<T>` to get return types of a function
 
 Thanks to these new features, TypeScript is able to infer action type of our action creator implementation,
 so we don't have to duplicate our work and keep type definition and implementaion in sync.

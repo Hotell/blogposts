@@ -31,5 +31,5 @@ export class Menu extends Component<{}, State> {
   }
 
   private toggleShowContents = () =>
-    this.setState(prevState => ({ showContents: !prevState.showContents }))
+    this.setState((prevState) => ({ showContents: !prevState.showContents }))
 }

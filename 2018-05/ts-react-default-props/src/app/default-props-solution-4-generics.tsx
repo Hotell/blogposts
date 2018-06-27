@@ -29,16 +29,16 @@ class Button<T> extends Component<Props<T>> {
   }
 }
 
-const ButtonSFC = <T extends {}>(props:Props<T>) => {
+const ButtonSFC = <T extends {}>(props: Props<T>) => {
   const { onClick: handleClick, color, type, children } = getProps(props)
 
-    const cssClass = resolveColorTheme(color)
+  const cssClass = resolveColorTheme(color)
 
-    return (
-      <button type={type} className={cssClass} onClick={handleClick}>
-        {children}
-      </button>
-    )
+  return (
+    <button type={type} className={cssClass} onClick={handleClick}>
+      {children}
+    </button>
+  )
 }
 
 const resolveColorTheme = (color: DefaultProps['color']) => {
@@ -58,8 +58,8 @@ class App extends Component {
   render() {
     return (
       <div>
-        <Button <number> onClick={this.handleClick}>Click me!</Button>
-        <ButtonSFC <number> onClick={this.handleClick}>Click me!</ButtonSFC>
+        <Button<number> onClick={this.handleClick}>Click me!</Button>
+        <ButtonSFC<number> onClick={this.handleClick}>Click me!</ButtonSFC>
       </div>
     )
   }

@@ -273,7 +273,7 @@ const App1 = () => {
  * 3. fix A
  * we can destructure within our function instead in arguments declaration and cast props back to be non optional
  */
-const ChildCmpFix1: SFC<Partial<ChildrenProps>> = props => {
+const ChildCmpFix1: SFC<Partial<ChildrenProps>> = (props) => {
   const { who, callMe } = props as Required<ChildrenProps>
   return (
     <>
