@@ -11,6 +11,6 @@
     "format": "prettier --write \"201*/**/*.{ts,tsx,md,css,less,sass,scss}\""
   },
   "devDependencies": {
-    "prettier": "1.12.1"
+    "prettier": "1.13.6"
   }
 }
