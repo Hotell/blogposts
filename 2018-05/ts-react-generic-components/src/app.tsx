@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 
 import { Select, SelectSFC } from './components/select'
+import { AppDemo } from './components/select-blogpost-demo'
 
 import './style.css'
 
@@ -18,8 +19,16 @@ const initialState = {
     iceCream: ['Chocolate', 'Coconut', 'Mint', 'Strawberry', 'Vanilla'],
     browsers: ['Chrome', 'Firefox', 'Internet Explorer', 'Opera', 'Safari', 'Microsoft Edge'],
     library: ['React', 'Preact', 'Vue', 'jQuery'],
-    users: [{ uname: 'Martin', age: 31 }, { uname: 'Peter', age: 32 }, { uname: 'Anna', age: 26 }],
-    players: [{ uname: 'Sean', age: 22 }, { uname: 'Carl', age: 12 }, { uname: 'Maria', age: 24 }],
+    users: [
+      { uname: 'Martin', age: 31 },
+      { uname: 'Peter', age: 32 },
+      { uname: 'Anna', age: 26 },
+    ] as User[],
+    players: [
+      { uname: 'Sean', age: 22 },
+      { uname: 'Carl', age: 12 },
+      { uname: 'Maria', age: 24 },
+    ] as User[],
   },
 }
 export class App extends Component<{}, State> {
@@ -37,7 +46,6 @@ export class App extends Component<{}, State> {
   state = initialState
   private handleSelect = (itemValue: string | User, ev: React.SyntheticEvent<HTMLInputElement>) => {
     const { name: fieldName } = ev.currentTarget
-    console.log(fieldName)
     this.setState((prevState) => ({
       ...prevState,
       selected: { ...prevState.selected, [fieldName]: itemValue },
@@ -47,6 +55,10 @@ export class App extends Component<{}, State> {
     return (
       <main>
         <h1>Generic Components</h1>
+        <section className="container">
+          <AppDemo />
+        </section>
+        <hr />
         <section className="container">
           <div>
             Selected items:

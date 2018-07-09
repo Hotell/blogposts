@@ -4,6 +4,10 @@ TypeScript 2.9 introduced a new compiler feature for declaring generic React com
 
 What do I mean by React Generic Component ?
 
+> we will use the same Select component for all examples in this post
+>
+> Select is a custom input element that leverages `datalist` HTML element
+
 **Class Component:**
 
 ```tsx
@@ -34,3 +38,46 @@ type Props<T> = {
 
 const Select = <T extends {}>(props: Props<T>) => { return <div>{...}</div> }
 ```
+
+With that said, you may be still asking, ok dude but why do I need to use generics for my re-usable `Select` ?
+
+Well, re-usable === it should accept and render various data types:
+
+- primitive ones `string[]`
+- more complicated data like objects/maps etc...
+
+How should it be used in type-safe way?
+
+We have some App component with static data and state:
+
+```tsx
+const data = {
+  heroes: ['Hulk', 'Iron Man'],
+  users: [{ name: 'Peter', age: 32 }, { name: 'John', age: 23 }],
+}
+
+class App extends Component {
+  state = {
+    hero: '',
+    user: null,
+  }
+  render() {
+    return (
+      <>
+        <Select
+          active={this.hero}
+          items={data.heroes}
+          onSelect={(selected) => this.setState((prevState) => ({ hero: selected }))}
+        />
+        <Select
+          active={this.user}
+          items={data.users}
+          onSelect={(selected) => this.setState((prevState) => ({ user: selected }))}
+        />
+      </>
+    )
+  }
+}
+```
+
+Let's implement our **<Select />** !
