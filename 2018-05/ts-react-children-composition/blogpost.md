@@ -126,7 +126,7 @@ Your initial thoughts about this API might look like following:
   <CardMedia src="examples/shiba2.jpg"/>
   <CardContent>
     <p>
-      The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from Japan.
+      The Shiba Inu is the smallest of the six original ... from Japan.
     </p>
   </CardContent>
   <CardActions>
@@ -147,8 +147,7 @@ So instead our API usage could look like following:
     media: <img src="examples/shiba2.jpg" />,
     content: (
       <p>
-        The Shiba Inu is the smallest of the six original and distinct spitz
-        breeds of dog from Japan.
+        The Shiba Inu is the smallest of the six original ... from Japan.
       </p>
     ),
     actions: (
@@ -575,9 +574,9 @@ type HasChildrenProp<T> = T extends { children: (props: any) => ReactNode }
 type IsFunction<T> = T extends (...args: any[]) => any ? T : never
 
 const hasRender = <T extends {}>(value: T): value is HasRenderProp<T> =>
-  'render' in value && isFunction(value)
+  'render' in value && isFunction((value as HasRenderProp<T>).render)
 const hasChildren = <T extends {}>(value: T): value is HasChildrenProp<T> =>
-  'children' in value && isFunction(value)
+  'children' in value && isFunction((value as HasChildrenProp<T>).children)
 const isFunction = <T extends {}>(value: T): value is IsFunction<T> =>
   typeof value === 'function'
 ```
@@ -585,8 +584,8 @@ const isFunction = <T extends {}>(value: T): value is IsFunction<T> =>
 1.  We added new `type RenderProps` which intersects with `onToggle` prop and with that defines final `type Props` API
 2.  new type definition of `RenderProps` which consist of union of 2 possible objects children/render
 3.  we're checking if `render` is defined by consumer, if yes we render via `render prop` and exit early from render. `hasRender` is a type guard which leverages power of conditional types ( we won't explain this as it would be for separate article on it's own)
-4.  we're checking if `children` is defined by consumer and if it's a function. If it does, we render via children as a function.
-5.  if children nor render are provided we throw a runtime error
+4.  we're checking if `children` is defined by consumer and if it's a function. If it is, we render via children as a function.
+5.  when children nor render are provided, we throw a runtime error 🤖
 
 That's it! LGTM ! 🤙
 
