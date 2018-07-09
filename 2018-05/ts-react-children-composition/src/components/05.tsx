@@ -4,9 +4,7 @@ import { Component, ReactNode } from 'react'
 type Props = { onToggle: (on: boolean) => void } & RenderProps
 
 // (2)
-type RenderProps =
-  | { children: (api: API) => ReactNode }
-  | { render: (api: API) => ReactNode }
+type RenderProps = { children: (api: API) => ReactNode } | { render: (api: API) => ReactNode }
 
 // (3)
 type API = ReturnType<Toggle['getApi']>
@@ -20,10 +18,7 @@ export class Toggle extends Component<Props, State> {
   readonly state = initialState
   // (6)
   private toggle = () =>
-    this.setState(
-      ({ on }) => ({ on: !on }),
-      () => this.props.onToggle(this.state.on)
-    )
+    this.setState(({ on }) => ({ on: !on }), () => this.props.onToggle(this.state.on))
   // (7)
   private getApi() {
     return {
@@ -47,12 +42,8 @@ export class Toggle extends Component<Props, State> {
   }
 }
 
-type HasRenderProp<T> = T extends { render: (props: any) => ReactNode }
-  ? T
-  : never
-type HasChildrenProp<T> = T extends { children: (props: any) => ReactNode }
-  ? T
-  : never
+type HasRenderProp<T> = T extends { render: (props: any) => ReactNode } ? T : never
+type HasChildrenProp<T> = T extends { children: (props: any) => ReactNode } ? T : never
 type IsFunction<T> = T extends (...args: any[]) => any ? T : never
 
 const hasRender = <T extends {}>(value: T): value is HasRenderProp<T> =>
@@ -60,5 +51,4 @@ const hasRender = <T extends {}>(value: T): value is HasRenderProp<T> =>
 const hasChildren = <T extends {}>(value: T): value is HasChildrenProp<T> =>
   'children' in value && isFunction((value as HasChildrenProp<T>).children)
 
-const isFunction = <T extends {}>(value: T): value is IsFunction<T> =>
-  typeof value === 'function'
+const isFunction = <T extends {}>(value: T): value is IsFunction<T> => typeof value === 'function'

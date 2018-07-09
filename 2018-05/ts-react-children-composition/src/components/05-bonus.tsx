@@ -1,18 +1,13 @@
 import { Component, ReactNode } from 'react'
 
 // (1)
-type XOR<T, U> = (T | U) extends object
-  ? (Without<T, U> & U) | (Without<U, T> & T)
-  : T | U
+type XOR<T, U> = (T | U) extends object ? (Without<T, U> & U) | (Without<U, T> & T) : T | U
 type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never }
 
 type Props = { onToggle: (on: boolean) => void } & RenderProps
 
 // (2)
-type RenderProps = XOR<
-  { children: (api: API) => ReactNode },
-  { render: (api: API) => ReactNode }
->
+type RenderProps = XOR<{ children: (api: API) => ReactNode }, { render: (api: API) => ReactNode }>
 
 // (3)
 type API = ReturnType<Toggle['getApi']>
@@ -26,10 +21,7 @@ export class Toggle extends Component<Props, State> {
   readonly state = initialState
   // (6)
   private toggle = () =>
-    this.setState(
-      ({ on }) => ({ on: !on }),
-      () => this.props.onToggle(this.state.on)
-    )
+    this.setState(({ on }) => ({ on: !on }), () => this.props.onToggle(this.state.on))
   // (7)
   private getApi() {
     return {
@@ -53,12 +45,8 @@ export class Toggle extends Component<Props, State> {
   }
 }
 
-type HasRenderProp<T> = T extends { render: (props: any) => ReactNode }
-  ? T
-  : never
-type HasChildrenProp<T> = T extends { children: (props: any) => ReactNode }
-  ? T
-  : never
+type HasRenderProp<T> = T extends { render: (props: any) => ReactNode } ? T : never
+type HasChildrenProp<T> = T extends { children: (props: any) => ReactNode } ? T : never
 type IsFunction<T> = T extends (...args: any[]) => any ? T : never
 
 const hasRender = <T extends {}>(value: T): value is HasRenderProp<T> =>
@@ -66,5 +54,4 @@ const hasRender = <T extends {}>(value: T): value is HasRenderProp<T> =>
 const hasChildren = <T extends {}>(value: T): value is HasChildrenProp<T> =>
   'children' in value && isFunction((value as HasChildrenProp<T>).children)
 
-const isFunction = <T extends {}>(value: T): value is IsFunction<T> =>
-  typeof value === 'function'
+const isFunction = <T extends {}>(value: T): value is IsFunction<T> => typeof value === 'function'

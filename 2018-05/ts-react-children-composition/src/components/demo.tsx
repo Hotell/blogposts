@@ -29,13 +29,11 @@ export class Demo extends Component {
           <Card2>
             {{
               header: 'Shiba Inu',
-              media: (
-                <img src="https://material.angular.io/assets/img/examples/shiba2.jpg" />
-              ),
+              media: <img src="https://material.angular.io/assets/img/examples/shiba2.jpg" />,
               content: (
                 <p>
-                  The Shiba Inu is the smallest of the six original and distinct
-                  spitz breeds of dog from Japan.
+                  The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog
+                  from Japan.
                 </p>
               ),
               actions: (
@@ -61,8 +59,8 @@ export class Demo extends Component {
               header: 'Shiba Inu',
               content: (
                 <p>
-                  The Shiba Inu is the smallest of the six original and distinct
-                  spitz breeds of dog from Japan.
+                  The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog
+                  from Japan.
                 </p>
               ),
             }}
@@ -71,13 +69,11 @@ export class Demo extends Component {
           <Card3>
             {{
               header: 'Shiba Inu',
-              media: (
-                <img src="https://material.angular.io/assets/img/examples/shiba2.jpg" />
-              ),
+              media: <img src="https://material.angular.io/assets/img/examples/shiba2.jpg" />,
               content: (
                 <p>
-                  The Shiba Inu is the smallest of the six original and distinct
-                  spitz breeds of dog from Japan.
+                  The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog
+                  from Japan.
                 </p>
               ),
               actions: (
@@ -92,9 +88,7 @@ export class Demo extends Component {
 
         <section>
           <h3>04.</h3>
-          <Toggle
-            onToggle={(...args: any[]) => console.log('onToggle', ...args)}
-          >
+          <Toggle onToggle={(...args: any[]) => console.log('onToggle', ...args)}>
             {({ on, toggle }) => (
               <div>
                 {on ? 'The button is on' : 'The button is off'}
@@ -112,27 +106,19 @@ export class Demo extends Component {
 
           <FinalToggle
             onToggle={(value) => console.log('onToggle', value)}
-            render={({ on, toggle }) => (
-              <button onClick={toggle}>{on ? 'on' : 'off'}</button>
-            )}
+            render={({ on, toggle }) => <button onClick={toggle}>{on ? 'on' : 'off'}</button>}
           />
 
           <FinalToggle onToggle={(value) => console.log('onToggle', value)}>
-            {({ on, toggle }) => (
-              <button onClick={toggle}>{on ? 'on' : 'off'}</button>
-            )}
+            {({ on, toggle }) => <button onClick={toggle}>{on ? 'on' : 'off'}</button>}
           </FinalToggle>
 
           {/* No compile erorrs when both render and children are used */}
           <FinalToggle
             onToggle={(value) => console.log('onToggle', value)}
-            render={({ on, toggle }) => (
-              <button onClick={toggle}>{on ? 'on' : 'off'}</button>
-            )}
+            render={({ on, toggle }) => <button onClick={toggle}>{on ? 'on' : 'off'}</button>}
           >
-            {({ on, toggle }) => (
-              <button onClick={toggle}>{on ? 'on' : 'off'}</button>
-            )}
+            {({ on, toggle }) => <button onClick={toggle}>{on ? 'on' : 'off'}</button>}
           </FinalToggle>
 
           <FinalToggle onToggle={(value) => console.log('onToggle', value)}>
@@ -153,15 +139,11 @@ export class Demo extends Component {
 
           <FinalToggleXor
             onToggle={(value) => console.log('onToggle', value)}
-            render={({ on, toggle }) => (
-              <button onClick={toggle}>{on ? 'on' : 'off'}</button>
-            )}
+            render={({ on, toggle }) => <button onClick={toggle}>{on ? 'on' : 'off'}</button>}
           />
 
           <FinalToggleXor onToggle={(value) => console.log('onToggle', value)}>
-            {({ on, toggle }) => (
-              <button onClick={toggle}>{on ? 'on' : 'off'}</button>
-            )}
+            {({ on, toggle }) => <button onClick={toggle}>{on ? 'on' : 'off'}</button>}
           </FinalToggleXor>
 
           {/* Compile erorrs when both render and children are used */}

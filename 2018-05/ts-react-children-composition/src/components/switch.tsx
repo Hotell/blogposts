@@ -16,11 +16,7 @@ type Props = {
 class Switch extends Component<Props> {
   render() {
     const { on, className = '', ...props } = this.props
-    const btnClassName = [
-      className,
-      'toggle-btn',
-      on ? 'toggle-btn-on' : 'toggle-btn-off',
-    ]
+    const btnClassName = [className, 'toggle-btn', on ? 'toggle-btn-on' : 'toggle-btn-off']
       .filter(Boolean)
       .join(' ')
     return (

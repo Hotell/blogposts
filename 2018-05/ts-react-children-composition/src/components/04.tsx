@@ -17,10 +17,7 @@ export class Toggle extends Component<Props, State> {
   readonly state = initialState
   // (5)
   private toggle = () =>
-    this.setState(
-      ({ on }) => ({ on: !on }),
-      () => this.props.onToggle(this.state.on)
-    )
+    this.setState(({ on }) => ({ on: !on }), () => this.props.onToggle(this.state.on))
   // (6)
   private getApi() {
     return {
@@ -41,8 +38,7 @@ export class Toggle extends Component<Props, State> {
   }
 }
 
-const isFunction = <T extends Function>(value: any): value is T =>
-  typeof value === 'function'
+const isFunction = <T extends Function>(value: any): value is T => typeof value === 'function'
 
 /* declare const foo: ((who: string) => boolean) | string
 
