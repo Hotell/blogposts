@@ -1,6 +1,8 @@
 # React children composition patterns with TypeScript
 
-React and Declarative Composition is my favourite couple for building UI. In this article we will cover various patterns how to leverage **children composition** with \*\*TypeScript to get excellent developer experience and type-safety along the process.
+> this article uses TypeScript 2.9.2 and react/react-dom 16.4.1
+
+React and Declarative Composition is my favourite couple for building UI. In this article we will cover various patterns how to leverage **children composition with TypeScript** to get excellent developer experience and type-safety along the process.
 
 ### So what do I mean by **children composition** ?
 
@@ -84,7 +86,7 @@ Well, we got no errors and app renders with empty Card...
 
 This is definitely not what we wanted. So how to prevent this? We can definitely write some runtime validation logic or we can leverage compile time type analysis with TypeScript to define explicilty `Card` component API constraints. In this case, we need to define explicitly `children` to make them required.
 
-> Ok so where came those this.props.children in our initial implementation when we haven't defined them ? props.children are baked within @types/react.d.ts definition and are marked as optional which mirrors React API behaviour.
+> Ok so where did we get `this.props.children` in our initial implementation when we haven't defined them ? `props.children` are baked within `@types/react.d.ts` definition and are marked as optional which mirrors React API behaviour.
 
 With that said here is our implementation:
 
@@ -145,11 +147,7 @@ So instead our API usage could look like following:
   {{
     header: 'Shiba Inu',
     media: <img src="examples/shiba2.jpg" />,
-    content: (
-      <p>
-        The Shiba Inu is the smallest of the six original ... from Japan.
-      </p>
-    ),
+    content: <p>The Shiba Inu is the smallest of the six original ... from Japan.</p>,
     actions: (
       <>
         <button>Like</button>
@@ -211,6 +209,8 @@ type Props = {
 ```
 
 and also constraint our render, so we don't render things that are not needed:
+
+![Simple Card - named slots children implementation with only content as required](./img/02-card-simple-named-children-optional-props.code.png)
 
 ```tsx
 class Card extends Component<Props> {
@@ -322,8 +322,8 @@ const App = () => (
         headzz: 'Shiba Inu',
         con: (
           <p>
-            The Shiba Inu is the smallest of the six original and distinct spitz
-            breeds of dog from Japan.
+            The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from
+            Japan.
           </p>
         ),
       }}
@@ -338,8 +338,8 @@ const App = () => (
         header: 'Shiba Inu',
         content: (
           <p>
-            The Shiba Inu is the smallest of the six original and distinct spitz
-            breeds of dog from Japan.
+            The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from
+            Japan.
           </p>
         ),
       }}
@@ -357,7 +357,8 @@ So consumer of our Toggle should be able to write following markup:
 ```tsx
 <Toggle
   {/* (1) */}
-  onToggle={(value) => console.log('onToggle', value)}>
+  onToggle={(value) => console.log('onToggle', value)}
+>
   {
     {/* (2) */}
     ({ toggle, on }) => <button onClick={toggle}>{on ? 'on' : 'off'}</button>
@@ -392,10 +393,7 @@ export class Toggle extends Component<Props, State> {
   readonly state = initialState
   // (5)
   private toggle = () =>
-    this.setState(
-      ({ on }) => ({ on: !on }),
-      () => this.props.onToggle(this.state.on)
-    )
+    this.setState(({ on }) => ({ on: !on }), () => this.props.onToggle(this.state.on))
   // (6)
   private getApi() {
     return {
@@ -418,8 +416,7 @@ export class Toggle extends Component<Props, State> {
 
 type IsFunction<T> = T extends (...args: any[]) => any ? T : never
 
-const isFunction = <T extends {}>(value: T): value is IsFunction<T> =>
-  typeof value === 'function'
+const isFunction = <T extends {}>(value: T): value is IsFunction<T> => typeof value === 'function'
 ```
 
 Again, quite a lot code over there. Let's examine various parts of the implementation:
@@ -477,9 +474,7 @@ type Props = {
   onToggle: (on: boolean) => void
 } & RenderProps
 
-type RenderProps =
-  | { children: (api: API) => ReactNode }
-  | { render: (api: API) => ReactNode }
+type RenderProps = { children: (api: API) => ReactNode } | { render: (api: API) => ReactNode }
 ```
 
 Which widens to:
@@ -510,9 +505,7 @@ Let's take a look if it does:
   {/* works */}
   <Toggle
     onToggle={(value) => console.log('onToggle', value)}
-    render={({ on, toggle }) => (
-      <button onClick={toggle}>{on ? 'on' : 'off'}</button>
-    )}
+    render={({ on, toggle }) => <button onClick={toggle}>{on ? 'on' : 'off'}</button>}
   />
 
   {/* works */}
@@ -541,9 +534,7 @@ import { Component, ReactNode } from 'react'
 type Props = { onToggle: (on: boolean) => void } & RenderProps
 
 // (2)
-type RenderProps =
-  | { children: (api: API) => ReactNode }
-  | { render: (api: API) => ReactNode }
+type RenderProps = { children: (api: API) => ReactNode } | { render: (api: API) => ReactNode }
 
 export class Toggle extends Component<Props, State> {
   render() {
@@ -558,18 +549,12 @@ export class Toggle extends Component<Props, State> {
     }
 
     // (5)
-    throw new Error(
-      'onf of children or render props is mandatory and needs to be a function!'
-    )
+    throw new Error('onf of children or render props is mandatory and needs to be a function!')
   }
 }
 
-type HasRenderProp<T> = T extends { render: (props: any) => ReactNode }
-  ? T
-  : never
-type HasChildrenProp<T> = T extends { children: (props: any) => ReactNode }
-  ? T
-  : never
+type HasRenderProp<T> = T extends { render: (props: any) => ReactNode } ? T : never
+type HasChildrenProp<T> = T extends { children: (props: any) => ReactNode } ? T : never
 
 type IsFunction<T> = T extends (...args: any[]) => any ? T : never
 
@@ -577,8 +562,7 @@ const hasRender = <T extends {}>(value: T): value is HasRenderProp<T> =>
   'render' in value && isFunction((value as HasRenderProp<T>).render)
 const hasChildren = <T extends {}>(value: T): value is HasChildrenProp<T> =>
   'children' in value && isFunction((value as HasChildrenProp<T>).children)
-const isFunction = <T extends {}>(value: T): value is IsFunction<T> =>
-  typeof value === 'function'
+const isFunction = <T extends {}>(value: T): value is IsFunction<T> => typeof value === 'function'
 ```
 
 1.  We added new `type RenderProps` which intersects with `onToggle` prop and with that defines final `type Props` API
@@ -609,9 +593,7 @@ Let's see:
   {/* works */}
   <Toggle
     onToggle={(value) => console.log('onToggle', value)}
-    render={({ on, toggle }) => (
-      <button onClick={toggle}>{on ? 'on' : 'off'}</button>
-    )}
+    render={({ on, toggle }) => <button onClick={toggle}>{on ? 'on' : 'off'}</button>}
   >
     {({ on, toggle }) => <button onClick={toggle}>{on ? 'on' : 'off'}</button>}
   </Toggle>
@@ -620,22 +602,19 @@ Let's see:
 
 Oh No Panic! No Errors 🤯... Why Mister Anderson Why ? Well [TypeScript doesn't allow exclusive union types](https://github.com/Microsoft/TypeScript/issues/10575#issuecomment-242919644). What needs to be done is to provide and [exclusive ( XOR like ) operator to the language](https://github.com/Microsoft/TypeScript/issues/14094), which we can partially implement by conditional types.
 
-
 ```tsx
-type XOR<T, U> = (T | U) extends object
-? (Without<T, U> & U) | (Without<U, T> & T)
-: T | U
+type XOR<T, U> = (T | U) extends object ? (Without<T, U> & U) | (Without<U, T> & T) : T | U
 type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never }
 
 // Redefine RenderProps via XOR instead of Union operator
-type RenderProps = XOR<{ children: (api: API) => ReactNode },{ render: (api: API) => ReactNode }>
+type RenderProps = XOR<{ children: (api: API) => ReactNode }, { render: (api: API) => ReactNode }>
 ```
 
 Now we got proper compile errors if both children/render are defined at once, even so we got our intellisense back!
 
 ![proper compile errors if both children and render are defined via XOR operator](./img/05-children-as-a-function-and-render-prop-errors-when-both-defined-via-xor.demo.gif)
 
-This although broke constraints within Toggle implementation as both render and children are now defined within need of conditional checks... Which is wrong 😫
+This although broke constraints within Toggle implementation as both render and children are now defined without the need of conditional checks… Which is wrong 😫 ...
 
 # End
 
