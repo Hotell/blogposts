@@ -1,0 +1,27 @@
+{
+  "name": "new-post",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "author": "Martin Hochel <hochelmartin@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "cleanup": "rm -rf dist .cache",
+    "start": "parcel ./src/index.html",
+    "format": "prettier --write \"**/*.{ts,tsx,md,css,less,sass,scss}\""
+  },
+  "devDependencies": {
+    "@types/react": "16.4.6",
+    "@types/react-dom": "16.0.6",
+    "parcel-bundler": "1.9.4",
+    "prettier": "1.13.7",
+    "tslib": "1.9.3",
+    "typescript": "2.9.2"
+  },
+  "dependencies": {
+    "core-js": "2.5.7",
+    "injection-js": "2.2.1",
+    "react": "16.4.1",
+    "react-dom": "16.4.1"
+  }
+}
