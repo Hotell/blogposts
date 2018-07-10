@@ -1,21 +1,23 @@
 {
-  "name": "ts-react-default-props",
+  "name": "ts-react-children-composition",
   "version": "1.0.0",
   "main": "index.js",
   "author": "Martin Hochel <hochelmartin@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "parcel src/index.html"
+    "start": "parcel ./src/index.html",
+    "format": "prettier --write \"**/*.{ts,tsx,md,css,less,sass,scss}\""
   },
   "devDependencies": {
     "@types/react": "16.4.6",
     "@types/react-dom": "16.0.6",
     "parcel-bundler": "1.9.4",
-    "typescript": "2.9.2"
+    "prettier": "1.13.7",
+    "typescript": "2.9.2",
+    "tslib": "1.9.3"
   },
   "dependencies": {
     "react": "16.4.1",
-    "react-dom": "16.4.1",
-    "tslib": "1.9.3"
+    "react-dom": "16.4.1"
   }
 }
