@@ -150,8 +150,12 @@ class ButtonCounter extends Component<object, State> {
   private handleDecrement = () => this.setState(decrementClicksCount)
 }
 
-const incrementClicksCount = (prevState: State) => ({ clicksCount: prevState.clicksCount + 1 })
-const decrementClicksCount = (prevState: State) => ({ clicksCount: prevState.clicksCount - 1 })
+const incrementClicksCount = (prevState: State) => ({
+  clicksCount: prevState.clicksCount + 1,
+})
+const decrementClicksCount = (prevState: State) => ({
+  clicksCount: prevState.clicksCount - 1,
+})
 ```
 
 ![Stateful component](./img/stateful-component.png 'Stateful component')
@@ -159,7 +163,9 @@ const decrementClicksCount = (prevState: State) => ({ clicksCount: prevState.cli
 You've may noticed that we've extracted state update functions to pure functions outside the class. This is a common pattern, as we can test those with ease, without any knowledge of renderer layer. Also because we are using typeScript and we mapped State to be explicitly read-only, it will prevent us to do any mutations within those functions as well
 
 ```ts
-const decrementClicksCount = (prevState: State) => ({ clicksCount: prevState.clicksCount-- })
+const decrementClicksCount = (prevState: State) => ({
+  clicksCount: prevState.clicksCount--,
+})
 
 // Will throw following complile error:
 //
@@ -340,7 +346,10 @@ type Props = Partial<{
 }>
 
 type RenderCallback = (args: ToggleableComponentProps) => JSX.Element
-type ToggleableComponentProps = { show: State['show']; toggle: Toggleable['toggle'] }
+type ToggleableComponentProps = {
+  show: State['show']
+  toggle: Toggleable['toggle']
+}
 
 export class Toggleable extends Component<Props, State> {
   readonly state: State = initialState
@@ -382,7 +391,10 @@ type Props = Partial<{
 }>
 
 type RenderCallback = (args: ToggleableComponentProps) => JSX.Element
-type ToggleableComponentProps = { show: State['show']; toggle: Toggleable['toggle'] }
+type ToggleableComponentProps = {
+  show: State['show']
+  toggle: Toggleable['toggle']
+}
 ```
 
 We wanna support both function as a child and render prop function, so both need to be optional. To makes things DRY, we're creating `RenderCallback` type alias of our render function definition: `type RenderCallback = (args: ToggleableComponentProps) => JSX.Element`
@@ -390,7 +402,10 @@ We wanna support both function as a child and render prop function, so both need
 What may look strange to readers eye, is our last type alias, the `type ToggleableComponentProps`!
 
 ```ts
-type ToggleableComponentProps = { show: State['show']; toggle: Toggleable['toggle'] }
+type ToggleableComponentProps = {
+  show: State['show']
+  toggle: Toggleable['toggle']
+}
 ```
 
 Again we are using the power of typeScript and **lookup types**, so we don't have to repeat ourselves when defining types:

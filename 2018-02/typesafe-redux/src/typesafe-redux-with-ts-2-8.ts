@@ -25,8 +25,14 @@ const RELOAD = '[router] Reload Page'
 /* ******************************* */
 // Actions with new  ReturnType mapped type
 
-const setName = (name: string) => ({ type: SET_NAME as typeof SET_NAME, payload: name })
-const setAge = (age: number) => ({ type: SET_NAME as typeof SET_AGE, payload: age })
+const setName = (name: string) => ({
+  type: SET_NAME as typeof SET_NAME,
+  payload: name,
+})
+const setAge = (age: number) => ({
+  type: SET_NAME as typeof SET_AGE,
+  payload: age,
+})
 const reloadURL = () => ({ type: RELOAD as typeof RELOAD })
 
 type SetNameAction = ReturnType<typeof setName>
@@ -80,6 +86,12 @@ type SetNameAction5 = { type: typeof SET_NAME; payload: string }
 type SetAgeAction5 = { type: typeof SET_AGE; payload: number }
 type ReloadURLAction5 = { type: typeof RELOAD }
 
-const setName5 = (name: string): SetNameAction5 => ({ type: SET_NAME, payload: name })
-const setAge5 = (age: number): SetAgeAction5 => ({ type: SET_AGE, payload: age })
+const setName5 = (name: string): SetNameAction5 => ({
+  type: SET_NAME,
+  payload: name,
+})
+const setAge5 = (age: number): SetAgeAction5 => ({
+  type: SET_AGE,
+  payload: age,
+})
 const reloadURL5 = (): ReloadURLAction5 => ({ type: RELOAD })

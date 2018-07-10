@@ -80,8 +80,12 @@ class ButtonCounter extends Component<object, State> {
   private handleDecrement = () => this.setState(decrementClicksCount)
 }
 
-const incrementClicksCount = (prevState: State) => ({ clicksCount: prevState.clicksCount + 1 })
-const decrementClicksCount = (prevState: State) => ({ clicksCount: prevState.clicksCount - 1 })
+const incrementClicksCount = (prevState: State) => ({
+  clicksCount: prevState.clicksCount + 1,
+})
+const decrementClicksCount = (prevState: State) => ({
+  clicksCount: prevState.clicksCount - 1,
+})
 
 // WHY
 // - type State = Readonly<typeof initialState>

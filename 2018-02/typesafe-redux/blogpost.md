@@ -106,7 +106,10 @@ Oh no, where did our `const type literal` go? TypeScript flattened it to a strin
 > Fix is easy enough - we need to explicitly cast it to our `SET_AGE` literal type, again with the help of `typeof` operator:
 
 ```ts
-const setAge = (age: number) => ({ type: SET_AGE as typeof SET_AGE, payload: age })
+const setAge = (age: number) => ({
+  type: SET_AGE as typeof SET_AGE,
+  payload: age,
+})
 ```
 
 ![Action creator with casted type property](./img/simple-action-creator-2.png)
