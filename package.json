@@ -8,9 +8,10 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+    "new-post:react": "cp -R templates/react-new-post",
     "format": "prettier --write \"201*/**/*.{ts,tsx,md,css,less,sass,scss}\""
   },
   "devDependencies": {
-    "prettier": "1.13.6"
+    "prettier": "1.13.7"
   }
 }
