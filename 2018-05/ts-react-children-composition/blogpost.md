@@ -1,8 +1,22 @@
 # React children composition patterns with TypeScript
 
-> this article uses TypeScript 2.9.2 and react/react-dom 16.4.1
+> 🎒 this article uses following library versions:
 
-React and Declarative Composition is my favourite couple for building UI. In this article we will cover various patterns how to leverage **children composition with TypeScript** to get excellent developer experience and type-safety along the process.
+```json
+{
+  "@types/react": "16.4.6",
+  "@types/react-dom": "16.0.6",
+  "typescript": "2.9.2",
+  "react": "16.4.1",
+  "react-dom": "16.4.1"
+}
+```
+
+> 🎮 [source code can be found on my github profile](https://github.com/Hotell/blogposts/tree/master/2018-05/ts-react-children-composition)
+
+---
+
+React and declarative composition is my favourite couple for building UI. In this article we will cover various patterns how to leverage **children composition with TypeScript** to get excellent developer experience and type-safety along the process.
 
 ### So what do I mean by **children composition** ?
 
@@ -14,7 +28,7 @@ React and Declarative Composition is my favourite couple for building UI. In thi
 
 Let's say that we have an application with a header and we want to place a navigation inside. We have three React components - App, Header and Navigation. They have to be nested into each other so we end up with the following dependencies:
 
-```tsx
+```
 <App> (render)-> <Header> (render)-> <Navigation>
 ```
 
@@ -24,7 +38,7 @@ Instead we should adhere to composition patterns, which we're already familiar w
 
 So instead of previous example, we should provide composable API like this:
 
-```tsx
+```
 <App>
   <Header>
     <Navigation>...</Navigation>
@@ -34,13 +48,13 @@ So instead of previous example, we should provide composable API like this:
 
 This composition is possible via `children` React Component `props`. Also for those of you familiar with WebComponents, this is very similar to **slot projection API**, although much powerful as we have JavaScript at our disposal instead of static HTML 👌.
 
-Ok let's take a closer look at all possible/useful children composition patterns backed up by TypeScript.
+In this article we will examine all possible/useful React children composition patterns backed up by TypeScript 💪.
 
 ---
 
-### 1. props.children a.k.a default slot projection
+### 1. `props.children` (default slot projection)
 
-Let's build a simple Material design like Card component.
+Let's build a simple Material design like Card component, which should be used like this:
 
 ```tsx
 const App = () => {
@@ -52,7 +66,7 @@ const App = () => {
 }
 ```
 
-So we will leverage `children` props to render anything that will be provided between `<Card></Card>` tags.
+So we will leverage `children` props to render anything that will be provided between `<Card>{PROJECTED CONTENT}</Card>` tags.
 
 Implementation is following:
 
@@ -80,13 +94,16 @@ const App = () => {
 }
 ```
 
-Well, we got no errors and app renders with empty Card...
+Well, we'll get no compile nor runtime errors and our app will render with empty Card ...
 
 ![Simple Card - missing children](./img/01-card-simple-missing-children.png)
 
-This is definitely not what we wanted. So how to prevent this? We can definitely write some runtime validation logic or we can leverage compile time type analysis with TypeScript to define explicilty `Card` component API constraints. In this case, we need to define explicitly `children` to make them required.
+This is definitely not what we wanted. So how to prevent this? We can definitely write some runtime validation logic or we can leverage TypeScript and explicitly define `Card` component props API constraints. In this case, we need to define explicitly `children` prop, to make it required.
 
-> Ok so where did we get `this.props.children` in our initial implementation when we haven't defined them ? `props.children` are baked within `@types/react.d.ts` definition and are marked as optional which mirrors React API behaviour.
+> Curious reader may ask, where did we get `this.props.children` in our Card component implementation when we haven't defined any props ?
+>
+> `props.children` are baked within `@types/react.d.ts` definition and are marked as optional which mirrors React API behaviour.
+> ![optional props.children within react.d.ts](./img/react-children-ambient-definition.code.png)
 
 With that said here is our implementation:
 
@@ -111,7 +128,7 @@ Now if consumer of our component forgets to define children, he will get compile
 
 ---
 
-### 2. props.children a.k.a named slots projection
+### 2. `props.children` - children as an object map (named slots projection)
 
 Now let's extends our Card API, by providing additional API like:
 
@@ -138,16 +155,18 @@ Your initial thoughts about this API might look like following:
 </Card>
 ```
 
-Which is old good compound components pattern, which ofc works, but in my opinion this is too much churn which is nicely solved with so called `named slots projection` API provided by browser - ShadowDom (WebComponents). We can achieve similar pattern with passing an Object map as children ( That's the beauty of React, it's mostly just JavaScript ).
+Which is old good compound components pattern, which of course works, but in my opinion this is too much churn which is nicely solved with so called `named slots projection` API provided natively within browser via [Shadow DOM (WebComponents)](https://developers.google.com/web/fundamentals/web-components/shadowdom#composition_slot). We can achieve similar pattern in React by passing an Object map as children prop ( That's the beauty of React, it's mostly "just JavaScript" ).
 
-So instead our API usage could look like following:
+So instead our API for Card could look like following:
 
 ```tsx
 <Card>
   {{
     header: 'Shiba Inu',
     media: <img src="examples/shiba2.jpg" />,
-    content: <p>The Shiba Inu is the smallest of the six original ... from Japan.</p>,
+    content: (
+      <p>The Shiba Inu is the smallest of the six original ... from Japan.</p>
+    ),
     actions: (
       <>
         <button>Like</button>
@@ -158,7 +177,7 @@ So instead our API usage could look like following:
 </Card>
 ```
 
-And implementation:
+With Card implementation:
 
 ![Simple Card - named slots children implementation](./img/02-card-simple-named-children.code.png)
 
@@ -189,26 +208,26 @@ export class Card extends Component<Props> {
 }
 ```
 
-This pattern is similar as for default children rendering. We're constraining `children` prop to be required and have shape of an object map. Also TS will give us nice intellisense and compile time errors if we missed something, without the need of opening any docs for our `Card` component ❤️.
+We're constraining **children prop to be required** and to have **shape of an object map**. Also TypeScript will give us nice intellisense and compile time errors if we missed something, without need to browse docs of `Card` component ❤️.
 
 ![Simple Card - named slots children implementation](./img/02-card-simple-named-children.demo.gif)
 
-This is great, but this isn't very flexible API as we have to always provide all props defined on children object map.
+This is great indeed, but the API isn't very flexible as we have to always provide all props defined on children object map.
 
-Fix is quite easy, we can just make our children map to be optional with only `content` beeing required.
+Fix is quite easy, we can just make our children map to be optional with only `content` being required ( we don't wanna get empty cards within our UI ).
 
 ```tsx
 type Props = {
   children: {
+    content: ReactNode
     header?: ReactNode
     media?: ReactNode
-    content: ReactNode
     actions?: ReactNode
   }
 }
 ```
 
-and also constraint our render, so we don't render things that are not needed:
+and also constraint our `render` method output within implementation, so we don't render things that aren't needed:
 
 ![Simple Card - named slots children implementation with only content as required](./img/02-card-simple-named-children-optional-props.code.png)
 
@@ -261,19 +280,13 @@ type NamedChildrenSlots = {
   actions?: ReactChild
 }
 
-const isObject = <T extends object>(value: any): value is T =>
-  typeof value === 'object' && typeof value !== 'function' && value != undefined
-
-// (5)
-const isNamedSlots = (children: any): children is NamedChildrenSlots =>
-  isObject(children) && 'content' in children
-
 export class Card extends Component<Props> {
   render() {
     const { children } = this.props
+
     // (2)
     if (!children) {
-      throw new Error('children is missing !')
+      throw new Error('children is mandatory !')
     }
 
     // (3)
@@ -294,6 +307,12 @@ export class Card extends Component<Props> {
     return <div className="card">{children}</div>
   }
 }
+
+// (5)
+const isObject = <T extends object>(value: any): value is T =>
+  typeof value === 'object' && typeof value !== 'function' && value != undefined
+const isNamedSlots = (children: any): children is NamedChildrenSlots =>
+  isObject(children) && 'content' in children
 ```
 
 Quite a lot is happening here, let's explain our code step by step:
@@ -322,8 +341,8 @@ const App = () => (
         headzz: 'Shiba Inu',
         con: (
           <p>
-            The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from
-            Japan.
+            The Shiba Inu is the smallest of the six original and distinct spitz
+            breeds of dog from Japan.
           </p>
         ),
       }}
@@ -338,8 +357,8 @@ const App = () => (
         header: 'Shiba Inu',
         content: (
           <p>
-            The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from
-            Japan.
+            The Shiba Inu is the smallest of the six original and distinct spitz
+            breeds of dog from Japan.
           </p>
         ),
       }}
@@ -348,7 +367,7 @@ const App = () => (
 )
 ```
 
-### 4. render props via children as a function
+### 4. `props.children` as a function ( known also as render props pattern )
 
 While previous patterns kinda mirror element projection that is available in HTML and with ShadowDOM via slot projection (of course not type-safe, in our case type safe 💪), we can go further and introduce more powerful patterns like **Render props / Children as a function** !
 
@@ -369,7 +388,7 @@ So consumer of our Toggle should be able to write following markup:
 1.  Consumer defines what should happen onToggle which will get actual value via function argument. State handling and logic is encapsulated within our `Toggle`
 2.  children is a function, which exposes public API of our component, which we can compose and render whatever UI we want 👌. When button will be clicked, internal state of Toggle will change, and our `onToggle` handler will be executed as well.
 
-With "How the API and usage should look like" coevered, let's implement our `Toggle` component which via children as a function pattern:
+With "How the API and usage should look like" covered, let's implement our `Toggle` component which via children as a function pattern:
 
 ![Children as a function](./img/04-children-as-a-function.code.png)
 
@@ -381,6 +400,7 @@ type Props = {
   onToggle: (on: boolean) => void
   children: (api: API) => ReactNode
 }
+
 // (2)
 type API = ReturnType<Toggle['getApi']>
 
@@ -391,9 +411,14 @@ const initialState = { on: false }
 export class Toggle extends Component<Props, State> {
   // (4)
   readonly state = initialState
+
   // (5)
   private toggle = () =>
-    this.setState(({ on }) => ({ on: !on }), () => this.props.onToggle(this.state.on))
+    this.setState(
+      ({ on }) => ({ on: !on }),
+      () => this.props.onToggle(this.state.on)
+    )
+
   // (6)
   private getApi() {
     return {
@@ -401,6 +426,7 @@ export class Toggle extends Component<Props, State> {
       toggle: this.toggle,
     }
   }
+
   render() {
     const { children } = this.props
 
@@ -416,7 +442,8 @@ export class Toggle extends Component<Props, State> {
 
 type IsFunction<T> = T extends (...args: any[]) => any ? T : never
 
-const isFunction = <T extends {}>(value: T): value is IsFunction<T> => typeof value === 'function'
+const isFunction = <T extends {}>(value: T): value is IsFunction<T> =>
+  typeof value === 'function'
 ```
 
 Again, quite a lot code over there. Let's examine various parts of the implementation:
@@ -436,7 +463,7 @@ Let's see it in action:
 
 ![Children as a function](./img/04-children-as-a-function.demo.gif)
 
-### 5. render props via both children as a function and render prop
+### 5. render props + children as a function
 
 Ok, last thing that we might want to do is to give consumer API flexibility by leveraging `render` prop instead of `children`.
 
@@ -474,7 +501,9 @@ type Props = {
   onToggle: (on: boolean) => void
 } & RenderProps
 
-type RenderProps = { children: (api: API) => ReactNode } | { render: (api: API) => ReactNode }
+type RenderProps =
+  | { children: (api: API) => ReactNode }
+  | { render: (api: API) => ReactNode }
 ```
 
 Which widens to:
@@ -491,7 +520,7 @@ type Props =
     }
 ```
 
-So our component should support one or another props pair.
+With that API, our component should support one or another props pair.
 
 Let's take a look if it does:
 
@@ -505,7 +534,9 @@ Let's take a look if it does:
   {/* works */}
   <Toggle
     onToggle={(value) => console.log('onToggle', value)}
-    render={({ on, toggle }) => <button onClick={toggle}>{on ? 'on' : 'off'}</button>}
+    render={({ on, toggle }) => (
+      <button onClick={toggle}>{on ? 'on' : 'off'}</button>
+    )}
   />
 
   {/* works */}
@@ -534,7 +565,9 @@ import { Component, ReactNode } from 'react'
 type Props = { onToggle: (on: boolean) => void } & RenderProps
 
 // (2)
-type RenderProps = { children: (api: API) => ReactNode } | { render: (api: API) => ReactNode }
+type RenderProps =
+  | { children: (api: API) => ReactNode }
+  | { render: (api: API) => ReactNode }
 
 export class Toggle extends Component<Props, State> {
   render() {
@@ -549,20 +582,28 @@ export class Toggle extends Component<Props, State> {
     }
 
     // (5)
-    throw new Error('onf of children or render props is mandatory and needs to be a function!')
+    throw new Error(
+      'onf of children or render props is mandatory and needs to be a function!'
+    )
   }
 }
 
-type HasRenderProp<T> = T extends { render: (props: any) => ReactNode } ? T : never
-type HasChildrenProp<T> = T extends { children: (props: any) => ReactNode } ? T : never
-
+type HasRenderProp<T> = T extends { render: (props: any) => ReactNode }
+  ? T
+  : never
+type HasChildrenProp<T> = T extends { children: (props: any) => ReactNode }
+  ? T
+  : never
 type IsFunction<T> = T extends (...args: any[]) => any ? T : never
 
 const hasRender = <T extends {}>(value: T): value is HasRenderProp<T> =>
   'render' in value && isFunction((value as HasRenderProp<T>).render)
+
 const hasChildren = <T extends {}>(value: T): value is HasChildrenProp<T> =>
   'children' in value && isFunction((value as HasChildrenProp<T>).children)
-const isFunction = <T extends {}>(value: T): value is IsFunction<T> => typeof value === 'function'
+
+const isFunction = <T extends {}>(value: T): value is IsFunction<T> =>
+  typeof value === 'function'
 ```
 
 1.  We added new `type RenderProps` which intersects with `onToggle` prop and with that defines final `type Props` API
@@ -593,7 +634,9 @@ Let's see:
   {/* works */}
   <Toggle
     onToggle={(value) => console.log('onToggle', value)}
-    render={({ on, toggle }) => <button onClick={toggle}>{on ? 'on' : 'off'}</button>}
+    render={({ on, toggle }) => (
+      <button onClick={toggle}>{on ? 'on' : 'off'}</button>
+    )}
   >
     {({ on, toggle }) => <button onClick={toggle}>{on ? 'on' : 'off'}</button>}
   </Toggle>
@@ -603,11 +646,17 @@ Let's see:
 Oh No Panic! No Errors 🤯... Why Mister Anderson Why ? Well [TypeScript doesn't allow exclusive union types](https://github.com/Microsoft/TypeScript/issues/10575#issuecomment-242919644). What needs to be done is to provide and [exclusive ( XOR like ) operator to the language](https://github.com/Microsoft/TypeScript/issues/14094), which we can partially implement by conditional types.
 
 ```tsx
-type XOR<T, U> = (T | U) extends object ? (Without<T, U> & U) | (Without<U, T> & T) : T | U
+type XOR<T, U> = (T | U) extends object
+  ? (Without<T, U> & U) | (Without<U, T> & T)
+  : T | U
+
 type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never }
 
 // Redefine RenderProps via XOR instead of Union operator
-type RenderProps = XOR<{ children: (api: API) => ReactNode }, { render: (api: API) => ReactNode }>
+type RenderProps = XOR<
+  { children: (api: API) => ReactNode },
+  { render: (api: API) => ReactNode }
+>
 ```
 
 Now we got proper compile errors if both children/render are defined at once, even so we got our intellisense back!
@@ -620,7 +669,9 @@ This although broke constraints within Toggle implementation as both render and 
 
 Allright we are done here!
 
-Hope you've learned something new today and that you'll leverage the power of React children composition with TypeScript sooner than later to provide consumers of your components with fantastic developer experience and type-safety ✌.
+We learned how to build highly composable components thanks to `props.children` React API, which are really not that different from what we get from the browser platform ( Shadow DOM ), even so more powerful thanks to JavaScript.
+
+With that said I hope you've learned something new today and that you'll leverage the power of React children composition with TypeScript sooner than later to provide consumers of your components with fantastic developer experience and type-safety ✌.
 
 ---
 
