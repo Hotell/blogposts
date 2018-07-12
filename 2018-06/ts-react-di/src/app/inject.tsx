@@ -1,6 +1,12 @@
 import React, { Component, ReactNode, createContext, PureComponent, ComponentType } from 'react'
-import { Type, ReflectiveInjector, Provider as ProviderConfig, Injector } from 'injection-js'
-import { isType } from './guards'
+import {
+  Type,
+  ReflectiveInjector,
+  Provider as ProviderConfig,
+  Injector,
+  InjectionToken,
+} from 'injection-js'
+import { isType, isProvider, isObject } from './guards'
 
 const rootInjector = ReflectiveInjector.resolveAndCreate([])
 // let lastInjector: ReflectiveInjector
@@ -34,9 +40,27 @@ export class Provider extends Component<ProviderProps> {
       header: { backgroundColor: bgColor, padding: `.5rem .25rem` },
       title: { margin: 0, backgroundColor: bgColor },
     }
+
     const registeredProvidersNames: string[] = registeredProviders.reduce((acc, next) => {
       if (isType(next)) {
         return [...(acc as string[]), next.name]
+      }
+      if (isProvider(next)) {
+        const [registrationKey] = Object.keys(next).filter((val) => val !== 'provide')
+        const registrationValue = (next as { [key: string]: any })[registrationKey] as
+          | Type<any>
+          | object
+        const providerName = {
+          provide: next.provide.name ? next.provide.name : next.provide._desc,
+          as: isType(registrationValue)
+            ? registrationValue.name
+            : JSON.stringify(registrationValue),
+        }
+
+        return [
+          ...(acc as string[]),
+          `{provide: ${providerName.provide}, ${registrationKey}: ${providerName.as} }`,
+        ]
       }
       return acc
     }, []) as string[]
