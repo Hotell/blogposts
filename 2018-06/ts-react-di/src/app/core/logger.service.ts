@@ -11,13 +11,13 @@ export class Logger {
   constructor(
     @Optional()
     @Inject(LoggerConfig)
-    private config: Config
+    protected config: Config
   ) {
     if (!config) {
       this.config = defaultConfig
     }
   }
-  logs: string[] = [] // capture logs for testing
+  protected logs: string[] = [] // capture logs for testing
   log(...message: {}[]) {
     this.logs.push(String(message))
     if (this.config.allow) {

@@ -4,6 +4,7 @@ import { injector, Service, Service2, Http } from './services'
 import { Provider, Inject } from './inject'
 import { HeroesModule } from './heroes/heroes.module'
 import { Logger, LoggerConfig } from './core/logger.service'
+import { HttpClient } from './core/http-client.service'
 
 export class App extends Component {
   render() {
@@ -13,11 +14,12 @@ export class App extends Component {
           Service,
           Service2,
           Http,
+          HttpClient,
           Logger,
           {
             provide: LoggerConfig,
             useValue: {
-              allow: false,
+              allow: true,
             },
           },
         ]}
@@ -41,7 +43,7 @@ class Child extends Component {
       <>
         <HeroesModule />
         <h2>Parent Injector</h2>
-        <Inject injectablesMap={{ service: Service, service2: Service2, logger: Logger }}>
+        <Inject providers={{ service: Service, service2: Service2, logger: Logger }}>
           {(props) => {
             return (
               <>
@@ -62,7 +64,7 @@ class Child extends Component {
         <Provider provide={[Service]}>
           <div>
             <h3>Child Injector</h3>
-            <Inject injectablesMap={{ service: Service, service2: Service2, logger: Logger }}>
+            <Inject providers={{ service: Service, service2: Service2, logger: Logger }}>
               {(props) => {
                 return (
                   <>

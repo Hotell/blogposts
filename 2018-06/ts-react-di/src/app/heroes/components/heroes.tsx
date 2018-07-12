@@ -1,19 +1,55 @@
 import React, { Component } from 'react'
 import { HeroList } from './hero-list'
-import { Inject } from '../../inject'
+import { Inject, AsyncPipe } from '../../inject'
 import { HeroService } from '../hero.service'
+import { Hero } from '../hero'
+import { HeroDetail } from './hero-detail'
 
-export class Heroes extends Component {
+type Props = {}
+type State = Readonly<typeof initialState>
+const initialState = {
+  currentHero: (null as any) as Hero,
+}
+export class Heroes extends Component<Props, State> {
+  readonly state = initialState
   render() {
+    const { currentHero } = this.state
     return (
       <>
         <h2>Heroes</h2>
-        <Inject injectablesMap={{ heroService: HeroService }}>
+        <Inject providers={{ heroService: HeroService }}>
           {({ heroService }) => {
-            return <HeroList heroes={heroService.getHeroes()} />
+            return (
+              <>
+                <AsyncPipe value={heroService.getHeroes()}>
+                  {({ isLoading, resolved }) =>
+                    isLoading ? (
+                      'Fetching data...'
+                    ) : (
+                      <HeroList
+                        heroes={resolved}
+                        onSelect={(selectedHero) => this.setCurrentHero(selectedHero)}
+                      />
+                    )
+                  }
+                </AsyncPipe>
+                {/* {currentHero && <HeroDetail hero={currentHero} />} */}
+                {currentHero && (
+                  <AsyncPipe value={heroService.getHero(currentHero.id)}>
+                    {({ isLoading, resolved }) =>
+                      isLoading ? 'Fetching detail...' : <HeroDetail hero={resolved} />
+                    }
+                  </AsyncPipe>
+                )}
+              </>
+            )
           }}
         </Inject>
       </>
     )
+  }
+
+  private setCurrentHero(hero: Hero) {
+    this.setState((prevState) => ({ currentHero: hero }))
   }
 }

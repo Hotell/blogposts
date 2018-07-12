@@ -1,13 +1,19 @@
 import { Injectable } from 'injection-js'
 
-import { HEROES } from './mock-heroes'
 import { Logger } from '../core/logger.service'
+import { HttpClient } from '../core/http-client.service'
+import { Hero } from './hero'
 
 @Injectable()
 export class HeroService {
-  constructor(private logger: Logger) {}
-  getHeroes() {
+  constructor(private httpClient: HttpClient, private logger: Logger) {}
+  getHeroes(): Promise<Hero[]> {
     this.logger.log('Getting heroes ...')
-    return HEROES
+    return this.httpClient.get('heroes')
+  }
+
+  getHero(id: number): Promise<Hero> {
+    this.logger.log(`Getting heroe with ID: ${id}...`)
+    return this.httpClient.get(`heroes/${id}`)
   }
 }

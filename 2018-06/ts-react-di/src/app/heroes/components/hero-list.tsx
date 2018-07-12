@@ -1,24 +1,25 @@
-import React, { Component } from 'react'
+import React, { Component, SyntheticEvent } from 'react'
+
 import { Hero } from '../hero'
-import { HEROES } from '../mock-heroes'
 
 type Props = {
-  heroes?: Hero[]
+  onSelect: (hero: Hero) => void
+  heroes: Hero[]
 }
 
 export class HeroList extends Component<Props> {
-  static defaultProps = {
-    heroes: HEROES.slice(2),
-  }
   render() {
     return (
       <>
         {this.props.heroes!.map((hero) => (
-          <div key={hero.id}>
+          <div key={hero.id} onClick={this.handleHeroSelect(hero)} style={{ cursor: 'pointer' }}>
             {hero.id} - {hero.name}
           </div>
         ))}
       </>
     )
+  }
+  private handleHeroSelect(hero: Hero) {
+    return (ev: SyntheticEvent) => this.props.onSelect(hero)
   }
 }
