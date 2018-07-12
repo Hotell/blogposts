@@ -11,9 +11,7 @@ export class HeroesModule extends Component {
   render() {
     return (
       <Provider provide={[HeroService, { provide: Logger, useClass: EnhancedLogger }]}>
-        <InjectorBoundary level={2} label="Child">
-          <Heroes />
-        </InjectorBoundary>
+        <Heroes />
       </Provider>
     )
   }

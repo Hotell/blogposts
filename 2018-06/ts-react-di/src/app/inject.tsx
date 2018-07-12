@@ -1,5 +1,6 @@
 import React, { Component, ReactNode, createContext, PureComponent, ComponentType } from 'react'
 import { Type, ReflectiveInjector, Provider as ProviderConfig, Injector } from 'injection-js'
+import { isType } from './guards'
 
 const rootInjector = ReflectiveInjector.resolveAndCreate([])
 // let lastInjector: ReflectiveInjector
@@ -8,6 +9,54 @@ const Context = createContext(rootInjector)
 
 type ProviderProps = { provide: ProviderConfig[] }
 export class Provider extends Component<ProviderProps> {
+  private static debugMode = {
+    on: false,
+  }
+  static enableDebugMode() {
+    this.debugMode.on = true
+  }
+  private static Debug = (props: {
+    parentInjector: ReflectiveInjector
+    children: ReactNode
+    registeredProviders: ProviderConfig[]
+    label?: string
+  }) => {
+    const { children, label, registeredProviders, parentInjector } = props
+    if (!Provider.debugMode.on) {
+      return children as JSX.Element
+    }
+
+    const isRoot = parentInjector === rootInjector
+    const injectorLabel = label || isRoot ? 'Root Injector' : 'Child Injector'
+    const bgColor = isRoot ? 'red' : '#388e3c'
+    const styling = {
+      container: { border: `2px solid ${bgColor}`, padding: '.5rem' },
+      header: { backgroundColor: bgColor, padding: `.5rem .25rem` },
+      title: { margin: 0, backgroundColor: bgColor },
+    }
+    const registeredProvidersNames: string[] = registeredProviders.reduce((acc, next) => {
+      if (isType(next)) {
+        return [...(acc as string[]), next.name]
+      }
+      return acc
+    }, []) as string[]
+
+    return (
+      <div style={styling.container}>
+        <header style={styling.header}>
+          <h4 style={styling.title}>{injectorLabel}</h4>
+          <pre>
+            <b>Registeted Providers:</b> {json(registeredProvidersNames)}
+          </pre>
+        </header>
+        {children}
+      </div>
+    )
+
+    function json<T>(value: T) {
+      return JSON.stringify(value, null, 2)
+    }
+  }
   // private get injector() {
   //   if (lastInjector) {
   //     lastInjector = lastInjector.resolveAndCreateChild(this.props.provide)
@@ -20,13 +69,27 @@ export class Provider extends Component<ProviderProps> {
   //   return lastInjector
   // }
 
-  private injector?: ReflectiveInjector
+  injector?: ReflectiveInjector
 
   render() {
     return (
       <Context.Consumer>
         {(parentInjector) => {
           this.injector = parentInjector.resolveAndCreateChild(this.props.provide)
+
+          if (Provider.debugMode.on) {
+            return (
+              <Context.Provider value={this.injector}>
+                <Provider.Debug
+                  parentInjector={parentInjector}
+                  registeredProviders={this.props.provide}
+                >
+                  {this.props.children}
+                </Provider.Debug>
+              </Context.Provider>
+            )
+          }
+
           return <Context.Provider value={this.injector}>{this.props.children}</Context.Provider>
         }}
       </Context.Consumer>
