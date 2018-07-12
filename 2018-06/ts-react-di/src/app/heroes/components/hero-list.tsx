@@ -1,5 +1,7 @@
 import React, { Component, SyntheticEvent } from 'react'
 
+import './hero-list.css'
+
 import { Hero } from '../hero'
 
 type Props = {
@@ -10,13 +12,18 @@ type Props = {
 export class HeroList extends Component<Props> {
   render() {
     return (
-      <>
-        {this.props.heroes!.map((hero) => (
-          <div key={hero.id} onClick={this.handleHeroSelect(hero)} style={{ cursor: 'pointer' }}>
+      <div className="hero-list">
+        {this.props.heroes.map((hero) => (
+          <div
+            key={hero.id}
+            className="hero-list__item"
+            onClick={this.handleHeroSelect(hero)}
+            style={{ cursor: 'pointer' }}
+          >
             {hero.id} - {hero.name}
           </div>
         ))}
-      </>
+      </div>
     )
   }
   private handleHeroSelect(hero: Hero) {

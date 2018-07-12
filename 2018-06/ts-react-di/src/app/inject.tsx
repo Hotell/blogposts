@@ -1,4 +1,4 @@
-import React, { Component, ReactNode, createContext, PureComponent } from 'react'
+import React, { Component, ReactNode, createContext, PureComponent, ComponentType } from 'react'
 import { Type, ReflectiveInjector, Provider as ProviderConfig, Injector } from 'injection-js'
 
 const rootInjector = ReflectiveInjector.resolveAndCreate([])
@@ -70,9 +70,15 @@ type AsyncPipeState<T> = Readonly<{
   resolvedValue: T
   isLoading: boolean
 }>
-export function asyncPipe<T>(value: Promise<T>) {
-  return value.then((resolved) => resolved)
+export function asyncPipe<T>(value: Promise<T>, componentInstance: Component) {
+  return value.then((resolved) => {
+    componentInstance.forceUpdate(() => {
+      console.log('force update')
+    })
+    return resolved
+  })
 }
+
 export class AsyncPipe<T> extends PureComponent<AsyncPipeProps<T>, AsyncPipeState<T>> {
   readonly state = {
     isLoading: true,
@@ -86,21 +92,23 @@ export class AsyncPipe<T> extends PureComponent<AsyncPipeProps<T>, AsyncPipeStat
     }
   }
   render() {
+    // console.log('render with', this.getApi())
     const { children } = this.props
     return children(this.getApi())
   }
   componentDidMount() {
     this.resolvePromise()
   }
-  componentDidUpdate(prevProps: AsyncPipeProps<T>) {
-    const promiseChanged = prevProps.value !== this.props.value
-    if (promiseChanged) {
-      this.resolvePromise()
-    }
-  }
+  // componentDidUpdate(prevProps: AsyncPipeProps<T>) {
+  //   const promiseChanged = prevProps.value !== this.props.value
+  //   console.log('componentDidUpdate changed?', promiseChanged)
+  //   if (promiseChanged) {
+  //     this.setState(() => ({ isLoading: true }), () => this.resolvePromise())
+  //   }
+  // }
   private resolvePromise() {
     this.props.value.then((resolved) => {
-      this.setState({ isLoading: false, resolvedValue: resolved })
+      this.setState((prevState) => ({ isLoading: false, resolvedValue: resolved }))
     })
   }
 }

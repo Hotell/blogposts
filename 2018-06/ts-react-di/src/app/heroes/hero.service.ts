@@ -13,7 +13,7 @@ export class HeroService {
   }
 
   getHero(id: number): Promise<Hero> {
-    this.logger.log(`Getting heroe with ID: ${id}...`)
+    this.logger.log(`Getting hero with ID: ${id}...`)
     return this.httpClient.get(`heroes/${id}`)
   }
 }

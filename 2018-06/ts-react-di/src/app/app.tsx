@@ -5,35 +5,36 @@ import { Provider, Inject } from './inject'
 import { HeroesModule } from './heroes/heroes.module'
 import { Logger, LoggerConfig } from './core/logger.service'
 import { HttpClient } from './core/http-client.service'
+import { InjectorBoundary } from './shared/injector-boundary'
 
 export class App extends Component {
   render() {
     return (
-      <Provider
-        provide={[
-          Service,
-          Service2,
-          Http,
-          HttpClient,
-          Logger,
-          {
-            provide: LoggerConfig,
-            useValue: {
-              allow: true,
-            },
-          },
-        ]}
-      >
+      <>
         <main>
           <h1>React + Angular service DI</h1>
-          <Child />
+          <Provider
+            provide={[
+              Service,
+              Service2,
+              Http,
+              HttpClient,
+              Logger,
+              {
+                provide: LoggerConfig,
+                useValue: {
+                  allow: true,
+                },
+              },
+            ]}
+          >
+            <InjectorBoundary level={1} label="Root">
+              <Child />
+            </InjectorBoundary>
+          </Provider>
         </main>
-      </Provider>
+      </>
     )
-  }
-  componentDidMount() {
-    // console.log(injector.get(Service) instanceof Service)
-    // console.log(injector.get(Service2))
   }
 }
 
@@ -42,11 +43,14 @@ class Child extends Component {
     return (
       <>
         <HeroesModule />
-        <h2>Parent Injector</h2>
         <Inject providers={{ service: Service, service2: Service2, logger: Logger }}>
           {(props) => {
             return (
               <>
+                <button onClick={(ev) => props.logger.log(ev.clientX, ev.clientY)}>
+                  Log X Y position
+                </button>
+                <hr />
                 <div>Hello {props.service2.who}</div>
                 <button
                   onClick={() => {
@@ -62,7 +66,7 @@ class Child extends Component {
         </Inject>
         {/* Here we create child provider with it's own Service instance! */}
         <Provider provide={[Service]}>
-          <div>
+          <InjectorBoundary level={2} label="Child">
             <h3>Child Injector</h3>
             <Inject providers={{ service: Service, service2: Service2, logger: Logger }}>
               {(props) => {
@@ -93,7 +97,7 @@ class Child extends Component {
                 )
               }}
             </Inject>
-          </div>
+          </InjectorBoundary>
         </Provider>
       </>
     )

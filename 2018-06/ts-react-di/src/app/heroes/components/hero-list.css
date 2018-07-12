@@ -1,0 +1,11 @@
+.hero-list {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.hero-list__item {
+  padding: 0.25rem;
+}
+.hero-list__item:hover {
+  background-color: coral;
+}

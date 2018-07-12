@@ -1,19 +1,20 @@
 import React, { Component } from 'react'
 import { HeroList } from './hero-list'
-import { Inject, AsyncPipe } from '../../inject'
+import { Inject, AsyncPipe, asyncPipe } from '../../inject'
 import { HeroService } from '../hero.service'
 import { Hero } from '../hero'
 import { HeroDetail } from './hero-detail'
 
+type Maybe<T> = T | null
 type Props = {}
 type State = Readonly<typeof initialState>
 const initialState = {
-  currentHero: (null as any) as Hero,
+  selectedHero: null as Maybe<Hero>,
 }
 export class Heroes extends Component<Props, State> {
   readonly state = initialState
   render() {
-    const { currentHero } = this.state
+    const { selectedHero } = this.state
     return (
       <>
         <h2>Heroes</h2>
@@ -24,22 +25,21 @@ export class Heroes extends Component<Props, State> {
                 <AsyncPipe value={heroService.getHeroes()}>
                   {({ isLoading, resolved }) =>
                     isLoading ? (
-                      'Fetching data...'
+                      'Fetching Heroes...'
                     ) : (
-                      <HeroList
-                        heroes={resolved}
-                        onSelect={(selectedHero) => this.setCurrentHero(selectedHero)}
-                      />
+                      <HeroList heroes={resolved} onSelect={this.setCurrentHero} />
                     )
                   }
                 </AsyncPipe>
-                {/* {currentHero && <HeroDetail hero={currentHero} />} */}
-                {currentHero && (
-                  <AsyncPipe value={heroService.getHero(currentHero.id)}>
-                    {({ isLoading, resolved }) =>
-                      isLoading ? 'Fetching detail...' : <HeroDetail hero={resolved} />
-                    }
-                  </AsyncPipe>
+                {selectedHero && (
+                  <>
+                    <button onClick={this.handleCloseDetail}>Close detail</button>
+                    <AsyncPipe key={selectedHero.id} value={heroService.getHero(selectedHero.id)}>
+                      {({ isLoading, resolved }) =>
+                        isLoading ? 'Fetching detail...' : <HeroDetail hero={resolved} />
+                      }
+                    </AsyncPipe>
+                  </>
                 )}
               </>
             )
@@ -49,7 +49,8 @@ export class Heroes extends Component<Props, State> {
     )
   }
 
-  private setCurrentHero(hero: Hero) {
-    this.setState((prevState) => ({ currentHero: hero }))
+  private setCurrentHero = (hero: Hero | null) => {
+    this.setState((prevState) => ({ selectedHero: hero }))
   }
+  private handleCloseDetail = () => this.setCurrentHero(null)
 }

@@ -15,7 +15,7 @@ export class HeroDetail extends Component<Props> {
           </div>
           <label>
             <b>Is Secret?:</b>
-            <input type="checkbox" defaultChecked={hero.isSecret} />
+            <input type="checkbox" checked={hero.isSecret} onChange={console.log} />
           </label>
         </form>
       </div>
