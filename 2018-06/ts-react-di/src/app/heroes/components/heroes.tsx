@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { HeroList } from './hero-list'
-import { Inject, AsyncPipe, asyncPipe } from '../../inject'
+import { Inject, AsyncPipe } from '../../../lib/rea-di'
 import { HeroService } from '../hero.service'
 import { Hero } from '../hero'
 import { HeroDetail } from './hero-detail'

@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
+import { Provider, Inject } from 'lib/rea-di'
 
 import { injector, Service, Service2, Http } from './services'
-import { Provider, Inject } from './inject'
 import { HeroesModule } from './heroes/heroes.module'
 import { Logger, LoggerConfig } from './core/logger.service'
 import { HttpClient } from './core/http-client.service'
+import { CounterModule } from './counter/counter.module'
 
 Provider.enableDebugMode()
 
@@ -41,6 +42,7 @@ class Child extends Component {
   render() {
     return (
       <>
+        <CounterModule />
         <HeroesModule />
         <Inject providers={{ service: Service, service2: Service2, logger: Logger }}>
           {(props) => {
