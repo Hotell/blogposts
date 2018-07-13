@@ -4,6 +4,7 @@ import { Inject, AsyncPipe } from '../../../lib/rea-di'
 import { HeroService } from '../hero.service'
 import { Hero } from '../hero'
 import { HeroDetail } from './hero-detail'
+import { HeroCointainer } from './hero-container'
 
 type Maybe<T> = T | null
 type Props = {}
@@ -14,7 +15,6 @@ const initialState = {
 export class Heroes extends Component<Props, State> {
   readonly state = initialState
   render() {
-    const { selectedHero } = this.state
     return (
       <>
         <h2>Heroes</h2>
@@ -22,7 +22,9 @@ export class Heroes extends Component<Props, State> {
           {({ heroService }) => {
             return (
               <>
-                <AsyncPipe value={heroService.getHeroes()}>
+                <HeroCointainer service={heroService} />
+                <hr />
+                {/* <AsyncPipe value={heroService.getHeroes()}>
                   {({ isLoading, resolved }) =>
                     isLoading ? (
                       'Fetching Heroes...'
@@ -40,7 +42,7 @@ export class Heroes extends Component<Props, State> {
                       }
                     </AsyncPipe>
                   </>
-                )}
+                )} */}
               </>
             )
           }}
