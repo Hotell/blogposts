@@ -58,7 +58,7 @@ export class App extends Component<{}, State> {
         <section className="container">
           <AppDemo />
         </section>
-        <hr />
+        {/* <hr />
         <section className="container">
           <div>
             Selected items:
@@ -97,7 +97,7 @@ export class App extends Component<{}, State> {
               onSelect={this.handleSelect}
             />
           </div>
-        </section>
+        </section> */}
       </main>
     )
   }
