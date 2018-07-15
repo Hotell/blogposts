@@ -1,17 +1,14 @@
-import React, { ReactNode, Component, PureComponent } from 'react'
+import React, { ReactNode, Component } from 'react'
 
-export type Props = {
-  children: {
-    header?: ReactNode
-    media?: ReactNode
-    content: ReactNode
-    actions?: ReactNode
-  }
+type Props = {
+  children: ReactNode
+  header?: ReactNode
+  media?: ReactNode
+  actions?: ReactNode
 }
 export class Card extends Component<Props> {
   render() {
-    console.count('Card render')
-    const { header, content, media, actions } = this.props.children
+    const { children: content, header, media, actions } = this.props
 
     return (
       <div className="card">

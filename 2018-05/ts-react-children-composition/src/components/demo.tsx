@@ -2,6 +2,7 @@ import React, { Component, ErrorInfo } from 'react'
 
 import { Card } from './01'
 import { Card as Card2 } from './02'
+import { Card as Card2AlternativeAPI } from './02-alternative-api'
 import { Card as Card3 } from './03'
 import { Toggle } from './04'
 import { Toggle as FinalToggle } from './05'
@@ -44,6 +45,23 @@ export class Demo extends Component {
               ),
             }}
           </Card2>
+        </section>
+
+        <section>
+          <h3>02. alternative API</h3>
+
+          <Card2AlternativeAPI
+            header="Hello World"
+            media={<img src="..." />}
+            actions={
+              <>
+                <Button>Like</Button>
+                <Button>Share</Button>
+              </>
+            }
+          >
+            <p>The Shiba Inu is the smallest of ...</p>
+          </Card2AlternativeAPI>
         </section>
 
         <section>
