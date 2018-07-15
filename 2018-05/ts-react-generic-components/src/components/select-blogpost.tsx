@@ -3,8 +3,6 @@ import React, { Component, SyntheticEvent } from 'react'
 import './select.css'
 import { isObject, isString, isBlank } from '../utils'
 
-type MapType<T extends { [key: string]: any } = { [key: string]: any }> = T
-type GenericProps = string | MapType
 type Props<T extends GenericProps> = {
   // forbiden children
   children?: never
@@ -18,16 +16,12 @@ type Props<T extends GenericProps> = {
   // @TODO try to conditional type this one
   onSelect: (item: T | null, event?: SyntheticEvent<HTMLElement>) => void
 }
-type State<T extends GenericProps> = Readonly<{
-  inputText: string
-}>
-
-const isObjectMap = <T extends GenericProps>(value: T): value is Exclude<T, string> =>
-  isObject(value)
+type State = Readonly<ReturnType<typeof getInitialState>>
+type GenericProps = string | { [key: string]: any }
 
 const createListId = <T extends Props<any>>({ name }: T) => `list-${name}`
 
-const getOptionValue = <T extends GenericProps, K extends Props<T>['displayKey']>(
+const getItemValue = <T extends GenericProps, K extends Props<T>['displayKey']>(
   selected: T | null,
   displayKey?: K
 ): string => {
@@ -50,35 +44,40 @@ const getOptionValue = <T extends GenericProps, K extends Props<T>['displayKey']
   throw new Error(`selected is can be null/object map/string. You provided ${typeof selected}`)
 }
 
-const getInitialState = <T extends GenericProps>(props: Props<T>): State<T> => {
+const getInitialState = <T extends GenericProps>(props: Props<T>) => {
   const { active = null, displayKey } = props
   return {
-    inputText: getOptionValue(active, displayKey),
+    inputText: getItemValue(active, displayKey),
   }
 }
 
-export class Select<T extends GenericProps> extends Component<Props<T>, State<T>> {
-  readonly state = getInitialState(this.props)
+export class Select<T extends GenericProps> extends Component<Props<T>, State> {
+  readonly state: State = getInitialState(this.props)
   private connecListId = createListId(this.props)
   private readonly handleChange = (event: React.FormEvent<HTMLInputElement>) => {
     const { value: inputValue } = event.currentTarget
-    const selectedValue = this.getValidValueFromList(inputValue)
+    const selectedValue = this.getItemFromListByValue(inputValue)
 
     this.setState(
       () => ({ inputText: inputValue }),
-      () => (selectedValue ? this.props.onSelect(selectedValue) : this.invalidateSelectedValue())
+      // after internal state update call prop.onSelect
+      () => this.handleOnSelect(selectedValue)
     )
   }
 
-  /**
-   * call onSelect prop with null or '' to notify consumer that value within input is not valid
-   */
-  private invalidateSelectedValue() {
-    this.props.onSelect(this.props.displayKey ? null : ('' as T))
+  private handleOnSelect(value?: T) {
+    const selectedValue = value
+      ? value
+      : // call onSelect prop with null or '' to notify consumer that value within input is not valid
+        this.props.displayKey
+        ? null
+        : ('' as T)
+
+    this.props.onSelect(selectedValue)
   }
 
-  private getValidValueFromList(value: string) {
-    return this.props.items.find((item) => getOptionValue(item, this.props.displayKey) === value)
+  private getItemFromListByValue(value: string) {
+    return this.props.items.find((item) => getItemValue(item, this.props.displayKey) === value)
   }
 
   render() {
@@ -95,7 +94,7 @@ export class Select<T extends GenericProps> extends Component<Props<T>, State<T>
           onChange={this.handleChange}
         />
         <datalist id={this.connecListId}>
-          {items.map((item, idx) => <option key={idx} value={getOptionValue(item, displayKey)} />)}
+          {items.map((item, idx) => <option key={idx} value={getItemValue(item, displayKey)} />)}
         </datalist>
       </div>
     )
