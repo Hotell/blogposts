@@ -2,11 +2,14 @@ import React, { Component } from 'react'
 import { Select } from './select-blogpost'
 import { Debug } from './debug'
 
-type User = typeof data.users[0]
+type User = { name: string; age: number }
+
+type Props = {}
+type State = typeof initialState
 
 const data = {
   heroes: ['Hulk', 'Iron Man'],
-  users: [{ name: 'Peter', age: 32 }, { name: 'John', age: 23 }],
+  users: [{ name: 'Peter', age: 32 }, { name: 'John', age: 23 }] as User[],
 }
 
 const initialState = {
@@ -14,7 +17,7 @@ const initialState = {
   user: null as User | null,
 }
 
-export class AppDemo extends Component<object, typeof initialState> {
+export class AppDemo extends Component<Props, State> {
   state = initialState
   render() {
     return (
@@ -32,7 +35,7 @@ export class AppDemo extends Component<object, typeof initialState> {
           name="user"
           label="selec user"
           displayKey="name"
-          active={this.state.user as User}
+          active={this.state.user}
           items={data.users}
           onSelect={(selected) => this.setState((prevState) => ({ user: selected }))}
         />
