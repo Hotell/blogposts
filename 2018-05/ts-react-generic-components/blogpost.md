@@ -1,4 +1,4 @@
-# React Generic Components with TypeScript 2.9
+# React Generic Components with TypeScript
 
 TypeScript 2.9 introduced a new compiler feature for declaring generic React components from within JSX, which adds even more type-safety and developer experience.
 
@@ -44,7 +44,7 @@ With that said, you may be still asking, ok dude but why do I need to use generi
 Well, re-usable === it should accept and render various data types:
 
 - primitive ones `string[]`
-- more complicated data like objects/maps etc...
+- more complicated data like objects/arrays etc...
 
 How should it be used in type-safe way?
 
@@ -80,4 +80,16 @@ class App extends Component {
 }
 ```
 
-Let's implement our **<Select />** !
+Let's implement our generic **<Select />** !
+
+### Generic <Select/>
+
+#### 1. Defining Props
+
+#### 2. Defining State
+
+#### 3. Implementation
+
+### Generic <Select/> with render prop pattern
+
+### Summary
