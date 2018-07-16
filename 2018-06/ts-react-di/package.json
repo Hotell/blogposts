@@ -33,6 +33,7 @@
     "core-js": "2.5.7",
     "injection-js": "2.2.1",
     "react": "16.4.1",
-    "react-dom": "16.4.1"
+    "react-dom": "16.4.1",
+    "@martin_hotell/rea-di": "0.0.1"
   }
 }

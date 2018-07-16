@@ -1,9 +1,9 @@
 import { Injectable } from 'injection-js'
+import { WithState } from '@martin_hotell/rea-di'
 
 import { Logger } from '../core/logger.service'
 import { HttpClient } from '../core/http-client.service'
 import { Hero } from './hero'
-import { WithState } from 'lib/rea-di'
 
 type State = {
   heroes: Hero[] | null

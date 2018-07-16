@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
-import { HeroList } from './hero-list'
-import { Inject, AsyncPipe } from '../../../lib/rea-di'
+import { Inject, AsyncPipe } from '@martin_hotell/rea-di'
+
 import { HeroService } from '../hero.service'
 import { Hero } from '../hero'
-import { HeroDetail } from './hero-detail'
 import { HeroCointainer } from './hero-container'
 
 type Maybe<T> = T | null

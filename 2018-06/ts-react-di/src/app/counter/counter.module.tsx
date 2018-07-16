@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { Provider as ProviderType } from 'injection-js'
-import { Inject, Provider } from 'lib/rea-di'
+import { Inject, Provider } from '@martin_hotell/rea-di'
+
 import { CounterService } from './counter.service'
 import { Counter } from './counter'
 import { Logger } from '../core/logger.service'

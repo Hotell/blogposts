@@ -1,4 +1,4 @@
-import { Provider } from 'lib/rea-di'
+import { Provider } from '@martin_hotell/rea-di'
 import React, { Component } from 'react'
 
 import { EnhancedLogger } from '../core/enhanced-logger.service'

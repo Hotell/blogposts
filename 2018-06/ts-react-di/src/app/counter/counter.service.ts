@@ -1,5 +1,6 @@
 import { Injectable } from 'injection-js'
-import { WithState } from 'lib/rea-di'
+import { WithState } from '@martin_hotell/rea-di'
+
 import { Logger } from '../core/logger.service'
 
 type State = Readonly<{ count: number }>

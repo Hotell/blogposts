@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Provider, Inject } from 'lib/rea-di'
+import { Provider, Inject } from '@martin_hotell/rea-di'
 
 import { injector, Service, Service2, Http } from './services'
 import { HeroesModule } from './heroes/heroes.module'
