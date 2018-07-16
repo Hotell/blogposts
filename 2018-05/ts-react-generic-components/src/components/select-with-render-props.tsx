@@ -14,7 +14,11 @@ type Props<T extends GenericProps> = {
   label: string
   active?: T | null
   /**
-   * if T is object map, dissallow displayKey
+   * if T is primitive value ( in our case string ), dissallow displayKey as it is required only for object map values
+   *
+   * **NOTE:**
+   * There is no way how to make this required when T is object and forbidden when T is string
+   *    -> only way would be to use [type unions](https://medium.com/@martin_hotell/react-children-composition-patterns-with-typescript-56dfc8923c64)
    */
   displayKey?: T extends string ? never : keyof T
   /**
@@ -22,7 +26,9 @@ type Props<T extends GenericProps> = {
    */
   onSelect: (item: T | null, event?: SyntheticEvent<HTMLElement>) => void
 }
+
 type State = Readonly<ReturnType<typeof getInitialState>>
+
 type GenericProps = string | { [key: string]: any }
 
 const createListId = <T extends Props<any>>({ name }: T) => `list-${name}`
