@@ -667,7 +667,7 @@ This although broke constraints within Toggle implementation as both render and 
 
 # End
 
-Allright we are done here!
+Alright we are done here!
 
 We learned how to build highly composable components thanks to `props.children` React API, which are really not that different from what we get from the browser platform ( Shadow DOM ), even so more powerful thanks to JavaScript.
 
