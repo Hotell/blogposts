@@ -1,8 +1,10 @@
+import React, { createRef } from 'react'
+
 type Props = {}
 
-function CustomTextInput(props: Props) {
+const CustomTextInput = (props: Props) => {
   // textInput must be declared here so the ref can refer to it
-  const textInput = React.createRef<HTMLInputElement>()
+  const textInput = createRef<HTMLInputElement>()
 
   function handleClick() {
     if (textInput.current) {

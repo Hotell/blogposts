@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, createRef } from 'react'
 
 class MyComponent extends Component {
   private myRef = React.createRef()
@@ -10,7 +10,7 @@ class MyComponent extends Component {
 {
   // fix TS errors
   class MyComponent extends Component {
-    private myRef = React.createRef<HTMLDivElement>()
+    private myRef = createRef<HTMLDivElement>()
     render() {
       return <div ref={this.myRef} />
     }
