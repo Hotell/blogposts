@@ -20,20 +20,25 @@ Recently I've got this message on Twitter
 
 https://twitter.com/code_e_averett/status/1025536674472886272
 
-and instead of replying, I've decided to write down this short post about how to handle React DOM refs with TypeScript ( because React and TypeScript are my favourite tolls to write UI and apparently I'm not alone with this mindset 😎💪). With that said, don't expect to learn here all the why's and how's about React refs ( you can find all that info within excellent [React docs](https://reactjs.org/docs/refs-and-the-dom.html)). Anyways this post will try to mirror those docs a bit for easy context switching.
+Instead of replying, I've decided to write down this "short post" about how to handle React DOM refs and ref forwarding with TypeScript for anyone new to React and TypeScript as I didn't found this resource anywhere online.
 
-Ok so what are Refs in React ?
+> **Disclaimer:**
+> Don't expect to learn all the why's and how's about React refs within this blogpost ( you can find all that info in excellent [React docs](https://reactjs.org/docs/refs-and-the-dom.html)).
+>
+> This post will try to mirror those docs a bit for easy context switching.
+
+What are Refs in React ?
 
 > Refs provide a way to access DOM nodes or React elements created in the render method.
 
-Let's create some React refs with TypeScript.
+Let's create some React refs with TypeScript 👌👀
 
 ### Creating Refs
 
 ```tsx
 class MyComponent extends Component {
   // we create ref on component instance
-  private myRef = React.createRef()
+  private myRef = createRef()
   render() {
     return <div ref={this.myRef} />
   }
@@ -66,18 +71,22 @@ interface RefObject<T> {
 }
 ```
 
-So with that covered you already know how to make our code valid right ? 👀 We need to explicitly set the generic value for `createRef`:
+With that covered, you already know how to make our code valid right ? 👀 We need to explicitly set the generic value for `createRef`:
 
 ```tsx
+import React, { Component, createRef } from 'react'
+
 class MyComponent extends Component {
-  // explicitly provide generic type for our ref
-  // @TODO Why private?
-  private myRef = React.createRef<HTMLDivElement>()
+  // explicitly provide generic parameter type for our ref
+  private myRef = createRef<HTMLDivElement>()
+
   render() {
     return <div ref={this.myRef} />
   }
 }
 ```
+
+![Creating Refs](./img/01-creating-refs.png)
 
 ### Accessing refs
 
@@ -113,15 +122,17 @@ const node: HTMLDivElement | null
 
 You may say, this is annoying, TypeScript sucks... Not so fast partner 😎! TypeScripts just prevents you to do a programmatic mistake here which would lead to runtime error, even without reading a line of the docs ❤️.
 
-What React docs say about `current` value ?
+**What React docs say about `current` value ?**
 
 > React will assign the current property with the DOM element when the component mounts, and assign it back to null when it unmounts. ref updates happen before componentDidMount or componentDidUpdate lifecycle hooks.
 
 That's exactly what TS told you by that compile error! So to fix this, you need to add some safety net, an `if` statement is very appropriate here ( it will prevent runtime errors and also narrow type definition by removing `null` ):
 
 ```tsx
+import React, { createRef, Component } from 'react'
+
 class MyComponent extends Component {
-  private myRef = React.createRef<HTMLDivElement>()
+  private myRef = createRef<HTMLDivElement>()
 
   focus() {
     const node = this.myRef.current
@@ -134,38 +145,52 @@ class MyComponent extends Component {
 }
 ```
 
+![Accessing refs](./img/02-accessing-refs.png)
+
 Also we get autocomplete to whole `HTMLDivElement` DOM api. Lovely!
 
 ![Accessing refs](./img/02-accessing-refs.gif)
 
-> What about accessing refs within `componentDidMount` if we don't wanna encapsulate our imperative logic within a method ( because we are messy/bad programmers 😇)?
+> **Curious reader may ask:**
+>
+> What about accessing refs within `componentDidMount` if we don't wanna encapsulate our imperative logic within a method ( because we are messy/bad programmers 😇 ) ?
 
-Because we know that our reference `current` is definitely gonna be available within componentDidMount, we can use TypeScript's **Non-null assertion operator** 👉 `!`
+I hear you... Because we know that our refs `current` value is definitely gonna be available within `componentDidMount`, we can use TypeScript's **Non-null assertion operator** 👉 👉 👉 `!`
 
 ```tsx
+import React, { createRef, Component } from 'react'
+
 class MyComponent extends Component {
-  private myRef = React.createRef<HTMLDivElement>()
+  private myRef = createRef<HTMLDivElement>()
 
   componentDidMount() {
+    // using ! to remove undefined/null from type definition
     const node = this.myRef.current!
     node.focus()
   }
 }
 ```
 
-That's it. But hey, I really recommend encapsulating the logic to separate method with descriptive method name. Ya know readable code without comments and stuff 🖖.
+![Non null assertion](./img/02-accessing-refs-non-null-assertion.png)
+
+That's it!
+
+> But hey, I really recommend encapsulating the logic to separate method with descriptive method name. Ya know readable code without comments and stuff 🖖 ...
 
 ### Adding a Ref to a Class Component
 
 If we wanted to wrap our **MyComponent** above to simulate it being focused immediately after mounting, we could use a ref to get access to the **MyComponent** instance and call its `focus` method manually:
 
 ```tsx
+import React, { createRef, Component } from 'react'
+
 class AutoFocusTextInput extends Component {
-  private myCmp = React.createRef<MyComponent>()
+  // create ref with explicit generic parameter ( this time instance of MyComponent )
+  private myCmp = createRef<MyComponent>()
 
   componentDidMount() {
     // @FIXME
-    // non null assertion used, for real code extract this logic to method!
+    // non null assertion used, extract this logic to method!
     this.textInput.current!.focus()
   }
 
@@ -190,11 +215,13 @@ Beautiful isn't it ? 🔥
 You can, however, use the ref attribute inside a functional component as long as you refer to a DOM element or a class component:
 
 ```tsx
+import React, { createRef } from 'react'
+
 type Props = {}
 
-function CustomTextInput(props: Props) {
+const CustomTextInput = (props: Props) => {
   // textInput must be declared here so the ref can refer to it
-  const textInput = React.createRef<HTMLInputElement>()
+  const textInput = createRef<HTMLInputElement>()
 
   function handleClick() {
     if (textInput.current) {
@@ -212,6 +239,8 @@ function CustomTextInput(props: Props) {
 }
 ```
 
+![Refs and Functional Components](./img/04-refs-on-functional-components.png)
+
 ## Forwarding Refs
 
 > [Ref forwarding is a technique for automatically passing a ref through a component to one of its children.](https://reactjs.org/docs/forwarding-refs.html)
@@ -221,6 +250,8 @@ function CustomTextInput(props: Props) {
 Let's define `FancyButton` component that renders the native button DOM element:
 
 ```tsx
+import React, { ReactNode } from 'react'
+
 type Props = { children: ReactNode; type: 'submit' | 'button' }
 
 export const FancyButton = (props: Props) => (
@@ -230,11 +261,15 @@ export const FancyButton = (props: Props) => (
 )
 ```
 
+![Fancy Button](./img/05-fancy-button.png)
+
 > Ref forwarding is an opt-in feature that lets some components take a ref they receive, and pass it further down (in other words, “forward” it) to a child.
 
 Let's add ref forwarding support to this component, so components using it, can get a ref to the underlying button DOM node and access it if necessary—just like if they used a DOM button directly.
 
 ```tsx
+import React, { forwardRef, ReactNode } from 'react'
+
 type Props = { children: ReactNode; type: 'submit' | 'button' }
 
 // (1)
@@ -247,6 +282,8 @@ export const FancyButton = forwardRef<Ref, Props>((props, ref) => (
   </button>
 ))
 ```
+
+![Fancy Button with refs](./img/05-fancy-button-refs.png)
 
 What's happening here?
 
@@ -440,6 +477,8 @@ const EnhancedFancyButton = withPropsLogger<FancyButton, FancyButtonProps>(
 And finally we can use it in type-safe way! Let's check it out:
 
 ![Forwarding refs in HOC components](./img/06-forwarding-refs-in-hoc-components.gif)
+
+And we're at the end. Now go, TypeScript all the React refs things! 💪 💪 💪 ⚛️
 
 ---
 
