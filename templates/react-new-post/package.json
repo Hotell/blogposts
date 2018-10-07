@@ -11,15 +11,15 @@
     "format": "prettier --write \"**/*.{ts,tsx,md,css,less,sass,scss}\""
   },
   "devDependencies": {
-    "@types/react": "16.4.7",
-    "@types/react-dom": "16.0.6",
-    "prettier": "1.14.0",
+    "@types/react": "16.4.15",
+    "@types/react-dom": "16.0.8",
+    "prettier": "1.14.3",
     "tslib": "1.9.3",
-    "typescript": "3.0.1",
-    "parcel-bundler": "1.9.7"
+    "typescript": "3.1.1",
+    "parcel-bundler": "1.10.2"
   },
   "dependencies": {
-    "react": "16.4.2",
-    "react-dom": "16.4.2"
+    "react": "16.5.2",
+    "react-dom": "16.5.2"
   }
 }
