@@ -4,11 +4,8 @@ import 'papercss/dist/paper.min.css'
 import React, { Component } from 'react'
 import { CreateTodo } from './create-todo'
 import { TodoItem } from './todo-item'
-import { Debug } from './debug'
-
-/**
- * @typedef {{id: string, description: string, done: boolean}} Todo
- */
+import { DebugMode } from './debug'
+import { Todo } from './models'
 
 /**
  * @typedef {typeof initialState} State
@@ -34,17 +31,9 @@ export class App extends Component {
 
   /**
    * @param {string} description
-   * @returns {void}
    */
   handleCreate = (description) => {
-    /**
-     * @type {Todo}
-     */
-    const newTodo = {
-      id: String(Date.now()),
-      done: false,
-      description,
-    }
+    const newTodo = Todo(description)
 
     const todos = this.state.todos || []
 
@@ -56,7 +45,6 @@ export class App extends Component {
 
   /**
    * @param {string} id
-   * @returns {void}
    */
   handleTodoCompleteChange = (id) => {
     if (!this.state.todos) {
@@ -74,7 +62,6 @@ export class App extends Component {
 
   /**
    * @param {string} id
-   * @returns {void}
    */
   handleTodoRemoval = (id) => {
     if (!this.state.todos) {
@@ -93,22 +80,22 @@ export class App extends Component {
 
     return (
       <main className="container">
-        <h1>Todo App</h1>
-        <Debug value={this.state} />
+        <h1 className="text-center">Todo App</h1>
+        <DebugMode>{this.state}</DebugMode>
         <CreateTodo onCreate={this.handleCreate} />
-        {todos && todos.length ? (
-          todos.map((todo) => (
-            <TodoItem
-              key={todo.id}
-              model={todo}
-              onCompleteChange={this.handleTodoCompleteChange}
-              onRemove={this.handleTodoRemoval}
-            />
-          ))
-        ) : (
-          <p className="text-center">No todos so far 👀 ✍️</p>
-        )}
-        <p className="text-center">Remaining todos: {this.todosLeftCount}</p>
+        {todos && todos.length
+          ? todos.map((todo) => (
+              <TodoItem
+                key={todo.id}
+                model={todo}
+                onCompleteChange={this.handleTodoCompleteChange}
+                onRemove={this.handleTodoRemoval}
+              />
+            ))
+          : null}
+        <p className="border border-muted padding-large text-center">
+          Remaining todos: <b>{this.todosLeftCount}</b> 👀 ✍️
+        </p>
       </main>
     )
   }

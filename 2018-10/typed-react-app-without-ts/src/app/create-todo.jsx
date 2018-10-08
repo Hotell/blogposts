@@ -1,5 +1,5 @@
 // @ts-check
-import React, { Component, ChangeEvent, FormEvent } from 'react'
+import React, { Component } from 'react'
 
 /**
  * @typedef {{onCreate: (description:string)=>void}} Props
@@ -20,7 +20,7 @@ export class CreateTodo extends Component {
   state = initialState
 
   /**
-   * @param {FormEvent} ev
+   * @param {import('react').FormEvent} ev
    */
   handleSubmit = (ev) => {
     ev.preventDefault()
@@ -31,7 +31,7 @@ export class CreateTodo extends Component {
   }
 
   /**
-   * @param {ChangeEvent<HTMLInputElement>} ev
+   * @param {import('react').ChangeEvent<HTMLInputElement>} ev
    */
   handleChange = (ev) => {
     const { value } = ev.target

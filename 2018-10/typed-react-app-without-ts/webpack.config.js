@@ -2,6 +2,7 @@
 
 const { resolve } = require('path')
 const HTMLWebpackPlugin = require('html-webpack-plugin')
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 
 /**
  * @type {import('webpack').Configuration}
@@ -22,7 +23,12 @@ const config = {
       {
         test: /\.jsx?$/,
         include: resolve(__dirname, 'src'),
-        use: 'ts-loader',
+        use: {
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: true,
+          },
+        },
       },
       {
         test: /\.css$/,
@@ -34,6 +40,7 @@ const config = {
     new HTMLWebpackPlugin({
       template: resolve(__dirname, 'src/index.html'),
     }),
+    new ForkTsCheckerWebpackPlugin(),
   ],
   devServer: {
     historyApiFallback: true,

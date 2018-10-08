@@ -1,9 +1,9 @@
 // @ts-check
 
-import React, { Component, ChangeEvent, MouseEvent } from 'react'
+import React, { Component } from 'react'
 
 /**
- * @typedef {{model: import('./app').Todo, onCompleteChange: (id:string)=>void, onRemove: (id:string)=>void}} Props
+ * @typedef {{model: import('./models').Todo, onCompleteChange: (id:string)=>void, onRemove: (id:string)=>void}} Props
  */
 
 /**
@@ -11,14 +11,14 @@ import React, { Component, ChangeEvent, MouseEvent } from 'react'
  */
 export class TodoItem extends Component {
   /**
-   * @param {ChangeEvent<HTMLInputElement>}  ev
+   * @param {import('react').ChangeEvent<HTMLInputElement>}  ev
    */
   handleCheckedChange = (ev) => {
     this.props.onCompleteChange(this.props.model.id)
   }
 
   /**
-   * @param {MouseEvent<HTMLElement>}  ev
+   * @param {import('react').MouseEvent<HTMLElement>}  ev
    */
   handleRemoveClick = (ev) => {
     this.props.onRemove(this.props.model.id)

@@ -12,3 +12,13 @@ const bootstrap = () => {
 }
 
 bootstrap()
+
+if (module.hot) {
+  module.hot.accept('./app/app', () => {
+    const { App } = require('./app/app') // original imported value doesn't update, so you need to import it again
+    // document.write(`HMR valueToLog: ${valueToLog}`);
+    console.log('HMR 🌀')
+    const mountPoint = document.querySelector('#app')
+    render(createElement(App), mountPoint)
+  })
+}
