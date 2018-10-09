@@ -3,7 +3,11 @@
 import React, { Component } from 'react'
 
 /**
- * @typedef {{model: import('./models').Todo, onCompleteChange: (id:string)=>void, onRemove: (id:string)=>void}} Props
+ * @typedef {{
+ *  model: import('./models').Todo
+ *  onCompleteChange: (id:string)=>void
+ *  onRemove: (id:string)=>void
+ * }} Props
  */
 
 /**

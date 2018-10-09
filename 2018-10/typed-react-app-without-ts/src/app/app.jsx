@@ -32,7 +32,7 @@ export class App extends Component {
   /**
    * @param {string} description
    */
-  handleCreate = (description) => {
+  handleTodoCreate = (description) => {
     const newTodo = Todo(description)
 
     const todos = this.state.todos || []
@@ -82,7 +82,7 @@ export class App extends Component {
       <main className="container">
         <h1 className="text-center">Todo App</h1>
         <DebugMode>{this.state}</DebugMode>
-        <CreateTodo onCreate={this.handleCreate} />
+        <CreateTodo onCreate={this.handleTodoCreate} />
         {todos && todos.length
           ? todos.map((todo) => (
               <TodoItem

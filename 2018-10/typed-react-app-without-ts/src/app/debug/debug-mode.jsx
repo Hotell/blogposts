@@ -2,10 +2,6 @@
 import React, { Component } from 'react'
 import { Debug } from './debug'
 
-const initialState = Object.freeze({
-  on: false,
-})
-
 /**
  * @typedef {typeof initialState} State
  */
@@ -14,13 +10,14 @@ const initialState = Object.freeze({
  * @typedef {import('../types').ExtractFnArguments<typeof Debug>} Props
  */
 
+const initialState = Object.freeze({
+  on: false,
+})
+
 /**
  * @extends {Component<Props,State>}
  */
 export class DebugMode extends Component {
-  /**
-   * @property {State}
-   */
   state = initialState
 
   toggleDebugMode = () => {

@@ -40,6 +40,8 @@ export class CreateTodo extends Component {
   }
 
   render() {
+    const { description } = this.state
+
     return (
       <form onSubmit={this.handleSubmit} className="paper">
         <div className="form-group">
@@ -47,7 +49,7 @@ export class CreateTodo extends Component {
             type="text"
             className="input-block"
             placeholder="start typing..."
-            value={this.state.description}
+            value={description}
             onChange={this.handleChange}
           />
         </div>

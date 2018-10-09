@@ -1,8 +1,8 @@
 // @ts-check
 
-// ===============
+// =================
 // Model via Factory
-// ===============
+// =================
 
 /**
  * @param {string} description
