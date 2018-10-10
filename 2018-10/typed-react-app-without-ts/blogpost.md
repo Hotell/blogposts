@@ -1,6 +1,6 @@
 # Build 100% type-safe React apps in vanilla JavaScript
 
-**or how we can benefit from TypeScript to full extent, without having to write any TS in our codebase, by leveraging standard JSDoc type annotations 👀👌💪**
+**Or how we can benefit from TypeScript to full extent, without having to write any TS in our codebase, by leveraging standard JSDoc type annotations 👀👌💪**
 
 > 🎒 this article uses following library versions:
 
@@ -96,6 +96,8 @@ We need to tweak this config a little bit:
 }
 ```
 
+![ts config](./img/01-ts-config.png)
+
 ### Webpack config
 
 Now let's call for help our internal _Senior Webpack Config Developer_ to setup our module bundler 📞 :
@@ -152,6 +154,8 @@ const config = {
 
 module.export = config
 ```
+
+![webpack initial config](./img/01-webpack-init-config.png)
 
 ### Application folder structure
 
@@ -318,21 +322,24 @@ With that covered let's build our React Todo App
 
 ![final-todo-app](./img/final-todo-app.gif)
 
-As we see, we're gonna build following components in traditional React one way data flow architecture:
+As we see, we're gonna build following component tree in traditional React one way data flow architecture:
 
-- App
-- CreateTodo
-- TodoItem
-- DebugMode
-- Debug
+```
+|- <App/>
+| |- <CreateTodo/>
+| |- <TodoItem/>
+| |- <DebugMode/>
+| | |- <Debug/>
+```
 
 ### CreateTodo
 
-Let's build CreateTodo component which is gonna be responsible for gathering Todo description:
+Let's build `CreateTodo` component, which is gonna be responsible for gathering Todo Item text content:
 
 We'll start with traditional React Component boilerplate and also we'll add `// @ts-check` pragma. What we'll get are compiler errors again...
 
 ```js
+// @ts-check
 import React, { Component } from 'react'
 
 const initialState = Object.freeze({
@@ -368,7 +375,11 @@ export class CreateTodo extends Component {
 
 ![CreateTodo 1](./img/02-create-todo-init.png)
 
-Why do we see those errors ? Well TypeScript doesn't know what type `ev` argument should be and because we are in strict mode, inferred `any` is a no go ( which is good !). Let's add some JSDoc to our two property functions.
+Why do we get those errors?
+
+Well, TypeScript doesn't know what's the type of `ev` argument. TS infers the type to `any` in this case, which leads to an compile error in strict mode (not using strict mode is like cheating on your girlfriend, you don't wanna do that right?).
+
+Let's add some **standard JSDoc function param annotations** to our two functions to make TS compiler happy:
 
 ```js
 export class CreateTodo extends Component {
@@ -385,13 +396,14 @@ export class CreateTodo extends Component {
 
 ![CreateTodo 2](./img/02-create-todo-annotate-methods.gif)
 
-With that we get properly typed `ev` argument in both property functions handlers. All that was needed was to use standard JSDoc annotation and React types. Nice !
+With that additions, we got rid of the type errors! All that was needed was to Leverage existing standard JSDoc annotations and React types to make our code type-safe. I like this!
 
 Now let's update our state on input change...
 
 ![CreateTodo 3](./img/02-create-todo-setting-state-no-check.gif)
 
-Hmm we got no intellisense nor any errors 😢. Why? Well `Component` is a Generic class which has 2 optional positional generic types -> `Props` and `State` -> `Component<Props,State>`. We need to create type alias for props and state and annotate our class again via standard JSDoc:
+Hmm we got no intellisense, nor any errors 😢...
+Why? Well `Component` is a **generic class** (which has 2 optional positional generic argument types -> `Props` and `State` -> `Component<Props,State>`). We need to create type alias for `Props` and `State` and annotate our class again via standard JSDoc:
 
 ```js
 /**
@@ -418,18 +430,20 @@ export class CreateTodo extends Component {
 
 **Wow that was easy and our DX was extensively improved in comparison with "just vanilla JS" right?**
 
-Now let's explain briefly all new code that we've just introduced:
+Now let's explain briefly all the new code, that we've just introduced:
 
 ```js
-// 1. We just used standard JSDoc to create a type alias with name Props, which has type 'object' ( this is standard type withing TypeScript / you can also use old JSDoc Object type)
+// 1. We just used standard JSDoc to create a type alias with name `Props`, which has type 'object' ( this is standard type within TypeScript / you can also use old JSDoc `Object` type)
 /**
  * @typedef {object} Props
  */
 ```
 
 ```js
-// 2. Here we're leveraging powerful TypeScript inference, by using runtime information to create compile time type, so there is only one source of truth! IMPLEMENTATION 👌.
-// So we create State type alias which will get inferred to type `{ readonly description: string }` 👉 Readonly ? That's because we made  initialState immutable via `Object.freeze` and because TS is smart, it inferred it correctly.
+// 2. Here we're leveraging TypeScript inference, by using runtime information to create compile time type, so there is only one source of truth! THE IMPLEMENTATION 👌.
+// With that said, We create `State` type alias which will get inferred to type `{ readonly description: string }`
+// 👉 Readonly ?
+// That's because we made initialState immutable via `Object.freeze` and because TS is smart, it inferred it correctly.
 
 /**
  * @typedef {typeof initialState} State
@@ -443,15 +457,16 @@ const initialState = Object.freeze({
 ```js
 import React, { Component } from 'react'
 
-// 3. Because we cannot use explicit Generic type annotations within vanilla JS, we have to use JSDoc @extends pragma which can consume TypeScript type, even generic.
-// Also note that classes are types within TS so they can be used for annotations.
-// With this our CreateTodo component has now strictly typed this.state, this.setState and this.props thanks to TypeScript. No more typos and runtime errors 💎
+// 3. Because we cannot use explicit Generic type annotations within vanilla JS, we have to use JSDoc `@extends` pragma which can consume TypeScript type, even generic.
+// Also note, that classes are types within TS so they can be used for annotations.
+// With this our CreateTodo component has now strictly typed `this.state`, `this.setState()` and `this.props` thanks to TypeScript. No more typos and runtime errors 💎
 /**
  * @extends {Component<Props, State>}
  */
 export class CreateTodo extends Component {
-  // 4. NOTE: that we are setting state via class property not within constructor.
-  // 🙇‍ PRO TIP: you should never use constructor when defining React Component via class, as it introduces unnecessary boilerplate and any logic that you may introduce within it should be extracted to pure function which can be then leveraged to setup particular class property again, via class property 👍
+  // 4. NOTE: that we are setting state via class property not within a constructor.
+  // 🙇‍ PRO TIP:
+  // You should never use constructor when defining React Component via class, as it introduces unnecessary boilerplate and any logic that you may introduce within it should be extracted to pure function which can be then leveraged to setup particular class property again, via class property 👍
   state = initialState
 }
 ```
@@ -494,14 +509,17 @@ export class CreateTodo extends Component {
 
 With that implemented, we're missing one final piece of our CreateTodo Component.
 
-We need to define Public API 👉 in React Public API === Component Props.
+We need to define Public API of our component (👉 in React Public API === Component Props).
 
 #### CreateTodo Public API via props
 
-Vanilla React uses `PropTypes` for "typing" props on component which are validated during runtime. This is indeed better than nothing approach but it introduces runtime overhead which we don't want. Thanks to TypeScript we can define Props within our JSDoc and with that we will get compile time validation and top notch DX when using our component. All we need is just to update our `Props` typedef to following:
+Vanilla React uses `PropTypes` for "typing" props of a component, which are validated during runtime. This is indeed "better than nothing", but it introduces runtime overhead which we don't want. Thanks to TypeScript, we can define Props within our JSDoc and with that we will get compile time validation and top notch DX when using our component. All we need is just to update our `Props` typedef to following:
 
 ```js
-// 1. we are defining object ( props is always an object ), which consist of one property 👉 a callback function which has type of function that has one argument of type string and returns nothing, that's why we use `void` as return type
+// 1. we are defining object (props in React are always an object),
+// which consist of one property:
+// 👉 a callback function which has type of a function, that has one argument
+// of type string and returns nothing. That's why we use `void` as a return type.
 /**
  * @typedef {{onCreate: (description:string)=>void}} Props
  */
@@ -529,17 +547,27 @@ export class CreateTodo extends Component {
 
 ![CreateTodo 5](./img/02-create-todo-defining-strict-props-type.gif)
 
-Congratulations ! We just implemented 100% type safe React Component (yup also whole JSX is type-safe, try to do a typo in it and TS will yell at you immediately 🐿 ) with vanilla JS with TS type checking in the background
+Congratulations ! 🍻
 
-Let's use our CreateTodo within root `App` component and behold that beautiful tooling ( auto imports ) and API intellisense with proper type inference. Life's good I'm telling ya 🤩...
+**We just implemented 100% type safe React Component with vanilla JS with TS type checking in the background.**
+
+> Also whole JSX is type-safe, try to do a typo in it and TS will yell at you immediately 🐿
+
+Let's use our `CreateTodo` within root `App` component and behold that beautiful tooling ( auto imports ) and API intellisense, with proper type inference. Life's good I'm telling ya 🤩...
 
 ![CreateTodo 6](./img/02-usage-within-app.gif)
 
 ### Defining Todo Model
 
-Before continuing with our App development, we're missing a very important part. Defining our Todo Model.
+Before we continue to build our remaining app components, let's not forget to implement a very important part of our app 👉 Todo Model.
 
-Let's create `touch src/app/models.js` file with `//@ts-check` pragma on top. Now do you remember that classes are also types within TS type checker? Let's leverage that information:
+Let's create `models.js` file with `//@ts-check` pragma on top again.
+
+```sh
+touch src/app/models.js
+```
+
+Now do you remember that classes are also types within TS type checker? Let's leverage that knowledge/TS feature:
 
 **app/models.js**
 
@@ -558,13 +586,13 @@ export class Todo {
 }
 ```
 
-![Todo Model](./img/03-todo-mode-class.png)
+![Todo Model](./img/03-todo-model-class.png)
 
-With that if we create new instance of our Todo it's gonna be object of type `{id:string, done: boolean, description: string}`, and because it's an type as well we can reference it within JSDoc annotation, which we'll do right now within our TodoItem component implementation.
+With that if we create new instance of our Todo, it's gonna be an object of type `{id:string, done: boolean, description: string}`, and because it's an type as well we can reference it within JSDoc annotation, which we'll exactly do in next step while implementing `TodoItem` component.
 
 ### TodoItem
 
-We already know all parts needed to define strictly typed React component within vanilla JS, so this is how it looks like:
+We already know all steps/techniques needed to write strictly typed React component within vanilla JS. So this is how `TodoItem` is gonna look like:
 
 **src/app/todo-item.jsx**
 
@@ -642,7 +670,7 @@ We won't use our `TodoItem` yet. First we need to define our app model ( state )
 
 ### App
 
-Firs off let's define our App Props and State ( with our initialState pattern ) types :
+First off, let's define our App `Props` and `State` (with our initialState pattern) types :
 
 ```js
 // @ts-check
@@ -660,7 +688,7 @@ const initialState = {
 }
 ```
 
-Hmm that's new ! kinda ...
+Hmm that's new! Kinda...
 
 What's this line doing ? 👉 `todos: /** @type {null | Todo[]} */ (null)`
 
@@ -681,7 +709,8 @@ With that set, let's define our logic for CRUD-ing over our todos App state.
 
 We need to implement following functions:
 
-> NOTE: I'm using TypeScript annotations here, but in our code we're gonna use ofc standard JSDoc 👉 vanilla JS right 👌
+> **NOTE:**
+> I'm using TypeScript annotations in following bullet pointed list, but in our code we're gonna use standard JSDoc 👉 vanilla JS 👌
 
 - `handleTodoCreate = (description: string) => void`
 - `handleTodoCompleteChange = (id: string) => void`
@@ -693,7 +722,12 @@ And the implementation looks like this:
 **app/app.jsx**
 
 ```js
+// @ts-check
+
+// omitting some imports...
 import { Todo } from './models'
+
+// omitting Props,State definition
 
 /**
  * @extends {Component<Props,State>}
@@ -754,7 +788,9 @@ export class App extends Component {
 }
 ```
 
-Unfortunately what we get are compile errors ! 😳 What the...
+![App initial implementation](./img/05-app-crud-intial-impl.png)
+
+Unfortunately what we get are type errors ! 😳 What the...
 
 ![App compile errors](./img/05-app-crud-compile-errors.png)
 
@@ -766,7 +802,7 @@ What's the error all about ?
 
 ![App compile error detail](./img/05-app-crud-compile-errors-detail.png)
 
-Now again, TypeScript is telling us we got some issues within our code, which would end up with runtime errors, if we would run our app ! To fix introduced errors, all we need to do, is to provide some standard defensive programing patterns ( in our case checking if `todos` is not `null` ).
+Now again, TypeScript is telling us we got some issues within our code, which would end up with runtime errors, if we would run our app ! To fix introduced errors, all we need to do, is to provide some standard defensive programing patterns (in our case checking if `todos` is not `null`).
 
 Let's fix that:
 
@@ -837,9 +873,9 @@ export class App extends Component {
 
 ![App compile error rest of the method fix](./img/05-app-crud-compile-errors-rest-methods-fix.png)
 
-#### App render
+#### App render method
 
-Now let's add the final missing piece 👉 Rendering our TodoItem list and please sit and relax while enjoying how TypeScript helps us to write runtime safe code within our vanilla JS with top notch #DX ( OMG how many times did I say top notch DX and TypeScript ? 😂 sorry about that but you know... )
+Now let's add the final missing piece 👉 rendering our `TodoItem` component as a list and while we do that, please sit and relax while enjoying how TypeScript helps us to write runtime safe code within our vanilla JS with top notch Developer Experience (OMG how many times did I say top notch DX and TypeScript? 😂 sorry about that but you know...)
 
 ```js
 // @ts-check
@@ -878,20 +914,21 @@ export class App extends Component {
 
 ![App render impl](./img/05-app-render-impl.gif)
 
-And we are done! Our core Todo App functionality is ready to be shipped and we can be sure it will work, because it's sound/type-safe and without run-time errors! YAY 💙
+And we are done! Our core Todo App functionality is ready to be shipped and we can be sure it will work, because it's sound/type-safe and without any run-time errors! YAY 💙
 
 > **NOTE:**
+>
 > I'm not saying you don't have to write tests for your app! I'll leave it as an exercise for the reader 😎
 
-Now what about that DebugMode component that we saw in our Todo App showcase.
+Now, what about that `DebugMode` component, that we saw in our Todo App showcase in the beginning ?
 
 ### DebugMode and Debug
 
 #### Debug
 
-Let's implement Debug function, this time as a Function ( because react components can be implemented as a pure function if we don't need to handle internal state or life cycle hooks).
+Let's implement `Debug` Component, this time as a Function (because React components can be implemented as a pure functions, if we don't need to handle internal state or life cycle hooks).
 
-So how are we gonna do that ? Well again `// @ts-check` and `JSDoc` annotations ✍️
+So how are we gonna do that ? Well again, `// @ts-check` and `JSDoc` annotations ✍️
 
 **src/debug/debug.jsx**
 
@@ -909,7 +946,9 @@ export const Debug = (props) => (
 )
 ```
 
-What's interesting indeed is our type constraint on `children` prop. With this code TS would throw compile errors if we'd forget to provide children or passed children as `null` or `undefined`.
+![Debug implementation](./img/06-debug-impl.png)
+
+What's interesting indeed, is our type constraint on `children` prop. With this code TS would throw type errors, if we'd forget to provide children or passed children as `null` or `undefined`.
 
 Demo 🎥 🍿:
 
@@ -917,7 +956,7 @@ Demo 🎥 🍿:
 
 #### DebugMode
 
-Code for DebugMode component is pretty straightforward, with all patterns that we learned in this article. So here is the whole implementation:
+Code for `DebugMode` component is pretty straightforward. We're gonna use all patterns that we've already learned in this article. Here is the whole implementation:
 
 ```js
 // @ts-check
@@ -970,7 +1009,9 @@ export class DebugMode extends Component {
 }
 ```
 
-Now we can import it to our `App` and use it for debugging our state !
+![DebugMode implementation](./img/06-debug-mode-impl.png)
+
+Now we can import it to our `App` and use it for debugging our state!
 
 ```js
 <DebugMode>{this.state}</DebugMode>
@@ -978,15 +1019,17 @@ Now we can import it to our `App` and use it for debugging our state !
 
 That's it! We're done.
 
-🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉
+🎉🎉🎉 🎉🎉🎉 🎉🎉🎉 🎉🎉🎉
 
-Now if you're curious how to leverage even more TS features within our app, continue reading.
+Now if you're curious how to leverage even more TS features within our app, please continue reading 👀🙇‍...
 
 ## Advanced Techniques
 
 ### Defining complex types and mapped types within our codebase
 
-Curious reader might noticed that we have some duplicity in our debug components. We're defining props twice with same type in both Debug and DebugMode component. Let's **DRY** this up yo!
+Curious reader might noticed, that we've some duplicity within or Debug and DebugMode component. We're defining props twice with same type in both Debug and DebugMode.
+
+Let's **DRY** it up yo!
 
 We have 2 approaches how to refactor our type annotations:
 
@@ -1017,6 +1060,8 @@ export const Debug = (props) => (...)
  * @typedef {import('./debug').Props} Props
  */
 ```
+
+![DRY Debug/DebugMode 1](./img/07-dry-debug-first-technique.png)
 
 2. write custom mapped type and use it to get argument type from `Debug` function implementation
 
@@ -1057,13 +1102,15 @@ import { Debug } from './debug'
  */
 ```
 
+![DRY Debug/DebugMode 2](./img/07-dry-debug-second-technique.png)
+
 And that's it !
 
-Let's cover now a different method for defining/creating our model ( for those afraid of/hating es2015 classes )
+We can introduce also different patterns for creating an business model. Let's cover a different method for defining/creating our `TodoModel` ( for those afraid of/hating es2015 classes )
 
 ### Defining Todo Model via Factory
 
-We created our `Todo` model via class, which TypeScript understands for type definition as well. Let's use more traditional approach as we are in vanilla JS shall we ?
+We created our `Todo` model via class, which TypeScript understands for type definition as well. Let's use more traditional/more pure JS approach shall we?
 
 Introducing Object creation via Factory pattern:
 
@@ -1082,10 +1129,7 @@ export const Todo = (description) => ({
 })
 ```
 
-![Todo model via factory](./img/07-model-factory-init.png)
-
-That's much terse than class right ? It has one issue though, we cannot use our
-`@type {import('./models').Todo}` for annotating our code with Todo model.
+That's much terse code than defining a class right? It has one issue though, we cannot use our `@type {import('./models').Todo}` for annotating our code with Todo model.
 
 > Have no fear a simple solution is here !
 
@@ -1094,9 +1138,8 @@ TypesScript supports [declaration merging](http://www.typescriptlang.org/docs/ha
 All we need to do is define `Todo` type which is gonna get return type of our `Todo` factory function:
 
 ```js
-// [ReturnType](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html) is mapped type included in standard TS library that ships with TS
-//
-// because Todo is a function we need to obtain it's type via `typeof` operator
+// @ts-check
+
 /**
  * @typedef {ReturnType<typeof Todo>} Todo
  */
@@ -1106,6 +1149,12 @@ All we need to do is define `Todo` type which is gonna get return type of our `T
  */
 export const Todo = (description) => (...)
 ```
+
+> [ReturnType](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html) is mapped type included in standard TS library that ships with TS
+>
+> because Todo is a function we need to obtain it's type via `typeof` operator
+
+![Todo model via factory](./img/07-model-factory.png)
 
 Now `@type {import('./models').Todo}` will work again because by importing `Todo` we import both function factory and type which TypeScript compiler understands! **POWER OVERWHELMING...**
 
