@@ -1,6 +1,6 @@
-# Build 100% type-safe React app in vanilla JS
+# Build 100% type-safe React apps in vanilla JavaScript
 
-**a.k.a. how to write React apps with vanilla JavaScript annotated via JS Doc powered by TypeScript strict type checking 👀👌💪**
+**or how we can benefit from TypeScript to full extent, without having to write any TS in our codebase, by leveraging standard JSDoc type annotations 👀👌💪**
 
 > 🎒 this article uses following library versions:
 
@@ -18,21 +18,29 @@
 
 ---
 
-When I talk with fellow developers within various teams at work or JS community in general about building SPA's and incorporating some type system in their code ( like TypeScript ❤ for example ), very often, I get response like:
+When I talk with fellow developers within various teams at work or JS community in general, about building SPA's and incorporating type system within their code base (like TypeScript 💙), very often I get responses like:
 
-- "WHY DO I NEED TYPES?"
-- "WE DONT WANNA LEARN ANOTHER LANGUAGE"
-- "I DON'T WANNA GET ANOTHER COFFEESCRIPT COFFIN!" etc...
+- "WHY DO WE NEED TYPES?"
+- "WE DONT WANNA LEARN ANOTHER LANGUAGE!"
+- "I DON'T WANNA GET ANOTHER COFFEESCRIPT COFFIN!"
+- "TYPES ARE FOR JAVA DEVS!"
+- etc...
 
-While many of these questions are valid, most of the time I'm quite successful and current team adopts TypeScript in the end with my help, but there are times that it won't just happen. In that scenario I'm still able to convince those teams by showcasing them how to write vanilla JS with TypeScript type safety under the hood without too much churn or learning curve. This article describes what I'm showing those clients so if you're in similar position all you need to do is sent them link to this article 🍿.
+Ugh 😳...
+
+While many of these questions/statements are valid, in the end I'm quite successful with convincing them to adopts TypeScript with my help, but there are also times that it just ain't gonna happen 🤷‍.
+
+In that case, I'm still able to convince those teams to at least try it in a non-obtrusive way, by showing them, how to write standard vanilla JS with behind the scenes TypeScript help for type checking and much improved DX experience, without almost none additional learning curve.
+
+This article describes what I'm showing those clients, so if you're in similar position, all you need to do is to send them link to this article 🍿. You can thank me later.
 
 So let's build a very familiar React ToDo App with vanilla JS !
 
-## Setting up environment
+## Setting up the environment
 
-Traditionally we're gonna use industry standard for module bundling 👉 Mr.Webpack.
+Traditionally we're gonna use "the industry standard for module bundling" 👉 Mr.Webpack 🌀🌀🌀.
 
-So let's install **devDependencies**
+So let's install our **devDependencies**
 
 ```sh
 yarn add -D \
@@ -44,13 +52,15 @@ typescript
 
 > Now you might be thinking something like: "Hey dude, where is **babel**?"
 
-We don't need babel at all 👀 as TypeScript is both TypeChecker and JavaScript Transpiler and why use 2 tools when we can do both with one right ? 😎
+We don't need babel at all 👀 as TypeScript is both _type checker_ and _transpiler_ so why use 2 tools when we can do both with one, right? 😎😎😎
 
-> **NOTE:** you can use [Babel with TypeScript](https://blogs.msdn.microsoft.com/typescript/2018/08/27/typescript-and-babel-7) since babel 7 with **@babel/preset-typescript** but you won't get type checking during build, so TS is preferred way to use as both transpiler and type checker, but hey YMMV !
+> **NOTE:**
+> You can use [Babel with TypeScript](https://blogs.msdn.microsoft.com/typescript/2018/08/27/typescript-and-babel-7) since babel 7 with **@babel/preset-typescript**,
+> but you won't get type checking during build or while building your app as babel only strips away any TS types. With that said TypeScript is preferred way to use for both transpiling and type checking your code, but hey YMMV !
 
-With that installed let's setup our tools:
+With devDeps installed let's setup our tools:
 
-### typescript config
+### TypeScript config
 
 ```sh
 ## this will create tsconfig.json with some default options
@@ -71,7 +81,8 @@ We need to tweak this config a little bit:
     "allowJs": true,
     "jsx": "react",
     "outDir": "./dist",
-    // we're gonna use tslib for reusing module imports for helpers like __extends, __spread for old browsers 👉 less JS === more happy users
+    // we're gonna use tslib for reusing module imports for helpers like:
+    // __extends, __spread for old browsers 👉 less JS === more happy users
     "importHelpers": true,
     "moduleResolution": "node",
     // we're gonna turn synthetic default imports normalization for react types
@@ -85,11 +96,11 @@ We need to tweak this config a little bit:
 }
 ```
 
-### webpack config
+### Webpack config
 
 Now let's call for help our internal _Senior Webpack Config Developer_ to setup our module bundler 📞 :
 
-> Standard stuff... setting up mode, entry, output, loaders, plugins
+> Standard stuff... setting up entry, output, loaders, plugins, bla bla bla... 😂
 
 **webpack.config.js**
 
@@ -142,13 +153,13 @@ const config = {
 module.export = config
 ```
 
-### app structure
+### Application folder structure
 
-With that done, let's build standard folder structure and add React dependencies:
+With our environment setup and configured, let's build standard folder structure and add React dependencies:
 
 ```sh
 mkdir -p src/app && \
-touch src/{main.js,index.html,style.css} src/app/app.jsx
+touch src/{main.js,index.html,style.css,app/app.jsx}
 ```
 
 which will get us folder structure like following:
@@ -162,6 +173,12 @@ which will get us folder structure like following:
 |    |- style.css
 ```
 
+And at last add React and stuff...
+
+> **PRO TIP:**
+> 3r party types (`@types/*`) should be installed as dev dependencies.
+> Why ? Well your production code doesn't use them nor runtime as they are striped away 👍
+
 ```sh
 yarn add react{,-dom} tslib papercss
 
@@ -169,10 +186,9 @@ yarn add react{,-dom} tslib papercss
 yarn add -D @types/react{,-dom}
 ```
 
-Now our index.html is gonna contain some content and webpack is gonna use it as a template and it will inject our bundle within that file ( thanks to html-webpack-plugin ).
-Important is to not forget to provide our mount point:
+Now our `index.html` is gonna contain some basic boilerplate for booting up a React SPA ( mount point div) and it's gonna be processed by webpack, which will inject our bundle file within it (kudos to `html-webpack-plugin`):
 
-**index.html**
+**src/index.html**
 
 ```html
 <body>
@@ -180,9 +196,9 @@ Important is to not forget to provide our mount point:
 </body>
 ```
 
-Let's write some _Hello World_ root component to check if everything works:
+Now let's finally write some JavaScript ! Introducing our root App component:
 
-**app/app.jsx**
+**src/app/app.jsx**
 
 ```js
 import React, { Component } from 'react'
@@ -194,9 +210,9 @@ export class App extends Component {
 }
 ```
 
-now boot our app
+now let's write a tiny bootstrap function to mount our React app to the DOM:
 
-**main.jsx**
+**src/main.js**
 
 ```js
 import { createElement } from 'react'
@@ -215,13 +231,11 @@ const bootstrap = () => {
 bootsrap()
 ```
 
-Alright! Let's see if it works. Let's run our dev server with in memory bundle.
+Alright! Let's see if it works. Execute order 66, bah I meant webpack-dev-server in dev mode:
 
 ```sh
 yarn webpack-dev-server -d
 ```
-
-...
 
 **Boom 💥 😳 😖 we got errors! Oh no!**
 
@@ -229,15 +243,15 @@ yarn webpack-dev-server -d
 
 ### Fixing our webpack config
 
-So what's the standard workflow to fix this error? Well let's call our Senior Webpack specialist. But wait ! he wrote that config, if he cannot get it right, who can ? 😳
+So what's the standard workflow to fix this error? Well let's call our Senior Webpack specialist. But wait ! he wrote that config, if he cannot get it right, who can ? Maybe Shaun ? He'll be busy for sure ...😳 .. mmm so who again ?
 
-TypeScript can !
+**TypeScript can !**
 
-What ?!
+What ?! Are you kidding ?
 
-TypeScript is superb in terms of both vanilla JS and TS files type checking and because our app is just vanilla JS, we would like to leverage former behavior.
+TypeScript has superb capabilities in terms of both vanilla JS and TS files type checking and because our app is just vanilla JS, we would like to leverage that former behavior.
 
-To enable type checking within JavaScript we need to add `//@ts-check` pragma in our file.
+**To enable type checking within JavaScript, we need to add `//@ts-check` pragma in our js file.**
 
 Let's do that now:
 
@@ -247,21 +261,21 @@ Let's do that now:
 // @ts-check
 ```
 
-We will get red squiggles within our editor on our `module.export` line... whops it need's to be `module.exports`! Let's fix it.
+We'll get immediate feedback that something's not ok, supported by red squiggles within our editor on our `module.export` line... whops it need's to be `module.exports` Martin, common it's common ... JS ! Let's fix it.
 
 ![webpack config fix initial](./img/01-fix-webpack-config-add-tscheck.gif)
 
 Now our webpack is still failing...
 
-Let's fix it for good shall we ?
+We don't have time for this, let's fix it for good, shall we ?
 
-First we need to install missing package types for packages that are not shipped with TS definitions:
+First we need to install 3rd party type definitions for packages that are not shipped with those (or aren't written in TS):
 
 ```sh
-yarn add -D @types/{html-webpack-plugin,node,webpack,webpack-dev-server}
+yarn add -D @types/{node,html-webpack-plugin,webpack,webpack-dev-server}
 ```
 
-And the last very important step is to explicitly annotate our config object via JSDoc which uses TypeScript `import()` syntax for importing type definitions:
+Now let's annotate our webpack config constant via standard JSDoc which will leverage [TypeScript `import()`](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-9.html#import-types) for importing particular type declaration from any file or library:
 
 ```js
 /**
@@ -272,13 +286,13 @@ const config = {
 }
 ```
 
-And with that we can immediately see what's wrong with our config! typos! grr 🤬🤬🤬
+and with that, we'll immediately see what's wrong with our config! TYPOS! GRR 🤬🤬🤬
 
-- let's fix those and try to run our app again
+Let's fix those and try to run our app again
 
 ![webpack config fix](./img/01-fix-webpack-config.gif)
 
-- compilation succeeded ! yay!
+Compilation succeeded ! YAY!
 
 ### Fixing our initial app runtime errors
 
@@ -286,9 +300,9 @@ Let's check it out within our browser:
 
 ![runtime-error](./img/01-runtime-error.png)
 
-Whaaaat ? 😖 errors again ?
+Whaaaat? 😖 errors again?
 
-To get proper type checking within our components and js files we need to annotate those with `// @ts-check` as we did within our `webpack.config.js`
+To get proper type checking within our components and js files in general, we need to annotate those with `// @ts-check` as we did within our `webpack.config.js`
 
 And with that we can immediately see all the errors! Typos again...
 
@@ -304,12 +318,13 @@ With that covered let's build our React Todo App
 
 ![final-todo-app](./img/final-todo-app.gif)
 
-So as we see we gonna build following components in traditional React one way data flow architecture:
+As we see, we're gonna build following components in traditional React one way data flow architecture:
 
 - App
 - CreateTodo
 - TodoItem
-- DebugMode and Debug
+- DebugMode
+- Debug
 
 ### CreateTodo
 
