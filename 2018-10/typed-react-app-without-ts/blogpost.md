@@ -1183,11 +1183,103 @@ In this article, we've showcased powerful features of type checking powered by T
 
 As you can see, there is absolutely no reason to not use a type system, either for a new or an existing JavaScript application. Benefits are immediate as you saw while building this simple app. What's even more powerful, is that you get complete static analysis of your templates without introducing any custom compiler/mechanism like you have with Angular for example.
 
-**Few closing words:**
+**Few closing words/bullet points:**
 
-- you don't have to use TypeScript for transpiling. If Babel's your thing for whatever reason, stay with it, just add `tsc` to your `build` script and `tsc -w` to your watch script, so you get errors type checking during development.
-- also if you plan to use babel, add `"noEmit": true"` to your `tsconfig.json`so no files will get emitted by `tsc`
-- if you're building I library, using vanilla JS with TS in the background is definitely a big productivity boost for you and your collaborators, although it doesn't fulfil it's full potential. Why? You cannot auto-generate **declaration files** via `"declaration":true`, which could be shipped with your production code and be consumed by your library users. Hopefully TypeScript team will add this "feature in the future" to enable generation of declaration files from vanilla JS, which would be definitely a killer feature don't you think? (FYI: it's already partially possible with [dts-gen](https://github.com/Microsoft/dts-gen#readme) tool).
+- To enable type checking by default for every .js file, instead of using `// @ts-check` in every file you can turn it on within tsconfig.json via `"checkJs": true,"`. With that you can also opt out if you don't wanna check particular file via `//@ts-nocheck`
+- You don't have to use TypeScript for transpiling. If Babel's your thing for whatever reason, stay with it, just add `tsc` to your `build` script and `tsc -w` to your watch script, so you get errors type checking during development or you can use [_ForkTsCheckerWebpackPlugin_](https://github.com/Realytics/fork-ts-checker-webpack-plugin) for type checking from webpack!
+- Are you building a library? Using vanilla JS with TS in the background is definitely a big productivity boost for you and your collaborators, although it doesn't fulfil it's full potential. **Why?** You cannot auto-generate **declaration files** via `"declaration":true`, which could be shipped with your production code and be consumed by your library users. Hopefully TypeScript team will add this "feature in the future" to enable generation of declaration files from vanilla JS, which would be definitely a killer feature don't you think? (FYI: it's already partially possible with [dts-gen](https://github.com/Microsoft/dts-gen#readme) tool).
+
+**To see all type checking possibilities within vanilla JS, make sure to [check TypeScript docs](http://www.typescriptlang.org/docs/handbook/type-checking-javascript-files.html)**
+
+### BONUS: Using Babel for transpilation
+
+While using babel, you'll have to tweak `tsconfig` a little bit, like adding `"noEmit": true"` etc. This is the full config:
+
+```json
+{
+  "compilerOptions": {
+    // Target latest version of ECMAScript.
+    "target": "esnext",
+    // Search under node_modules for non-relative imports.
+    "moduleResolution": "node",
+    // jsx is gonna be transpiled by babel-preset-react
+    "jsx": "preserve",
+    // Process & infer types from .js files.
+    "allowJs": true,
+    // turn on .js files type checking and JSDoc types support
+    "checkJs": true,
+    // Don't emit; allow Babel to transform files.
+    "noEmit": true,
+    // Enable strictest settings like strictNullChecks & noImplicitAny.
+    "strict": true,
+    "sourceMap": true,
+    // Disallow features that require cross-file information for emit.
+    "isolatedModules": true,
+    // Import non-ES modules as default imports.
+    "esModuleInterop": true,
+    // resolve default imports for type definitions
+    "allowSyntheticDefaultImports": true,
+    // don't check declaration files from libraries
+    // as they may containt `enum` and `namespace`
+    // which is not supported by babel-preset-typescript
+    "skipLibCheck": true
+  },
+  "include": ["src"]
+}
+```
+
+![tsconfig with babel](./img/08-tsconfig-with-babel.png)
+
+You'll also need to install `@babel/*` plugins and add babel config like following:
+
+```sh
+yarn add -D @babel/{cli,core,preset-env,preset-react,preset-typescript,plugin-proposal-class-properties,plugin-proposal-object-rest-spread}
+
+yarn add @babel/{polyfill,runtime}
+```
+
+```js
+// @ts-check
+
+/**
+ * @typedef  {Array<string | [string,{[key:string]:any}]>} BabelConfigObj
+ */
+
+/**
+ * @typedef {{presets: BabelConfigObj, plugins: BabelConfigObj}} BabelConfig
+ */
+
+/**
+ * @type {BabelConfig}
+ */
+const config = {
+  presets: [
+    '@babel/typescript',
+    '@babel/react',
+    [
+      '@babel/preset-env',
+      {
+        targets: 'last 2 versions',
+        useBuiltIns: 'usage',
+        modules: false,
+      },
+    ],
+  ],
+  plugins: [
+    '@babel/plugin-transform-runtime',
+    ['@babel/proposal-class-properties', { loose: true }],
+    '@babel/proposal-object-rest-spread',
+  ],
+}
+
+module.exports = config
+```
+
+![babel config](./img/08-babel-config.png)
+
+And last but not least instead of `ts-loader` use `babel-loader` within your webpack.
+
+Cheers !
 
 ---
 
