@@ -1186,8 +1186,8 @@ As you can see, there is absolutely no reason to not use a type system, either f
 **Few closing words:**
 
 - you don't have to use TypeScript for transpiling. If Babel's your thing for whatever reason, stay with it, just add `tsc` to your `build` script and `tsc -w` to your watch script, so you get errors type checking during development.
-- also if you plan to use babel, add `"noEmit": true" to your`tsconfig.json`so no files will get emitted by`tsc`
-- if you're building I library, using vanilla JS with TS in the background is definitely a big productivity boost for you and your collaborators, although it doesn't fulfill it's full potential. Why? You cannot auto-generate **declaration files** via `"declaration":true`, which could be shipped with your production code and be consumed by your library users. Hopefully TypeScript team will add this "feature in the future" to enable generation of declaration files from vanilla JS, which would be definitely a killer feature don't you think? (FYI: it's already partially possible with [dts-gen](https://github.com/Microsoft/dts-gen#readme) tool).
+- also if you plan to use babel, add `"noEmit": true"` to your `tsconfig.json`so no files will get emitted by `tsc`
+- if you're building I library, using vanilla JS with TS in the background is definitely a big productivity boost for you and your collaborators, although it doesn't fulfil it's full potential. Why? You cannot auto-generate **declaration files** via `"declaration":true`, which could be shipped with your production code and be consumed by your library users. Hopefully TypeScript team will add this "feature in the future" to enable generation of declaration files from vanilla JS, which would be definitely a killer feature don't you think? (FYI: it's already partially possible with [dts-gen](https://github.com/Microsoft/dts-gen#readme) tool).
 
 ---
 
