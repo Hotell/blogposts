@@ -8,6 +8,8 @@
   "scripts": {
     "cleanup": "rm -rf dist .cache",
     "start": "webpack-dev-server -d --hot",
+    "prebuild": "yarn cleanup",
+    "build": "webpack -p",
     "format": "prettier --write \"**/*.{ts,tsx,md,css,less,sass,scss}\""
   },
   "devDependencies": {

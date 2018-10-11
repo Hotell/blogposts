@@ -8,6 +8,8 @@
   "scripts": {
     "cleanup": "rm -rf dist .cache",
     "start": "parcel ./src/index.html",
+    "prebuild": "yarn cleanup",
+    "build": "parcel build ./src/index.html",
     "format": "prettier --write \"**/*.{ts,tsx,md,css,less,sass,scss}\""
   },
   "devDependencies": {
