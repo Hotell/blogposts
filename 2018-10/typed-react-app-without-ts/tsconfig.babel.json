@@ -4,9 +4,11 @@
     "target": "esnext",
     // Search under node_modules for non-relative imports.
     "moduleResolution": "node",
+    // jsx is gonna be transpiled by babel-preset-react
     "jsx": "preserve",
     // Process & infer types from .js files.
     "allowJs": true,
+    // turn on .js files type checking and JSDoc types support
     "checkJs": true,
     // Don't emit; allow Babel to transform files.
     "noEmit": true,
@@ -17,7 +19,11 @@
     "isolatedModules": true,
     // Import non-ES modules as default imports.
     "esModuleInterop": true,
+    // resolve default imports for type definitions
     "allowSyntheticDefaultImports": true,
+    // don't check declaration files from libraries
+    // as they may containt `enum` and `namespace`
+    // which is not supported by babel-preset-typescript
     "skipLibCheck": true
   },
   "include": [
