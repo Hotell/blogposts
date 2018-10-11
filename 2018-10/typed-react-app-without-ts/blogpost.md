@@ -20,10 +20,10 @@
 
 When I talk with fellow developers within various teams at work or JS community in general, about building SPA's and incorporating type system within their code base (like TypeScript 💙), very often I get responses like:
 
-- "WHY DO WE NEED TYPES?"
-- "WE DONT WANNA LEARN ANOTHER LANGUAGE!"
-- "I DON'T WANNA GET ANOTHER COFFEESCRIPT COFFIN!"
-- "TYPES ARE FOR JAVA DEVS!"
+- "WHY DO WE NEED TYPES?" 🤒
+- "WE DON'T WANNA LEARN ANOTHER LANGUAGE!" 🤨
+- "I DON'T WANNA GET INTO ANOTHER ☕️ ⚰️ CoffeeScript COFFIN!"
+- "TYPES ARE FOR JAVA DEVS!" 🤪
 - etc...
 
 Ugh 😳...
@@ -1178,6 +1178,16 @@ export class App extends Component {
 ```
 
 ## Summary
+
+In this article, we've showcased powerful features of type checking powered by TypeScript, within our TODO vanilla JS project written in React, which helps us in a non-obtrusive way, to make us sleep better and in the end write more robust code and make our users/costumers happy.
+
+As you can see, there is absolutely no reason to not use a type system, either for a new or an existing JavaScript application. Benefits are immediate as you saw while building this simple app. What's even more powerful, is that you get complete static analysis of your templates without introducing any custom compiler/mechanism like you have with Angular for example.
+
+**Few closing words:**
+
+- you don't have to use TypeScript for transpiling. If Babel's your thing for whatever reason, stay with it, just add `tsc` to your `build` script and `tsc -w` to your watch script, so you get errors type checking during development.
+- also if you plan to use babel, add `"noEmit": true" to your`tsconfig.json`so no files will get emitted by`tsc`
+- if you're building I library, using vanilla JS with TS in the background is definitely a big productivity boost for you and your collaborators, although it doesn't fulfill it's full potential. Why? You cannot auto-generate **declaration files** via `"declaration":true`, which could be shipped with your production code and be consumed by your library users. Hopefully TypeScript team will add this "feature in the future" to enable generation of declaration files from vanilla JS, which would be definitely a killer feature don't you think? (FYI: it's already partially possible with [dts-gen](https://github.com/Microsoft/dts-gen#readme) tool).
 
 ---
 
