@@ -18,16 +18,17 @@ const config = {
     [
       '@babel/preset-env',
       {
-        targets: 'last 2 versions',
+        targets: { browsers: 'last 2 versions' },
         useBuiltIns: 'usage',
         modules: false,
+        loose: true,
       },
     ],
   ],
   plugins: [
     '@babel/plugin-transform-runtime',
     ['@babel/proposal-class-properties', { loose: true }],
-    '@babel/proposal-object-rest-spread',
+    ['@babel/proposal-object-rest-spread', { loose: true }],
   ],
 }
 
