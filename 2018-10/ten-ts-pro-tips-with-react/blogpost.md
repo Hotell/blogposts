@@ -42,7 +42,7 @@ class App extends Component {
 
 **Why?**
 
-All members within class are `public` by default. Don't introduce extra churn to your codebase. Also using `public` accessor is not "pure javascript"
+All members within class are `public` by default (and always public in runtime, TS private/protected will "hide" particular class properties/methods only during compile time). Don't introduce extra churn to your codebase. Also using `public` accessor is not "valid/idiomatic javascript"
 
 ## 2. Don't use `private` accessor within Component class
 
