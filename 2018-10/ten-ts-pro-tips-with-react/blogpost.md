@@ -18,7 +18,7 @@
 
 TypeScript is definitely the best thing that happened to JavaScript. period.
 
-Unfortunately, I cannot say the same about "The best thing that happened to Java/C# devs writing JS with it 👀"
+Unfortunately, I cannot say the same about "The best thing that happened to Java/C# devs writing JavaScript with it 👀😳🌀⏱"
 
 Why 🤨?
 
@@ -26,13 +26,17 @@ Well, it definitely makes your Java/C# ego feel like at home, having types withi
 
 I've been always trying to stay away from various TS features (for a good reasons btw.) to stay in Idiomatic/Standard JavaScript space as much as possible.
 
-This post is describes various patterns/tips that I "invented/learned" and have been using while using TypeScript and React for building UI's.
+This article describes various patterns/tips that I "invented/learned" and have been using while using TypeScript and React for building UI's.
 
-Whole post is written in "A Style guide style" with 3 subcategories for every tip/pattern:
+> While initially, this blog post introduces "only" 10 tips, I may add additional ones in the future, so definitely check this post time to time for any updates 😎
 
-- Don't
-- Do or Good/Better
-- Why
+Whole article is written in a "Style guide style" with 3 sub-categories for every tip/pattern which consists of:
+
+- Don't ( code example what you shouldn't be doing)
+- Do or Good/Better (code example what you should be doing)
+- Why (reasoning/explanation)
+
+With that covered, let's hop into 10 TypeScript Pro tips/patterns with ( or without ) React.
 
 ---
 
@@ -49,6 +53,8 @@ class App extends Component {
 }
 ```
 
+![public accessor - Don't](./img/01-dont.png)
+
 **Do:**
 
 ```tsx
@@ -59,6 +65,8 @@ class App extends Component {
   }
 }
 ```
+
+![public accessor - Do](./img/01-do.png)
 
 **Why?**
 
@@ -81,6 +89,8 @@ class App extends Component {
 }
 ```
 
+![private accessor - Don't](./img/02-dont.png)
+
 **Good:**
 
 ```tsx
@@ -95,6 +105,8 @@ class App extends Component {
   }
 }
 ```
+
+![private accessor - Good](./img/02-good.png)
 
 **Better:**
 
@@ -114,6 +126,8 @@ class App extends Component {
   }
 }
 ```
+
+![private accessor - Better](./img/02-better.png)
 
 **Why:**
 
@@ -149,6 +163,8 @@ class SomeFeature extends Base {
 }
 ```
 
+![protected accessor - Don't](./img/03-dont.png)
+
 **Do**
 
 ```tsx
@@ -174,6 +190,8 @@ class SomeFeature extends Component<Props> {
   }
 }
 ```
+
+![protected accessor - Do](./img/03-do.png)
 
 **Why:**
 
@@ -207,6 +225,8 @@ function favoriteColor(name: string, color: Colors) {
   // ...
 }
 ```
+
+![enum - Dont](./img/04-dont.png)
 
 **Good:**
 
@@ -244,6 +264,8 @@ function favoriteColor(name: string, color: Colors) {
 }
 ```
 
+![enum - Good](./img/04-good.png)
+
 **Better:**
 
 If you don't need to support runtime enums, all you need to use are type literals:
@@ -262,13 +284,18 @@ function favoriteColor(name: string, color: Colors) {
 }
 ```
 
+![enum - Better](./img/04-better.png)
+
 **Why?**
 
 To use `enum` within TypeScript might be very tempting, especially if you're coming from language like C# or Java. But there are better ways how to interpret both with well known JS idiomatic patterns or as can be seen in "Better" example just by using compile time **type literals**.
 
 - Enums compiled output generates unnecessary boilerplate (which can be mitigated with `const enum` though. Also string enums are better in this one)
+  - ![enum - generated js](./img/04-js-ouptut.png)
 - Non string Enums don't narrow to proper number type literal, which can introduce unhandled bug within your app
 - It's not standard/idiomatic JavaScript (although `enum` is reserved word in ECMA standard)
+
+![enum - missing errors](./img/04-test-cases-comparison.png)
 
 ## 5. Don't use `constructor` for class Components
 
@@ -288,6 +315,8 @@ class App extends Component<Props, State> {
 }
 ```
 
+![constructor - Don't](./img/05-dont.png)
+
 **Do:**
 
 ```tsx
@@ -300,6 +329,8 @@ class App extends Component<Props, State> {
   }
 }
 ```
+
+![constructor - Do](./img/05-do.png)
 
 **Why:**
 
@@ -322,6 +353,8 @@ class App extends Component<Props, State> {
 }
 ```
 
+![constructor - with complex logic](./img/05-get-initial-state.png)
+
 ## 6. Don't use decorators for class Components
 
 **Don't:**
@@ -330,6 +363,8 @@ class App extends Component<Props, State> {
 @connect(mapStateToProps)
 export class Container extends Component {}
 ```
+
+![decorators - Don't](./img/06-dont.png)
 
 **Good:**
 
@@ -340,6 +375,8 @@ class Container extends Component {}
 const EnhancedComponent = enhance(Container)
 export { EnhancedComponent as Container }
 ```
+
+![decorators - Good](./img/06-good.png)
 
 **Better:**
 
@@ -356,6 +393,8 @@ class Container extends Component {}
 
 export default enhance(Container)
 ```
+
+![decorators - Better](./img/06-better.png)
 
 **Why:**
 
@@ -391,6 +430,8 @@ class Consumer extends Component {
 }
 ```
 
+![props and state types as public API - Don't](./img/07-dont.png)
+
 **Do:**
 
 ```tsx
@@ -422,6 +463,8 @@ class Consumer extends Component {
   }
 }
 ```
+
+![props and state types as public API - Do](./img/07-do.png)
 
 **Why:**
 
@@ -477,6 +520,8 @@ const App = () => (
   </main>
 )
 ```
+
+![Explicit children type - Don't](./img/08-dont.png)
 
 **Do:**
 
@@ -534,6 +579,8 @@ const App = () => (
 )
 ```
 
+![Explicit children type - Do](./img/08-do.png)
+
 **Why:**
 
 `children` prop is annotated as optional within both Component and Functional Component in `react.d.ts` which just mirrors the implementation how React handles children.
@@ -569,6 +616,8 @@ export class Counter extends Component<Props, State> {
 }
 ```
 
+![define types from implementation by leveraging inference - Don't](./img/09-dont.png)
+
 **Good:**
 
 ```tsx
@@ -586,6 +635,8 @@ export class Counter extends Component<Props, State> {
 }
 ```
 
+![define types from implementation by leveraging inference - Good](./img/09-good.png)
+
 **Better:**
 
 ```tsx
@@ -600,6 +651,8 @@ export class Counter extends Component<Props, State> {
   readonly state = initialState
 }
 ```
+
+![define types from implementation by leveraging inference - Better](./img/09-better.png)
 
 **Why:**
 
@@ -654,6 +707,8 @@ class App extends Component<{}, State> {
 }
 ```
 
+![export both factory and type as one token when defining models - Don't](./img/10-dont.png)
+
 **Do:**
 
 ```tsx
@@ -688,6 +743,8 @@ class App extends Component<{}, State> {
   }
 }
 ```
+
+![export both factory and type as one token when defining models - Do](./img/10-do.png)
 
 **Why:**
 
