@@ -1,38 +1,44 @@
-export {}
+type EnumLiteralsOf<T extends object> = T[keyof T]
 
-type ValueOfEnum<T extends object> = T[keyof T]
-
-const Response = Object.freeze({
+// merge implementation with "Enum" typed literal
+// $ExpectType 1 | 2
+export type Response = EnumLiteralsOf<typeof Response>
+// $ExpectType Readonly<{ No: 1; Yes: 2; }>
+export const Response = Object.freeze({
+  // we need to explicit cast values to get proper literal type
   No: 1 as 1,
   Yes: 2 as 2,
 })
 
-function respond(
-  recipient: string,
-  message: ValueOfEnum<typeof Response>
-): void {
+function respond(recipient: string, message: Response) {
   // ...
 }
 
-const Colors = Object.freeze({
+// merge implementation with "Enum" typed literal
+// $ExpectType "RED" | "GREEN" | "BLUE"
+export type Colors = EnumLiteralsOf<typeof Colors>
+// $ExpectType Readonly<{ Red: "RED"; Green: "GREEN"; Blue: "BLUE"; }>
+export const Colors = Object.freeze({
   Red: 'RED' as 'RED',
   Green: 'GREEN' as 'GREEN',
   Blue: 'BLUE' as 'BLUE',
 })
 
-function favoriteColor(name: string, color: ValueOfEnum<typeof Colors>) {}
+function favoriteColor(name: string, color: Colors) {
+  // ...
+}
 
-// TEST
+// TESTS
 
 {
   // Enums - literal type narrowing
 
   // $ExpectError 👉 yup catched 👌
-  const test: typeof Response.No = 4
+  const test: Response = 4
+  // NO ERROR
+  const test2: Response = Response.No
   // $ExpectError
-  const test2: typeof Response.Yes = Response.No
-  // $ExpectError
-  const test3: typeof Response.Yes = 'hello'
+  const test3: Response = 'hello'
 
   // $ExpectError 👉 yup catched 👌
   respond('unknown', 4)
@@ -47,10 +53,10 @@ function favoriteColor(name: string, color: ValueOfEnum<typeof Colors>) {}
   // String Enums
 
   // 👉 yup no ERROR 👌
-  const test: typeof Colors.Red = 'RED'
+  const test: Colors = 'RED'
   // 👉 yup no ERROR 👌
-  const test2: ValueOfEnum<typeof Colors> = 'RED'
-  const test3: ValueOfEnum<typeof Colors> = Colors.Red
+  const test2: Colors = 'RED'
+  const test3: Colors = Colors.Red
 
   // 👉 yup no ERROR 👌
   favoriteColor('unknown', 'RED')

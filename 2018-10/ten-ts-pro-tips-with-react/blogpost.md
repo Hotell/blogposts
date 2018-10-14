@@ -1,4 +1,4 @@
-# 10 TypeScript Pro tips with ( or without ) React
+# 10 TypeScript Pro tips/patterns with ( or without ) React
 
 > 🎒 this article uses following library versions:
 
@@ -13,6 +13,26 @@
 ```
 
 > 🎮 [source code can be found on my github profile](https://github.com/Hotell/blogposts/tree/master/2018-10/ten-ts-tips-with-react)
+
+---
+
+TypeScript is definitely the best thing that happened to JavaScript. period.
+
+Unfortunately, I cannot say the same about "The best thing that happened to Java/C# devs writing JS with it 👀"
+
+Why 🤨?
+
+Well, it definitely makes your Java/C# ego feel like at home, having types within JavaScript (which is amazing !), but then it introduces other "language features" which are not part of standard JavaScript, and because of those, it may throw a false prejudice about TypeScript, by putting it to a "Completely new language" bag, which isn't really true IMHO.
+
+I've been always trying to stay away from various TS features (for a good reasons btw.) to stay in Idiomatic/Standard JavaScript space as much as possible.
+
+This post is describes various patterns/tips that I "invented/learned" and have been using while using TypeScript and React for building UI's.
+
+Whole post is written in "A Style guide style" with 3 subcategories for every tip/pattern:
+
+- Don't
+- Do or Good/Better
+- Why
 
 ---
 
@@ -106,61 +126,149 @@ In reality, you should almost never need to work directly with React Component i
 
 ## 3. Don't use `protected` accessor within Component class
 
+**Don't**
+
+```tsx
+type BaseProps = { config: object; who: string }
+
+class Base extends Component<BaseProps> {
+  protected renderInnerContent(config: BaseProps['config']) {
+    return (
+      <>
+        <p>Lorem Ipsum</p>
+        <pre>{JSON.stringify(config)}</pre>
+      </>
+    )
+  }
+}
+
+class SomeFeature extends Base {
+  render() {
+    return <div>{this.renderInnerContent(this.props)}</div>
+  }
+}
+```
+
+**Do**
+
+```tsx
+class InnerContent extends Component<{ config: object }> {
+  render() {
+    return (
+      <>
+        <p>Lorem Ipsum</p>
+        <pre>{JSON.stringify(this.props.config)}</pre>
+      </>
+    )
+  }
+}
+
+type Props = { who: string } & InnerContent['props']
+class SomeFeature extends Component<Props> {
+  render() {
+    return (
+      <div>
+        <InnerContent config={this.props.config} />
+      </div>
+    )
+  }
+}
+```
+
 **Why:**
 
-Using `protected` is an immediate RED ALERT in terms of functional patterns with React,
-that you wanna do something via OOP approach. There are more effective patterns like this for "mixin" like behaviour, in particular **high order functions** and **functional composition**.
+Using `protected` is an immediate "RED ALERT" 🚨🚨🚨 in terms of functional patterns leverage with React. There are more effective patterns like this for extending behaviour of some component. You can use:
+
+- just extract the logic to separate component and use it as seen above
+- **HoC** (high order function) and **functional composition**.
+- **CaaF** ( children as a function )
 
 ## 4. Don't use `enum`
 
 **Don't:**
 
 ```tsx
-enum ErrorCodes {
-  NotFound,
-  Forbidden
+enum Response {
+  No,
+  Yes,
 }
 
-enum ActionTypes {
-  Get = '[Crud operation] GET'
-  Post = '[Crud operation] POST'
-  Delete = '[Crud operation] DELETE'
+function respond(recipient: string, message: Response): void {
+  // ...
+}
+
+enum Colors {
+  Red = 'RED',
+  Green = 'GREEN',
+  Blue = 'BLUE',
+}
+
+function favoriteColor(name: string, color: Colors) {
+  // ...
 }
 ```
 
 **Good:**
 
+If you need to support runtime enums use following pattern:
+
 ```tsx
-const ErrorCodes = {
-  NotFound: 404,
-  Forbidden: 403
+type EnumLiteralsOf<T extends object> = T[keyof T]
+
+// merge implementation with "Enum" typed literal
+// $ExpectType 1 | 2
+export type Response = EnumLiteralsOf<typeof Response>
+// $ExpectType Readonly<{ No: 1; Yes: 2; }>
+export const Response = Object.freeze({
+  // we need to explicit cast values to get proper literal type
+  No: 1 as 1,
+  Yes: 2 as 2,
+})
+
+function respond(recipient: string, message: Response) {
+  // ...
 }
 
-const ActionTypes = {
-  Get: '[Crud operation] GET'
-  Post: '[Crud operation] POST'
-  Delete: '[Crud operation] DELETE'
+// merge implementation with "Enum" typed literal
+// $ExpectType "RED" | "GREEN" | "BLUE"
+export type Colors = EnumLiteralsOf<typeof Colors>
+// $ExpectType Readonly<{ Red: "RED"; Green: "GREEN"; Blue: "BLUE"; }>
+export const Colors = Object.freeze({
+  Red: 'RED' as 'RED',
+  Green: 'GREEN' as 'GREEN',
+  Blue: 'BLUE' as 'BLUE',
+})
+
+function favoriteColor(name: string, color: Colors) {
+  // ...
 }
 ```
 
 **Better:**
 
-```tsx
-const ErrorCodes = Object.freeze({
-  NotFound: 404 as 404,
-  Forbidden: 403 as 403
-})
+If you don't need to support runtime enums, all you need to use are type literals:
 
-const ActionTypes = Object.freeze({
-  Get: '[Crud operation] GET'
-  Post: '[Crud operation] POST'
-  Delete: '[Crud operation] DELETE'
-})
+```tsx
+type Response = 1 | 2
+
+function respond(recipient: string, message: Response) {
+  // ...
+}
+
+type Colors = 'RED' | 'GREEN' | 'BLUE'
+
+function favoriteColor(name: string, color: Colors) {
+  // ...
+}
 ```
 
 **Why?**
 
-To use `enum` within TypeScript, might be very tempting, especially if you're coming from language like C# or Java. But there are better ways how to interpret both with well known JS patterns:
+To use `enum` within TypeScript might be very tempting, especially if you're coming from language like C# or Java. But there are better ways how to interpret both with well known JS idiomatic patterns or as can be seen in "Better" example just by using compile time **type literals**.
+
+- Enums compiled output generates unnecessary boilerplate (which can be mitigated with `const enum` though. Also string enums are better in this one)
+- Non string Enums don't narrow to proper number type literal, which can introduce unhandled bug within your app
+- It's not standard/idiomatic JavaScript (although `enum` is reserved word in ECMA standard)
 
 ## 5. Don't use `constructor` for class Components
 
@@ -591,7 +699,7 @@ class App extends Component<{}, State> {
 
 ## Summary
 
-That's it for today! Hope you gonna apply those patterns sooner than later within your code base or even better use them as part of your project style guide.
+That's it for today! Hope you gonna apply those patterns sooner than later within your code base or even better use them as part of your project style guide. If you do please lemme know how it goes !
 
 [And remember. Respect, is everything! 😅](https://www.youtube.com/watch?v=EloDnA1_XEU)
 

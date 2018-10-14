@@ -5,7 +5,7 @@ enum Response {
   Yes,
 }
 
-function respond(recipient: string, message: Response): void {
+function respond(recipient: string, message: Response) {
   // ...
 }
 
@@ -15,7 +15,9 @@ enum Colors {
   Blue = 'BLUE',
 }
 
-function favoriteColor(name: string, color: Colors) {}
+function favoriteColor(name: string, color: Colors) {
+  // ...
+}
 
 // TEST
 

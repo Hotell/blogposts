@@ -1,25 +1,16 @@
 export {}
 
-type ValueOfEnum<T extends object> = T[keyof T]
+type Response = 1 | 2
 
-type Response = ValueOfEnum<typeof Response>
-const Response = Object.freeze({
-  No: 1 as 1,
-  Yes: 2 as 2,
-})
-
-function respond(recipient: string, message: Response): void {
+function respond(recipient: string, message: Response) {
   // ...
 }
 
-type Colors = ValueOfEnum<typeof Colors>
-const Colors = Object.freeze({
-  Red: 'RED' as 'RED',
-  Green: 'GREEN' as 'GREEN',
-  Blue: 'BLUE' as 'BLUE',
-})
+type Colors = 'RED' | 'GREEN' | 'BLUE'
 
-function favoriteColor(name: string, color: Colors) {}
+function favoriteColor(name: string, color: Colors) {
+  // ...
+}
 
 // TESTS
 
