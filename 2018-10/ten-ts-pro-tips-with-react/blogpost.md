@@ -1,4 +1,4 @@
-# 10 TypeScript Pro tips/patterns with ( or without ) React
+# 10 TypeScript Pro tips/patterns with (or without) React
 
 > 🎒 this article uses following library versions:
 
@@ -28,13 +28,13 @@ I've been always trying to stay away from various TS features (for a good reason
 
 This article describes various patterns/tips that I "invented/learned" and have been using while using TypeScript and React for building UI's.
 
-> While initially, this blog post introduces "only" 10 tips, I may add additional ones in the future, so definitely check this post time to time for any updates 😎
+> Initially, this blog post introduced "only" 10 tips, I may add additional ones in the future. Definitely check this post time to time for any updates 😎
 
 Whole article is written in a "Style guide style" with 3 sub-categories for every tip/pattern which consists of:
 
-- Don't ( code example what you shouldn't be doing)
-- Do or Good/Better (code example what you should be doing)
-- Why (reasoning/explanation)
+- **Don't** ( code example what you shouldn't be doing)
+- **Do** or **Good/Better** (code example what you should be doing)
+- **Why** (reasoning/explanation)
 
 With that covered, let's hop into 10 TypeScript Pro tips/patterns with ( or without ) React.
 
@@ -111,16 +111,17 @@ class App extends Component {
 **Better:**
 
 ```tsx
-const _handleChange = Symbol('handleChange')
+const handleChange = Symbol()
 
 class App extends Component {
   // private property via symbol
-  [_handleChange] = (ev: import('react').ChangeEvent) => {}
+  [handleChange] = (ev: import('react').ChangeEvent) => {}
 
   render() {
     return (
       <div>
-        <input onChange={this[_handleChange]} />
+        {/*private property access via symbol ref with proper type safety*/}
+        <input onChange={this[handleChange]} />
       </div>
     )
   }
@@ -291,7 +292,7 @@ function favoriteColor(name: string, color: Colors) {
 To use `enum` within TypeScript might be very tempting, especially if you're coming from language like C# or Java. But there are better ways how to interpret both with well known JS idiomatic patterns or as can be seen in "Better" example just by using compile time **type literals**.
 
 - Enums compiled output generates unnecessary boilerplate (which can be mitigated with `const enum` though. Also string enums are better in this one)
-  - ![enum - generated js](./img/04-js-ouptut.png)
+  - ![enum - generated js](./img/04-js-output.png)
 - Non string Enums don't narrow to proper number type literal, which can introduce unhandled bug within your app
 - It's not standard/idiomatic JavaScript (although `enum` is reserved word in ECMA standard)
 
@@ -342,7 +343,7 @@ Of course you may ask, what if I need to introduce some logic te initialize comp
 type State = { counter: number }
 type Props = { initialCount: number }
 
-const getInitialState = (props: Props) => {
+const getInitialState = (props: Props): State => {
   /*some logic here*/ return {
     /*demanded object*/
   }
@@ -370,10 +371,10 @@ export class Container extends Component {}
 
 ```tsx
 const enhance = connect(mapStateToProps)
+
 class Container extends Component {}
 
-const EnhancedComponent = enhance(Container)
-export { EnhancedComponent as Container }
+export default enhance(Container)
 ```
 
 ![decorators - Good](./img/06-good.png)
@@ -388,7 +389,9 @@ import { translate } from 'react-i18n'
 const enhance = compose(
   translate(),
   connect(mapStateToProps)
+  // add as many HoC as you need. Functional composition FTW 👌
 )
+
 class Container extends Component {}
 
 export default enhance(Container)
@@ -475,7 +478,6 @@ Exporting Props or State from your component implementation is making API surfac
 **Don't:**
 
 ```tsx
-// ==========
 // button.tsx
 
 import React, { Component } from 'react'
@@ -488,7 +490,6 @@ class Button extends Component {
   }
 }
 
-// ===============
 // user-detail.tsx
 
 type Props = { id: string; name: string; email: string }
@@ -506,7 +507,6 @@ class UserDetail extends Component<Props> {
   }
 }
 
-// =======
 // app.tsx
 
 const App = () => (
@@ -526,7 +526,6 @@ const App = () => (
 **Do:**
 
 ```tsx
-// ==========
 // button.tsx
 
 type Props = {
@@ -540,7 +539,6 @@ class Button extends Component<Props> {
   }
 }
 
-// ===============
 // user-detail.tsx
 
 type Props = { id: string; name: string; email: string; children?: never }
@@ -559,7 +557,6 @@ class UserDetail extends Component<Props> {
   }
 }
 
-// =======
 // app.tsx
 
 import {Button} from './button'
@@ -568,10 +565,10 @@ import {UserDetail} from './user-detail'
 const App = () => (
   <main>
     <Button>click</Button>
-    {/* $Expect Error */}
+    {/* $ExpectError 👉 Button needs to have children */}
     <Button />
     <UserDetail id="421312" email="johnny@five.org" name="Johnny the Fifth" />
-    {/* $Expect Error */}
+    {/* $ExpectError 👉  UserDetail cannot use children */}
     <UserDetail id="421312" email="johnny@five.org" name="Johnny the Fifth">
       Who am I?
     </UserDetail>
@@ -639,8 +636,12 @@ export class Counter extends Component<Props, State> {
 
 **Better:**
 
+By making our initialState/defaultProps frozen, type system will again infer correct `readonly` types (when someone would accidentally set some value, he would get compile error). Also marking both `static defaultProps` and `state` as `readonly` is a nice touch to prevent us to make runtime errors when incorrectly setting state via `this.state = {...}`
+
 ```tsx
+// $ExpectType Readonly<{ count: number; }>
 type State = typeof initialState
+// $ExpectType { someProps: string; } & Readonly<{ who: string; }>
 type Props = { someProps: string } & typeof defaultProps
 
 const initialState = Object.freeze({ count: 0 })
@@ -661,7 +662,7 @@ export class Counter extends Component<Props, State> {
 - More readable code
 - by adding readonly modifier and freezing the object, any mutation within your component will immediately end with compile error, which will prevent any runtime error = happy consumers of your app!
 
-> What if I wanna use more complicated type within state or default props?
+### What if I wanna use more complicated type within state or default props?
 
 Use `as` operator to cast your properties within the constant.
 
@@ -670,11 +671,13 @@ Example:
 ```tsx
 import { Todo } from './models'
 
-// $ExpectType { readonly todos: Todo[] | null; }
+// $ExpectType Readonly<{ todos: Todo[] | null; }>
 type State = typeof initialState
 
 const initialState = Object.freeze({ todos: null as null | Todo[] })
 ```
+
+![define types from implementation by leveraging inference with complex types - Better](./img/09-better-complex-types.png)
 
 ## 10. When using factories instead of classes for models, leverage declaration merging by exporting both type and implementation
 

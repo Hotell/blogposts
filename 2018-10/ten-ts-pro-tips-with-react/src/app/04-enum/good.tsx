@@ -10,10 +10,6 @@ export const Response = Object.freeze({
   Yes: 2 as 2,
 })
 
-function respond(recipient: string, message: Response) {
-  // ...
-}
-
 // merge implementation with "Enum" typed literal
 // $ExpectType "RED" | "GREEN" | "BLUE"
 export type Colors = EnumLiteralsOf<typeof Colors>
@@ -28,10 +24,14 @@ function favoriteColor(name: string, color: Colors) {
   // ...
 }
 
+function respond(recipient: string, message: Response) {
+  // ...
+}
+
 // TESTS
 
 {
-  // Enums - literal type narrowing
+  // Idiomatic JS Enums via object
 
   // $ExpectError 👉 yup catched 👌
   const test: Response = 4
@@ -50,7 +50,7 @@ function favoriteColor(name: string, color: Colors) {
 }
 
 {
-  // String Enums
+  // Idiomatic JS Enums via object
 
   // 👉 yup no ERROR 👌
   const test: Colors = 'RED'

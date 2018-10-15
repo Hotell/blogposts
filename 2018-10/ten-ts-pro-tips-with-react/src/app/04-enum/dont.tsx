@@ -1,18 +1,16 @@
-export {}
-
-enum Response {
+export enum Response {
   No,
   Yes,
 }
 
-function respond(recipient: string, message: Response) {
-  // ...
-}
-
-enum Colors {
+export enum Colors {
   Red = 'RED',
   Green = 'GREEN',
   Blue = 'BLUE',
+}
+
+function respond(recipient: string, message: Response) {
+  // ...
 }
 
 function favoriteColor(name: string, color: Colors) {
@@ -22,7 +20,7 @@ function favoriteColor(name: string, color: Colors) {
 // TEST
 
 {
-  // Enums - literal type narrowing
+  // TypeScript Enums
 
   // $ExpectError 💥 NOPE  !!!
   const test: Response.No = 4
@@ -40,7 +38,7 @@ function favoriteColor(name: string, color: Colors) {
 }
 
 {
-  // String Enums
+  // TypeScript String Enums
 
   // $ExpectError
   const test: Colors.Red = 'RED'
