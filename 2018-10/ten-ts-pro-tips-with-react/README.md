@@ -1,4 +1,4 @@
-# {Title} - DEMO
+# 10 TypeScript Pro tips with (or without) React - DEMO
 
 ## Prerequisite
 

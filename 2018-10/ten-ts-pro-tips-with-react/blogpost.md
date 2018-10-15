@@ -1,4 +1,4 @@
-# 10 TypeScript Pro tips/patterns with (or without) React
+# 10 TypeScript Pro tips with (or without) React
 
 > 🎒 this article uses following library versions:
 
