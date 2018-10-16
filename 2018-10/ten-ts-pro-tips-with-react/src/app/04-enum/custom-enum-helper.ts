@@ -1,8 +1,4 @@
-function tuple<TS extends string[]>(...xs: TS) {
-  return xs
-}
-
-export type UnionFromTuple<T> = T extends (infer U)[] ? U : never
+import { EnumLiteralOf, UnionFromTuple } from './types'
 
 const Enum = <T extends string[]>(...args: T) => {
   return Object.freeze(args.reduce((acc, next) => {
@@ -13,7 +9,10 @@ const Enum = <T extends string[]>(...args: T) => {
   }, Object.create(null)) as { [P in UnionFromTuple<typeof args>]: P })
 }
 
+export type Response = keyof typeof Response
 // $ExpectType  Readonly<{ YES: "YES"; NO: "NO"; }>
 const Response = Enum('YES', 'NO')
+
+export type Colors = EnumLiteralOf<typeof Colors>
 // $ExpectType  Readonly<{ RED: "RED"; GREEN: "GREEN"; BLUE: "BLUE"; }>
 const Colors = Enum('RED', 'GREEN', 'BLUE')

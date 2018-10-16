@@ -294,23 +294,56 @@ To use `enum` within TypeScript might be very tempting, especially if you're com
 - Enums compiled output generates unnecessary boilerplate (which can be mitigated with `const enum` though. Also string enums are better in this one)
   - ![enum - generated js](./img/04-js-output.png)
 - Non string Enums don't narrow to proper number type literal, which can introduce unhandled bug within your app
+  - ![enum - missing errors](./img/04-test-cases-comparison.png)
 - It's not standard/idiomatic JavaScript (although `enum` is reserved word in ECMA standard)
 
-![enum - missing errors](./img/04-test-cases-comparison.png)
+### Enum helper
+
+In our "Good" example, you might think like, ugh that's a lot of boilerplate dude! I hear you my friends. Loud and clear 🙏
+
+If you need to support runtime enums for various reasons, you can leverage small utility function from [rex-tils library](https://github.com/Hotell/rex-tils) like showcased here:
+
+```tsx
+import { Enum } from '@martin_hotell/rex-tils'
+
+// merge implementation with "Enum" typed literal
+// $ExpectType 'No' | 'Yes'
+export type Response = Enum<typeof Response>
+// $ExpectType Readonly<{ No: 'No'; Yes: 'Yes'; }>
+export const Response = Enum('No', 'Yes')
+
+function respond(recipient: string, message: Response) {
+  // ...
+}
+
+// merge implementation with "Enum" typed literal
+// $ExpectType "Red" | "Green" | "Blue"
+export type Colors = Enum<typeof Colors>
+// $ExpectType Readonly<{ Red: "Red"; Green: "Green"; Blue: "Blue"; }>
+export const Colors = Enum('RED', 'GREEN', 'BLUE')
+
+function favoriteColor(name: string, color: Colors) {
+  // ...
+}
+```
+
+![enum - Good with rex-tils Enum helper](./img/04-good-with-rex-tils.png)
 
 ## 5. Don't use `constructor` for class Components
 
 **Don't:**
 
 ```tsx
-type State = { counter: 0 }
+type State = { count: 0 }
 type Props = {}
 
-class App extends Component<Props, State> {
+class Counter extends Component<Props, State> {
   constructor(props: Props) {
-    super(props: Props)
+    // if you'll forget to call the super class constructor
+    // bad things start to happen 🚨💥
+    super(props)
     this.state = {
-      counter: 0,
+      count: 0,
     }
   }
 }
@@ -321,12 +354,12 @@ class App extends Component<Props, State> {
 **Do:**
 
 ```tsx
-type State = { counter: number }
+type State = { count: number }
 type Props = {}
 
-class App extends Component<Props, State> {
+class Counter extends Component<Props, State> {
   state = {
-    counter: 0,
+    count: 0,
   }
 }
 ```
@@ -335,9 +368,23 @@ class App extends Component<Props, State> {
 
 **Why:**
 
-There is really no need to use constructor within React Component. If you do so, you need to provide more code boilerplate and also need to call `super` with provided props ( if you forget to pass props to your super, your component will contain bugs as props will not be propagated correctly).
+There is really no need to use constructor within React Component.
 
-Of course you may ask, what if I need to introduce some logic te initialize component state, or even to initialize the state on values based from props. Solution is easy. Just define a pure function outside the component, which can be easily tested as well 👌
+If you do so, you need to provide more code boilerplate and also need to call `super` with provided props ( if you forget to pass props to your super, your component will contain bugs as props will not be propagated correctly).
+
+> But... but... hey ! React official docs use constructor!
+> 👉 That's fine (React team uses current version of JS to showcase stuff)
+>
+> But... but..., class properties are not standard JavaScript!
+> 👉 Class fields are in [Stage 3](https://github.com/tc39/proposal-class-fields#consensus-in-tc39), which means they are gonna be implemented in JS soon
+
+### Initializing state with some logic
+
+Of course you may ask, what if I need to introduce some logic to initialize component state, or even to initialize the state from some dependant values, like props for example.
+
+Answer to your question is rather straightforward.
+
+Just define a pure function outside the component with your custom logic (as a "side effect" you'll get easily tested code as well 👌).
 
 ```tsx
 type State = { counter: number }
@@ -401,9 +448,16 @@ export default enhance(Container)
 
 **Why:**
 
-Decorators are parasitic 🐛. That means you won't be able to get clean version of your class. Also TypeScript uses version of decorators which is not gonna be implemented in ECMAscript standard. It adds additional runtime code and processing to your app. What is most important though in terms of type checking within JSX, is that decorators don't enhance class type. That means (in our example), the Container will have absolutely no type information for consumer about added props and so on.
+Decorators are parasitic 🐛 👀 🤢
 
-## 7. Use type lookup for accessing component State or Props types
+- You won't be able to get original/clean version of your class.
+- TypeScript uses old version of decorator proposal which isn't gonna be implemented in ECMAscript standard 🚨.
+- It adds additional runtime code and processing time execution to your app.
+- What is most important though, in terms of type checking within JSX, is, that decorators don't extend class type definition. That means (in our example), that our Container component, will have absolutely no type information for consumer about added/removed props.
+
+## 7. Use _lookup types_ for accessing component State/Props types
+
+> [lookup types](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-1.html#keyof-and-lookup-types)
 
 **Don't:**
 
@@ -471,7 +525,9 @@ class Consumer extends Component {
 
 **Why:**
 
-Exporting Props or State from your component implementation is making API surface bigger. Do you really want that or rather let's ask why should consumers of your component be able to import State/Props type information? If they really need that info, they can access it via lookup types functionality
+- Exporting Props or State from your component implementation is making your API surface bigger.
+- You should always ask a question, why consumers of your component should be able to import explicit State/Props type? If they really need that, they can always access it via type lookup functionality. So cleaner API but type information is still there for everyone. Win Win 💪
+- If you need to provide a complex Props type though, it should be extracted to `models/types` file exported as Public API.
 
 ## 8. Always provide explicit type for `children` Props
 
@@ -580,21 +636,33 @@ const App = () => (
 
 **Why:**
 
-`children` prop is annotated as optional within both Component and Functional Component in `react.d.ts` which just mirrors the implementation how React handles children.
-While that's ok and everything, I prefer to be explicit with component API.
+- `children` prop is annotated as optional within both Component and Functional Component in `react.d.ts` which just mirrors the implementation how React handles children.
+  While that's ok and everything, I prefer to be explicit with component API.
 
-For those reasons, if you plan to use children for content projection, make sure to explicit annotate it with type of your choosing and in opposite if your component doesn't use it, prevent it's usage with `never`.
+- if you plan to use `children` for content projection, make sure to explicit annotate it with type of your choosing and in opposite, if your component doesn't use it, prevent it's usage with `never` type.
 
 ### Children type constraint
 
-You may ask, What types are supported for `children` ? Can I constraint children to be only a particular type of Component ( like is possible with Flow ) ? like `Tab` within `Tabs` ? Unfortunately not, as TypeScript isn't able to "parse" the JSX tree and get proper return object, only following types are "allowed":
+> Hey, mister Skateboarder ! I have a question ✋:
 
-- `ReactNode`
-- `ReactChild`
+What types can be used for `children` annotation in TypeScript ? I mean, can I constraint children to be only a particular type of Component ([like is possible with Flow](https://flow.org/en/docs/react/children/#toc-only-allowing-a-specific-element-type-as-children)) ? Something like `Tab` within `Tabs` `children: Tab[]` ?
+
+Unfortunately not 🙃, as TypeScript isn't able to "parse" output of `JSX.factory` 👉 `React.createElement` which returns `JSX.Element` from global namespace, which `extends React.ReactElement<any>` so what compiler gets is an object type, with type checking turned off (WARNING:every time you `any` a kitten dies 🙀😅)
+
+Or as stated in TypeScript docs:
+
+> _"By default the result of a JSX expression is typed as `any`. You can customize the type by specifying the JSX.Element interface. However, it is not possible to retrieve type information about the element, attributes or children of the JSX from this interface. **It is a black box** ⬛️ 📦."_
+
+> NOTE: TS 2.8 introduced [locally scoped JSX namespaces](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#locally-scoped-jsx-namespaces), which may help to resolve this feature in the future. Watch this space!
+
+We can use following types for annotating `children``:
+
+- `ReactNode` | `ReactChild` | `ReactElement`
+- `Array<ReactNode>` | `Array<ReactChild>` | `Array<ReactElement>`
 - `object` | `{[key:string]:unknown}` | `MyModel`
 - `Array<T>`
 - primitives `string` | `number` | `boolean`
-- `never`
+- `never` | `null` | `undefined` ( null and undefined doesn't make much sense though )
 
 ## 9. Use type inference for defining Component State or DefaultProps
 
@@ -636,7 +704,7 @@ export class Counter extends Component<Props, State> {
 
 **Better:**
 
-By making our initialState/defaultProps frozen, type system will again infer correct `readonly` types (when someone would accidentally set some value, he would get compile error). Also marking both `static defaultProps` and `state` as `readonly` is a nice touch to prevent us to make runtime errors when incorrectly setting state via `this.state = {...}`
+By making freezing initialState/defaultProps, type system will infer correct `readonly` types (when someone would accidentally set some value, he would get compile error). Also marking both `static defaultProps` and `state` as `readonly` within the class, is a nice touch, to prevent us from making any runtime errors when incorrectly setting state via `this.state = {...}`
 
 ```tsx
 // $ExpectType Readonly<{ count: number; }>
@@ -759,9 +827,11 @@ class App extends Component<{}, State> {
 
 ## Summary
 
-That's it for today! Hope you gonna apply those patterns sooner than later within your code base or even better use them as part of your project style guide. If you do please lemme know how it goes !
+That's it for today! Hope you gonna apply those patterns sooner than later within your code base or even better use them as part of your project style guide. If you do, please lemme know how it goes!
 
 [And remember. Respect, is everything! 😅](https://www.youtube.com/watch?v=EloDnA1_XEU)
+
+Cheers!
 
 ---
 

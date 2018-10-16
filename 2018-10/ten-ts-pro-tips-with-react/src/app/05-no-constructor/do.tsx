@@ -1,10 +1,12 @@
 import { Component } from 'react'
 
-type State = { counter: number }
+type State = { count: number }
 type Props = {}
 
-class App extends Component<Props, State> {
+class Counter extends Component<Props, State> {
   state = {
-    counter: 0,
+    count: 0,
   }
 }
+
+const Foo: JSX.Element =
