@@ -8,5 +8,3 @@ class Counter extends Component<Props, State> {
     count: 0,
   }
 }
-
-const Foo: JSX.Element =

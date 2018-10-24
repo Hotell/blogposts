@@ -4,7 +4,7 @@
 
 ```json
 {
-  "@types/react": "16.4.16",
+  "@types/react": "16.4.18",
   "@types/react-dom": "16.0.9",
   "typescript": "3.1.3",
   "react": "16.5.2",
@@ -822,6 +822,152 @@ class App extends Component<{}, State> {
 - Less Boilerplate
 - One token for both type and implementation / Smaller API
 - Both type and implementation are in sync and most importantly, implementation is the source of truth
+
+## 11. don't use namespace import to import `React`
+
+**Dont:**
+
+```ts
+import * as React from 'react'
+```
+
+**Do:**
+
+```ts
+import React from 'react'
+```
+
+To support recommended behaviour you need to set following config within your tsconfig.json file:
+
+```json
+{
+  "compilerOptions": {
+    /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
+    "esModuleInterop": true
+  }
+}
+```
+
+**Consider:**
+
+```tsx
+/** @jsx createElement */
+import { createElement, Component } from 'react'
+
+class MyComponent extends Component {
+  render() {
+    return <div>Hello!</div>
+  }
+}
+```
+
+Or if you wanna use the "consider" method in whole project without defining jsx pragma per file, you need to set following config within your tsconfig.json file:
+
+```json
+{
+  "compilerOptions": {
+    /* Specify the JSX factory function to use when targeting 'react' JSX emit, e.g. 'React.createElement' or 'h'. */
+    "jsxFactory": "createElement"
+  }
+}
+```
+
+**Why:**
+
+- It's confusing to import all contents from react library when you're not using them.
+- It's more aligned to "idiomatic JS"
+- You don't need to import types defined on `React` namespace like you have to do with `Flow` as TS support declaration merging 👌
+- The "consider" example is even more explicit what is used within your module and may improve tree-shaking during compile time.
+
+## 12. Don't use `namespace`
+
+**Dont:**
+
+```ts
+namespace Validation {
+  export interface StringValidator {
+    isAcceptable(s: string): boolean
+  }
+
+  export class LettersOnlyValidator implements StringValidator {
+    isAcceptable(s: string) {
+      /*...implementation */
+    }
+  }
+
+  export class ZipCodeValidator implements StringValidator {
+    isAcceptable(s: string) {
+      /*...implementation */
+    }
+  }
+}
+```
+
+**Do:**
+
+```ts
+export interface StringValidator {
+  isAcceptable(s: string): boolean
+}
+
+export class LettersOnlyValidator implements StringValidator {
+  isAcceptable(s: string) {
+    /*...implementation */
+  }
+}
+
+export class ZipCodeValidator implements StringValidator {
+  isAcceptable(s: string) {
+    /*...implementation */
+  }
+}
+```
+
+**Why:**
+
+- `namespace` was kinda useful in pre ES2015 modules era. We don't need it anymore.
+- Won't work if you use babel for transpiling
+
+If you really need some kind of namespacing within your module, just use idiomatic JavaScript, like in following example:
+
+```ts
+interface StringValidator {
+  isAcceptable(s: string): boolean
+}
+
+class LettersOnlyValidator implements StringValidator {
+  isAcceptable(s: string) {
+    /*...implementation */
+  }
+}
+
+class ZipCodeValidator implements StringValidator {
+  isAcceptable(s: string) {
+    /*...implementation */
+  }
+}
+
+// idiomatic JS namespace via object
+export const Validation = {
+  LettersOnlyValidator,
+  ZipCodeValidator,
+}
+
+// merge types with implementation namespace
+export interface Validation {
+  StringValidator: StringValidator
+}
+
+// ===============
+// consumer.ts
+
+import { Validation } from './validation'
+
+// Validators to use
+let validators: { [s: string]: Validation.StringValidator } = {}
+validators['ZIP code'] = new Validation.ZipCodeValidator()
+validators['Letters only'] = new Validation.LettersOnlyValidator()
+```
 
 ---
 
