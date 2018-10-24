@@ -1,0 +1,28 @@
+{
+	"folders": [
+		{
+			"path": "./2018-02"
+		},
+		{
+			"path": "./2018-03"
+		},
+		{
+			"path": "./2018-05"
+		},
+		{
+			"path": "./2018-06"
+		},
+		{
+			"path": "./2018-08"
+    },
+    {
+			"path": "./2018-10"
+    },
+    {
+			"path": "./templates"
+		},
+	],
+	"settings": {
+		"typescript.tsdk": "node_modules/typescript/lib"
+	}
+}
