@@ -832,11 +832,15 @@ class App extends Component<{}, State> {
 import * as React from 'react'
 ```
 
+![namespace import - Dont](./img/11-dont.png)
+
 **Do:**
 
 ```ts
-import React from 'react'
+import React, { Component } from 'react'
 ```
+
+![default import with named - Do](./img/11-do.png)
 
 To support recommended behaviour you need to set following config within your tsconfig.json file:
 
@@ -862,10 +866,12 @@ class MyComponent extends Component {
 }
 ```
 
+![named import only - Do](./img/11-consider.png)
+
 > #### NOTE:
 >
-> with this style, syntax sugar for using Fragments 👉 `<></>` won't work. You need to import them explicitly and use via `<Fragment>...</Fragment>`.
-> I like this approach more as it's explicit and I can add `key` whenever I want without introducing "too much" changes while doing refactoring.
+> - With this style, syntax sugar for using Fragments 👉 `<></>` won't work. You need to import them explicitly and use via `<Fragment>...</Fragment>`.
+> - I like this approach more as it's explicit and I can add `key` whenever I want without introducing "too much" changes while doing refactoring.
 
 Or if you wanna use the "consider" method in whole project without defining jsx pragma per file, you need to set following config within your tsconfig.json file:
 
@@ -892,7 +898,7 @@ Or if you wanna use the "consider" method in whole project without defining jsx 
 ```ts
 namespace Validation {
   export interface StringValidator {
-    isAcceptable(s: string): boolean
+    isAcceptable: (s: string) => boolean
   }
 
   export class LettersOnlyValidator implements StringValidator {
@@ -909,11 +915,13 @@ namespace Validation {
 }
 ```
 
+![namespace - Dont](./img/12-dont.png)
+
 **Do:**
 
 ```ts
 export interface StringValidator {
-  isAcceptable(s: string): boolean
+  isAcceptable: (s: string) => boolean
 }
 
 export class LettersOnlyValidator implements StringValidator {
@@ -929,6 +937,8 @@ export class ZipCodeValidator implements StringValidator {
 }
 ```
 
+![just module exports - Do](./img/12-do.png)
+
 **Why:**
 
 - `namespace` was kinda useful in pre ES2015 modules era. We don't need it anymore.
@@ -938,7 +948,7 @@ If you really need some kind of namespacing within your module, just use idiomat
 
 ```ts
 interface StringValidator {
-  isAcceptable(s: string): boolean
+  isAcceptable: (s: string) => boolean
 }
 
 class LettersOnlyValidator implements StringValidator {
@@ -975,6 +985,8 @@ validators['ZIP code'] = new Validation.ZipCodeValidator()
 validators['Letters only'] = new Validation.LettersOnlyValidator()
 ```
 
+![namespace via idiomatic JS - Do](./img/12-namespace-via-vanilla-js.png)
+
 ## 13. Don't use ES2015 module imports when importing types without any run-time code
 
 **Don't:**
@@ -997,6 +1009,8 @@ export const decrement = (state: Counter['state']) => ({
 })
 ```
 
+![es imports when no run-time is imported - Dont](./img/13-dont.png)
+
 **Do:**
 
 ```tsx
@@ -1016,6 +1030,8 @@ export const decrement = (state: import('./counter').Counter['state']) => ({
   count: state.count + 1,
 })
 ```
+
+![type imports when no run-time is imported - Do](./img/13-do.png)
 
 > ### NOTE:
 >
@@ -1064,7 +1080,6 @@ import { Component } from 'react'
 const initialState = {
   count: 0,
 }
-
 const defaultProps = {
   color: 'red',
 }
@@ -1077,6 +1092,8 @@ class Counter extends Component<Props, State> {
   state = initialState
 }
 ```
+
+![impl before types - Dont](./img/15-dont.png)
 
 **Do:**
 
@@ -1100,6 +1117,8 @@ class Counter extends Component<Props, State> {
 }
 ```
 
+![types before impl - Do](./img/15-do.png)
+
 **Why:**
 
 - first lines of document clearly state what kind of types are used within current module. Also those types are compile only code
@@ -1120,6 +1139,8 @@ export const Todo = (description: string) => ({
 
 export interface Todo extends ReturnType<typeof Todo> {}
 ```
+
+![types after impl via merging - Ok](./img/15-declaration-merging-impl-first.png)
 
 ---
 
