@@ -296,6 +296,7 @@ To use `enum` within TypeScript might be very tempting, especially if you're com
 - Non string Enums don't narrow to proper number type literal, which can introduce unhandled bug within your app
   - ![enum - missing errors](./img/04-test-cases-comparison.png)
 - It's not standard/idiomatic JavaScript (although `enum` is reserved word in ECMA standard)
+- Cannot be used with babel for transpiling 👀
 
 ### Enum helper
 
@@ -861,6 +862,11 @@ class MyComponent extends Component {
 }
 ```
 
+> #### NOTE:
+>
+> with this style, syntax sugar for using Fragments 👉 `<></>` won't work. You need to import them explicitly and use via `<Fragment>...</Fragment>`.
+> I like this approach more as it's explicit and I can add `key` whenever I want without introducing "too much" changes while doing refactoring.
+
 Or if you wanna use the "consider" method in whole project without defining jsx pragma per file, you need to set following config within your tsconfig.json file:
 
 ```json
@@ -926,7 +932,7 @@ export class ZipCodeValidator implements StringValidator {
 **Why:**
 
 - `namespace` was kinda useful in pre ES2015 modules era. We don't need it anymore.
-- Won't work if you use babel for transpiling
+- Cannot be used with babel for transpiling 👀
 
 If you really need some kind of namespacing within your module, just use idiomatic JavaScript, like in following example:
 
@@ -967,6 +973,152 @@ import { Validation } from './validation'
 let validators: { [s: string]: Validation.StringValidator } = {}
 validators['ZIP code'] = new Validation.ZipCodeValidator()
 validators['Letters only'] = new Validation.LettersOnlyValidator()
+```
+
+## 13. Don't use ES2015 module imports when importing types without any run-time code
+
+**Don't:**
+
+```tsx
+// counter.helpers.ts
+
+// ❌ looks like we need some run-time entities, but we don't, those are just types
+import { ChangeEvent } from 'react'
+import { Counter } from './counter'
+
+export const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
+  // ...
+}
+export const increment = (state: Counter['state']) => ({
+  count: state.count + 1,
+})
+export const decrement = (state: Counter['state']) => ({
+  count: state.count + 1,
+})
+```
+
+**Do:**
+
+```tsx
+// counter.helpers.ts
+
+// ✅ no run-time imports needed as we are not using any!
+
+export const handleChange = (
+  ev: import('react').ChangeEvent<HTMLInputElement>
+) => {
+  // ...
+}
+export const increment = (state: import('./counter').Counter['state']) => ({
+  count: state.count + 1,
+})
+export const decrement = (state: import('./counter').Counter['state']) => ({
+  count: state.count + 1,
+})
+```
+
+> ### NOTE:
+>
+> If you're having many duplicate imports, consider to aliasing them to local type
+> 👉 type `State = import('./counter').Counter['state']`
+>
+> 👉 Beware that if you wanna create local type alias from generic type import, you need to mirror that generic type as well, e.g.: 👉 `type ReactElement<T=any> = import('React').ReactElement<T>`
+
+**Why:**
+
+- Your code is explicit for both human and machine. If you don't use any run-time code, annotate your code via only via `import('path')`
+- [check this great post from David East](https://davidea.st/articles/typescript-2-9-import-types) to learn more
+
+## 14. Don't use camelCase/PascalCase for file names
+
+**Don't:**
+
+```sh
+SkaterBoy.tsx
+
+userAccessHandlers.ts
+```
+
+**Do:**
+
+```sh
+skater-boy.tsx
+
+user-access-handlers.ts
+```
+
+**Why:**
+
+- readable file names. e.g `MyHalfFixedDedupedDirResolver` vs `my-half-fixed-deduped-dir-resolver` 👀
+- no more weird git conflicts when renaming/deleting/adding files on various OS file systems (case-sensitive/insensitive)
+- consistency (I don't have to think if this file is component or some helper or service. `tsx` extension tells me that)
+- nicely maps to component implementation name `skater-boy.tsx` 👉 `const SkaterBoy = () => {}`
+
+## 15. Declare types before run-time implementation
+
+**Don't:**
+
+```tsx
+import { Component } from 'react'
+
+const initialState = {
+  count: 0,
+}
+
+const defaultProps = {
+  color: 'red',
+}
+
+type State = typeof initialState
+type Props = { count?: number } & typeof defaultProps
+
+class Counter extends Component<Props, State> {
+  static defaultProps = defaultProps
+  state = initialState
+}
+```
+
+**Do:**
+
+```tsx
+import { Component } from 'react'
+
+// 1. types first
+type State = typeof initialState
+type Props = { count?: number } & typeof defaultProps
+
+// 2. runtime  code after types
+const initialState = {
+  count: 0,
+}
+const defaultProps = {
+  color: 'red',
+}
+class Counter extends Component<Props, State> {
+  static defaultProps = defaultProps
+  state = initialState
+}
+```
+
+**Why:**
+
+- first lines of document clearly state what kind of types are used within current module. Also those types are compile only code
+- run-time and compile time declarations are clearly separated
+- in component user immediately knows what the component "API" looks like without scrolling
+
+> ### NOTE:
+>
+> If your leveraging declaration merging as part of your API, define type after implementation:
+
+```tsx
+// this is OK though! it's part of model public API
+export const Todo = (description: string) => ({
+  id: String(Date.now()),
+  done: false,
+  description,
+})
+
+export interface Todo extends ReturnType<typeof Todo> {}
 ```
 
 ---
