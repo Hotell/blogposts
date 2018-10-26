@@ -1142,6 +1142,89 @@ export interface Todo extends ReturnType<typeof Todo> {}
 
 ![types after impl via merging - Ok](./img/15-declaration-merging-impl-first.png)
 
+## 16. Don't use method declaration within interface/type alias
+
+**Don't:**
+
+```tsx
+interface Counter {
+  start(value: number): string
+  reset(): void
+}
+```
+
+![methods declaration within interface - Dont](./img/16-dont.png)
+
+**Do:**
+
+```tsx
+interface Counter {
+  start: (value: number) => string
+  reset: () => void
+}
+```
+
+![functions declaration within interface - Do](./img/16-do.png)
+
+**Why:**
+
+- `--strictFunctionTypes` enforces stronger type checks when comparing function types, but **does not apply to methods**. [Check TS wiki to learn more](https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#strict-function-types)
+- [explanation from TS issue](https://github.com/Microsoft/TypeScript/issues/25296#issuecomment-401517062)
+
+## 17. Don't use `number` for indexable type key
+
+**Don't:**
+
+```ts
+interface UserIndexedDictionary {
+  [id: number]: User
+}
+
+interface User {
+  email: string
+}
+
+const dictionary: UserIndexedDictionary = {
+  1: {
+    email: 'foo@bar.com',
+  },
+  2: {
+    email: 'baz@moo.com',
+  },
+}
+```
+
+![number type as a object key - Don't](./img/17-dont.png)
+
+**Do:**
+
+```ts
+interface UserIndexedDictionary {
+  [id: string]: User
+}
+
+interface User {
+  email: string
+}
+
+// proper ID hashes
+const dictionary: UserIndexedDictionary = {
+  edksdjf12: {
+    email: 'foo@bar.com',
+  },
+  okdjwns77: {
+    email: 'baz@moo.com',
+  },
+}
+```
+
+![string type as a object key - Do](./img/17-do.png)
+
+**Why:**
+
+- In JavaScript **object properties are always typeof `string`**! don't create false type predicates within your apps!
+- Annotating keys with `number` is OK for arrays (array definition from standard .d.ts lib 👉 `[n: number]: T;`), although in real life you should rarely come into situation that you wanna define "custom" array implementation
+
 ---
 
 ## Summary
