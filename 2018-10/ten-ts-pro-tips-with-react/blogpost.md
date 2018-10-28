@@ -300,7 +300,7 @@ To use `enum` within TypeScript might be very tempting, especially if you're com
 - Non string Enums don't narrow to proper number type literal, which can introduce unhandled bug within your app
   - ![enum - missing errors](./img/04-test-cases-comparison.png)
 - It's not standard/idiomatic JavaScript (although `enum` is reserved word in ECMA standard)
-- Cannot be used with babel for transpiling 👀
+- Cannot be used with [babel for transpiling](https://babeljs.io/docs/en/babel-plugin-transform-typescript) 👀
 
 ### Enum helper
 
@@ -828,9 +828,9 @@ class App extends Component<{}, State> {
 - One token for both type and implementation / Smaller API
 - Both type and implementation are in sync and most importantly, implementation is the source of truth
 
-## 11. don't use namespace import to import `React`
+## 11. Use default import to import `React`
 
-**Dont:**
+**Don't:**
 
 ```ts
 import * as React from 'react'
@@ -897,7 +897,7 @@ Or if you wanna use the "consider" method in whole project without defining jsx 
 
 ## 12. Don't use `namespace`
 
-**Dont:**
+**Don't:**
 
 ```ts
 namespace Validation {
@@ -946,7 +946,7 @@ export class ZipCodeValidator implements StringValidator {
 **Why:**
 
 - `namespace` was kinda useful in pre ES2015 modules era. We don't need it anymore.
-- Cannot be used with babel for transpiling 👀
+- Cannot be used with [babel for transpiling](https://babeljs.io/docs/en/babel-plugin-transform-typescript) 👀
 
 If you really need some kind of namespacing within your module, just use idiomatic JavaScript, like in following example:
 
