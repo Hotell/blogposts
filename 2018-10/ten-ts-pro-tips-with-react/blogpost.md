@@ -1,4 +1,4 @@
-# 10 TypeScript Pro tips with (or without) React
+# 10++ TypeScript Pro tips with (or without) React
 
 > 🎒 this article uses following library versions:
 
@@ -28,7 +28,11 @@ I've been always trying to stay away from various TS features (for a good reason
 
 This article describes various patterns/tips that I "invented/learned" and have been using while using TypeScript and React for building UI's.
 
-> Initially, this blog post introduced "only" 10 tips, I may add additional ones in the future. Definitely check this post time to time for any updates 😎
+> ### DISCLAIMER:
+>
+> Initially, this blog post introduced "only" 10 tips, During review of this post I already added 8 more 💪.
+> I may add additional ones in the future as React patterns/TS capabilities change/improve/evolve.
+> Make sure to check this post time to time for any updates 😎
 
 Whole article is written in a "Style guide style" with 3 sub-categories for every tip/pattern which consists of:
 
@@ -1225,13 +1229,87 @@ const dictionary: UserIndexedDictionary = {
 - In JavaScript **object properties are always typeof `string`**! don't create false type predicates within your apps!
 - Annotating keys with `number` is OK for arrays (array definition from standard .d.ts lib 👉 `[n: number]: T;`), although in real life you should rarely come into situation that you wanna define "custom" array implementation
 
+## 18. Don't use `JSX.Element` to annotate function/component return type or children/props
+
+**Don't:**
+
+```tsx
+/** @jsx createElement */
+import { createElement } from 'react'
+
+type Props = {
+  // 🚨 global type for JSX
+  children: JSX.Element
+}
+const MyComponent = (props: Props) => {
+  /* ... */
+}
+
+// ======================================================
+
+type Data = { id: string; email: string; age: number }
+
+// 🚨 global return type for JSX
+const renderListHelper = (data: Data[]): JSX.Element => {
+  /* some logic and stuff */
+  return (
+    <div>
+      {data.map((item) => (
+        <div key={item.id}>{/*...*/}</div>
+      ))}
+    </div>
+  )
+}
+```
+
+![JSX.Element for type annotation - Dont](./img/18-dont.png)
+
+**Do:**
+
+```tsx
+/** @jsx createElement */
+import { createElement, ReactChild, ReactElement } from 'react'
+
+type Props = {
+  // 👉 explicit children via ReactChild
+  children: ReactChild
+}
+const MyComponent = (props: Props) => {
+  /* ... */
+}
+
+// ======================================================
+
+type Data = { id: string; email: string; age: number }
+
+// 👉 explicit return type ReactElement
+const renderListHelper = (data: Data[]): ReactElement<any> => {
+  /* some logic and stuff */
+  return (
+    <div>
+      {data.map((item) => (
+        <div key={item.id}>{/*...*/}</div>
+      ))}
+    </div>
+  )
+}
+```
+
+![functions declaration within interface - Do](./img/18-do.png)
+
+**Why:**
+
+- globals are bad ☝️💥
+- TypeScript supports locally scoped JSX to be able to support various JSX factory types and proper JSX type checking per factory. While current react types use still global JSX namespace, it's gonna change in the future.
+- explicit types over generalized ones
+
 ---
 
 ## Summary
 
 That's it for today! Hope you gonna apply those patterns sooner than later within your code base or even better use them as part of your project style guide. If you do, please lemme know how it goes!
 
-[And remember. Respect, is everything! 😅](https://www.youtube.com/watch?v=EloDnA1_XEU)
+[And remember. Respect, is everything! 👀☝️😅🚨](https://www.youtube.com/watch?v=EloDnA1_XEU)
 
 Cheers!
 
