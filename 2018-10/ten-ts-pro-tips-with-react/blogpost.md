@@ -34,6 +34,10 @@ This article describes various patterns/tips that I "invented/learned" and have 
 > I may add additional ones in the future as React patterns/TS capabilities change/improve/evolve.
 > Make sure to check this post time to time for any updates 😎
 
+> ### UPDATE:
+>
+> _3.11.2018_ added tip **#19 👉 Use type alias instead of interface for declaring Props/State**
+
 Whole article is written in a "Style guide style" with 3 sub-categories for every tip/pattern which consists of:
 
 - **Don't** ( code example what you shouldn't be doing)
@@ -1302,6 +1306,54 @@ const renderListHelper = (data: Data[]): ReactElement<any> => {
 - globals are bad ☝️💥
 - TypeScript supports locally scoped JSX to be able to support various JSX factory types and proper JSX type checking per factory. While current react types use still global JSX namespace, it's gonna change in the future.
 - explicit types over generalized ones
+
+## 19. Use type alias instead of interface for declaring Props/State
+
+**Don't:**
+
+```tsx
+interface State {
+  counter: number
+}
+interface Props {
+  color: string
+}
+
+class MyComponent extends Component<Props, State> {
+  /*...*/
+}
+```
+
+![declare props/state via interface - Dont](./img/19-dont.png)
+
+**Do:**
+
+```tsx
+type State = { counter: number }
+type Props = { color: string }
+
+class MyComponent extends Component<Props, State> {
+  /*...*/
+}
+```
+
+![declare props/state via type - Do](./img/19-do.png)
+
+**Why:**
+
+- consistency/clearness. Let's say we use tip no.9 (defining state type from implementation). If you would like to use interface with this pattern, you're out of luck, as that's not allowed within TypeScript.
+
+```tsx
+// $ExpectError ❌
+interface State extends typeof initialState {}
+
+const initialState = {
+  counter: 0
+}
+```
+
+- interface cannot be extended by types created via union or intersection, so you would need to refactor your State/Props interface to type alias in that case.
+- interfaces can be extended globally via declaration merging, if you wanna provide that kind of capabilities to your users you're doing it wrong (exposing "private" API)
 
 ---
 
