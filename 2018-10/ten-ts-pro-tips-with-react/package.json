@@ -13,19 +13,19 @@
     "format": "prettier --write \"**/*.{ts,tsx,md,css,less,sass,scss}\""
   },
   "devDependencies": {
-    "@types/react": "16.4.18",
-    "@types/react-dom": "16.0.9",
+    "@types/react": "16.7.20",
+    "@types/react-dom": "16.0.11",
     "@types/react-i18next": "7.8.3",
     "@types/react-redux": "6.0.9",
-    "parcel-bundler": "1.10.3",
+    "parcel-bundler": "1.11.0",
     "prettier": "1.14.3",
     "tslib": "1.9.3",
-    "typescript": "3.1.3"
+    "typescript": "3.2.4"
   },
   "dependencies": {
-    "@martin_hotell/rex-tils": "1.0.0",
-    "react": "16.5.2",
-    "react-dom": "16.5.2",
+    "@martin_hotell/rex-tils": "2.1.1",
+    "react": "16.7.0",
+    "react-dom": "16.7.0",
     "react-redux": "5.0.7",
     "redux": "4.0.1"
   }

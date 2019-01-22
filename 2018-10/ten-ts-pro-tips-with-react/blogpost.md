@@ -36,7 +36,8 @@ This article describes various patterns/tips that I "invented/learned" and have 
 
 > ### UPDATE:
 >
-> _3.11.2018_ added tip **#19 👉 Use type alias instead of interface for declaring Props/State**
+> - _22.11.2018_ added tip **#20 👉 Don't use `FunctionComponent<P>` to define function component**
+> - _3.11.2018_ added tip **#19 👉 Use type alias instead of interface for declaring Props/State**
 
 Whole article is written in a "Style guide style" with 3 sub-categories for every tip/pattern which consists of:
 
@@ -1354,6 +1355,119 @@ const initialState = {
 
 - interface cannot be extended by types created via union or intersection, so you would need to refactor your State/Props interface to type alias in that case.
 - interfaces can be extended globally via declaration merging, if you wanna provide that kind of capabilities to your users you're doing it wrong (exposing "private" API)
+
+## 20. Don't use `FunctionComponent<P>`/`FC<P>` to define function component
+
+**Don't:**
+
+```tsx
+import React, { FC } from 'react'
+
+type Props = {
+  who: string
+  greeting: string
+}
+
+const Greeter: FC<Props> = (props) => (
+  <div>
+    {props.greeting} {props.who}!
+  </div>
+)
+```
+
+**Do:**
+
+```tsx
+type Props = {
+  who: string
+  greeting: string
+}
+
+const Greeter = (props: Props) => (
+  <div>
+    {props.greeting} {props.who}!
+  </div>
+)
+```
+
+**Why:**
+
+- consistency/simplicity (use just vanilla JS patterns without too much type noise/magic)
+- defines optional `children` on props, which is not what your API may support. Be explicit!
+- breaks defaultProps resolution and all other statics (propTypes,contextTypes,displayName) introduced in TS 3.1
+
+  ```tsx
+  type Props = {
+    who: string
+  } & typeof defaultProps
+
+  const defaultProps = {
+    greeting: 'Hello',
+  }
+
+  const Greeter: FC<Props> = (props) => (
+    <div>
+      {props.greeting} {props.who}!
+    </div>
+  )
+  // 🚨 This won't work
+  Greeter.defaultProps = defaultProps
+
+  const Test = () => (
+    <>
+      {/** ExpectError Property 'greeting' is missing */}
+      <Greeter who="Martin" />
+    </>
+  )
+  ```
+
+  > To fix this you would have to re-define default props, which makes your code a mess. Look for yourself! 👉
+
+  ```tsx
+  const Greeter: FC<Props> & { defaultProps: typeof defaultProps } = (
+    props
+  ) => {
+    /*...*/
+  }
+  ```
+
+- cannot be used to define a generic component
+
+  - while we can define generic functional components(because it's just a function):
+
+  ```tsx
+  type Props<T extends object> = {
+    data: T
+    when: Date
+  }
+
+  const GenericComponent = <T extends object>(props: Props<T>) => {
+    return (
+      <div>
+        At {props.when} : {JSON.stringify(props.data)}
+      </div>
+    )
+  }
+  ```
+
+  - following won't work and we'll get compiler error:
+
+  ```tsx
+  type Props<T extends object> = {
+    data: T
+    when: Date
+  }
+
+  // $ExpectError
+  // 🚨 FC cannot set generic Props type. We got TS error as T generic cannot be possibly defined/inferred
+  const GenericComponent: FC<Props<T extends object>> = (props) => {
+    return (
+      <div>
+        At {props.when} : {JSON.stringify(props.data)}
+      </div>
+    )
+  }
+  ```
 
 ---
 
