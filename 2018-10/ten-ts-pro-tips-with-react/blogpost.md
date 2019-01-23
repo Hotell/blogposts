@@ -1342,7 +1342,7 @@ class MyComponent extends Component<Props, State> {
 
 **Why:**
 
-- consistency/clearness. Let's say we use tip no.9 (defining state type from implementation). If you would like to use interface with this pattern, you're out of luck, as that's not allowed within TypeScript.
+- consistency/clearness. Let's say we use **tip no.9** (defining state type from implementation). If you would like to use interface with this pattern, you're out of luck, as that's not allowed within TypeScript.
 
 ```tsx
 // $ExpectError ❌
@@ -1375,6 +1375,8 @@ const Greeter: FC<Props> = (props) => (
 )
 ```
 
+![dont use FC - Don't](./img/20-dont.png)
+
 **Do:**
 
 ```tsx
@@ -1390,11 +1392,13 @@ const Greeter = (props: Props) => (
 )
 ```
 
+![use standard function arguments annotation - Do](./img/20-do.png)
+
 **Why:**
 
-- consistency/simplicity (use just vanilla JS patterns without too much type noise/magic)
-- defines optional `children` on props, which is not what your API may support. Be explicit!
-- breaks defaultProps resolution and all other statics (propTypes,contextTypes,displayName) introduced in TS 3.1
+- consistency/simplicity (always prefer familiar vanilla JavaScript patterns without too much type noise/magic)
+- `FC` defines optional `children` on props, which is not what your API may support as explained in **tip no 8**. API should be explicit!
+- `FC` breaks `defaultProps` type resolution (introduced in TS 3.1) and unfortunately all other "static" props as well 👉 (`propTypes`,`contextTypes`,`displayName`)
 
   ```tsx
   type Props = {
@@ -1410,18 +1414,22 @@ const Greeter = (props: Props) => (
       {props.greeting} {props.who}!
     </div>
   )
-  // 🚨 This won't work
+
+  // 🚨 This won't work. Greeter components API will not mark `greeting` as optional
   Greeter.defaultProps = defaultProps
 
   const Test = () => (
     <>
-      {/** ExpectError Property 'greeting' is missing */}
+      {/**
+        ExpectError ❌
+        Property 'greeting' is missing
+      */}
       <Greeter who="Martin" />
     </>
   )
   ```
 
-  > To fix this you would have to re-define default props, which makes your code a mess. Look for yourself! 👉
+  > To fix this you would have to re-define default props, which makes your code a mess... 🤒 Look for yourself! 👉
 
   ```tsx
   const Greeter: FC<Props> & { defaultProps: typeof defaultProps } = (
@@ -1431,7 +1439,7 @@ const Greeter = (props: Props) => (
   }
   ```
 
-- cannot be used to define a generic component
+- `FC` cannot be used to define a generic component
 
   - while we can define generic functional components(because it's just a function):
 
