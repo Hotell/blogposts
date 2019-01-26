@@ -36,6 +36,7 @@ This article describes various patterns/tips that I "invented/learned" and have 
 
 > ### UPDATE:
 >
+> - _26.1.2019_ updated tip **#9 👉 How to infer state type when derived state from props is used**
 > - _22.11.2018_ added tip **#20 👉 Don't use `FunctionComponent<P>` to define function component**
 > - _3.11.2018_ added tip **#19 👉 Use type alias instead of interface for declaring Props/State**
 
@@ -756,6 +757,41 @@ const initialState = Object.freeze({ todos: null as null | Todo[] })
 ```
 
 ![define types from implementation by leveraging inference with complex types - Better](./img/09-better-complex-types.png)
+
+### How to infer state type if I wanna use derived state from props?
+
+Easy 😎... We will use pattern introduced in **tip no. 5** with power of conditional types(in particular, standard `lib.d.ts` `ReturnType` mapped type, which infers return type of any function ✌️)
+
+```tsx
+type Props = {
+  defaultEmail: string
+}
+
+// $ExpectType {email: string}
+type State = ReturnType<typeof getInitialState>
+
+// if you need to set initial derived state from props
+// @see https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-controlled-component
+const getInitialState = (props: Props) => {
+  return {
+    email: props.defaultEmail,
+  }
+}
+
+class EmailInput extends Component<Props, State> {
+  readonly state = getInitialState(this.props)
+
+  _handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
+    this.setState({ email: ev.target.value })
+  }
+
+  render() {
+    return <input onChange={this._handleChange} value={this.state.email} />
+  }
+}
+```
+
+![infer state type when derived state from props is used](./img/09-getting-state-type-by-props.png)
 
 ## 10. When using factories instead of classes for models, leverage declaration merging by exporting both type and implementation
 
