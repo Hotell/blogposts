@@ -19,10 +19,16 @@
 			"path": "./2018-10"
     },
     {
-			"path": "./templates"
+      "path": "./templates"
 		},
 	],
 	"settings": {
-		"typescript.tsdk": "node_modules/typescript/lib"
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "workbench.colorCustomizations": {
+
+      "titleBar.activeBackground": "#109410",
+      "titleBar.activeForeground": "#fff"
+
+    }
 	}
 }
