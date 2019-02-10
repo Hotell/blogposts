@@ -1,29 +1,32 @@
 {
 	"folders": [
-		{
-			"path": "./2018-02"
-		},
-		{
-			"path": "./2018-03"
-		},
-		{
-			"path": "./2018-05"
-		},
-		{
-			"path": "./2018-06"
-		},
-		{
-			"path": "./2018-08"
+    {
+      "path": "./2018-02"
     },
     {
-			"path": "./2018-10"
+      "path": "./2018-03"
+    },
+    {
+      "path": "./2018-05"
+    },
+    {
+      "path": "./2018-06"
+    },
+    {
+      "path": "./2018-08"
+    },
+    {
+      "path": "./2018-10"
     },
     {
       "path": "./templates"
-		},
-	],
+    },
+    {
+      "path": "2019-02/react-and-wc"
+    }
+  ],
 	"settings": {
-    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.tsdk": "react-and-wc/node_modules/typescript/lib",
     "workbench.colorCustomizations": {
 
       "titleBar.activeBackground": "#109410",
