@@ -1,0 +1,33 @@
+{
+  "name": "foo",
+  "source": "src/index.ts",
+  "main": "dist/foo.js",
+  "umd:main": "dist/foo.umd.js",
+  "exports": "./dist/foo.modern.js",
+  "module": "dist/foo.module.js",
+  "author": "Martin Hochel <hochelmartin@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "microbundle --jsx React.createElement",
+    "dev": "microbundle watch",
+    "dts": "yarn build && yarn dts:rollup:tsc-prog && yarn dts:rollup:dts-bundle-generator && yarn dts:rollup:rollup-plugin-dts",
+    "dts:rollup:api-extractor": "api-extractor run --local --typescript-compiler-folder ./node_modules/typescript --verbose",
+    "dts:rollup:tsc-prog": "node scripts/tsc-prog",
+    "dts:rollup:dts-bundle-generator": "dts-bundle-generator --external-types=react --out-file=dist/dts-bundle-generator.d.ts src/index.ts",
+    "dts:rollup:rollup-plugin-dts": "rollup --config=rollup.plugin-dts.js"
+  },
+  "dependencies": {
+    "react": "17.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "17.0.3",
+    "microbundle": "0.13.0",
+    "typescript": "4.2.3",
+    "tsc-prog": "2.2.1",
+    "dts-bundle-generator": "5.8.0",
+    "rollup-plugin-dts": "3.0.1",
+    "rollup": "2.42.3",
+    "@microsoft/api-extractor": "7.13.2"
+  }
+}
