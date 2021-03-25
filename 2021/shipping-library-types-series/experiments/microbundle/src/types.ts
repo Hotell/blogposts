@@ -6,9 +6,15 @@ export interface Calculator {
   modulo: (a: number, b: number) => number
 }
 
-interface Pointer {
+type Pointer = {
   x: number
   y: number
 }
+// interface Pointer {
+//   x: number
+//   y: number
+// }
+
+export type SomeTuple = [number, string, ...Pointer[]]
 
 export type {Pointer}
