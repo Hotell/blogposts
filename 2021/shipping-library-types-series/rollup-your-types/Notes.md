@@ -26,6 +26,8 @@ export { divide, multiply }
 ### [api-extractor](https://github.com/jeremyben/tsc-prog)
 
 - works good!
+- needs to follow TSDoc standard
+- lots of extra functionality (stripping non public API/ explicit need to define API as public)
 - needs manual config to turn off tons of warning when TSDoc is not being used
 
 ### [tsc-prog](https://github.com/jeremyben/tsc-prog)
