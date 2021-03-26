@@ -1,4 +1,4 @@
-# TS Library tips: Rollup your types!
+# TypeScript Library tips: Rollup your types!
 
 > 🎒 this article uses following library versions:
 
@@ -32,13 +32,15 @@ Which in practice means following transformation:
 
 ```
 // Raw source:
-src
+
+src/
 ├── components
 │   ├── counter.tsx
 │   └── greeter.tsx
 ├── index.ts
 ├── math.ts
 └── types.ts
+
 ↓↓↓
 
 // Bundled via Rollup:
@@ -47,7 +49,7 @@ dist/
 ├── index.js
 ```
 
-This is fantastic as we're shipping our library to consumers with following advantages:
+This gives our consumers following benefits ✅:
 
 - less kB transferred via wire
 - faster install time
@@ -55,85 +57,215 @@ This is fantastic as we're shipping our library to consumers with following adva
 - faster tests (cold starts can be painfully slow especially if you're using jest and your app is massive)
 - better tree-shaking
 
-Now what about types ? You've might noticed that our contrived library is written in TypeScript. So what kind of types are we talking about ?
+Now, what about types ? You've might noticed that our contrived library is written in TypeScript. So what kind of types are we talking about ?
 
 ### Bundling declaration files
 
-To to leverage TypeScript to full extent you definitely wanna ship type declarations to your consumers, so no matter if they use TS or NOT, their editor/CI can give them excellent DX thanks to your library typings.
+To to leverage TypeScript to full extent, you definitely wanna ship type declaration files to your consumers, so no matter if they use TypeScript or not, their editor/CI can give them excellent DX thanks to your library type declarations (typings).
 
-To emit those type declaration, you'll need to enable following config in your `tsconfig.json`
+> NOTE: declaration files end with `*.d.ts` suffix. That `d` stands for "declaration"
+
+By default, TypeScript wont emit declaration files.
+
+To emit those, you'll need to enable following config within your `tsconfig.json`
 
 ```jsonc
 {
   "declaration": true,
+  // optional - in general it's a good practice to decouple declaration files from your actual transpiled JavaScript files
   "declarationDir": "dist/dts",
   // optional if you're using babel to transpile TS - JS
   "emitDeclarationOnly": true
 }
 ```
 
-With our tsconfig set, if we execute `rollup` (which is also properly configured via plugins), or if we just run raw `tsc`, we'll get following file tree:
+With our tsconfig set, if we execute `rollup` (which needs to be configured as well via plugins to be able to process TypeScript), or we just run raw `tsc` binary, we'll get following file tree:
 
 ```
 dist/
-├── index.js
-├─ dts
+├── index.js // (our runtime/source code bundled to 1 file via rollup!)
+├─ dts       // (type declaration files)
     ├── components
     │   ├── counter.d.ts
-    │   ├── counter.d.ts.map
     │   ├── greeter.d.ts
-    │   └── greeter.d.ts.map
     ├── index.d.ts
-    ├── index.d.ts.map
     ├── math.d.ts
-    ├── math.d.ts.map
     ├── types.d.ts
-    └── types.d.ts.map
 ```
 
-What happened? Our whole library tree structure is mirrored by emitted `.d.ts` files.
+What happened here? Our whole library tree structure is mirrored by emitted declaration `.d.ts` files.
 
-While we have optimized runtime by rolluping js files into 1, we have quite messy `.d.ts` output that might inflict potential issues:
+While we have optimized runtime by rollup-ing our source code files into 1, we have quite messy `.d.ts` output that might inflict various potential issues like:
 
-- consumers can use/access parts of our codebase, that might not be intended as public API surface (which will not work if we rollup-ed our runtime ofc)
-- bigger baggage over wire
-- potentially slower TypeScript type-check time (if you don't use `skipLibCheck:true`)
+- 🚨 consumers can use/access parts of our codebase, that might not be intended as public API surface (which will not work if we rollup-ed our runtime ofc)
+- 🚨 bigger baggage over wire
+- 🚨 potentially slower TypeScript type-check time (if you don't use `skipLibCheck:true`)
 
-How can we fix those ? Rollup time.
+How can we fix those ? 👌 Rollup time!
 
-## There are various existing OSS projects that will help us what we need.
+## Rollup your type declarations
 
--
--
+Where we are right now:
 
-We'll focus on 2 particular ones - api-extractor and dts-.....
+```
+dist/
+├── index.js // (our runtime/source code bundled to 1 file via rollup!)
+├─ dts       // (type declaration files)
+    ├── components
+    │   ├── counter.d.ts
+    │   ├── greeter.d.ts
+    ├── index.d.ts
+    ├── math.d.ts
+    ├── types.d.ts
+```
 
-### API Extractor
+Where we wanna go:
 
-#### Pros
+```
+dist/
+├─ index.js  // (our runtime/source code bundled to 1 file via rollup!)
+├─ index.d.ts // (rollup-ed type declaration files)
+```
 
-#### Const
+How we'll get there?
 
-### DTS-.....
+Unfortunately TypeScript doesn't provide such a functionality so we have following options:
 
-#### Pros
+- not use declaration emit at all and maintain that file manually
+  - > I don't recommend this solution.
+    > Why? Hard to maintain, it will get out of sync rather quickly
+- use some OSS tools
 
-#### Const
+Let's use existing tooling shall we? While there is plethora of tooling in the wild, we'll focus on 2 particular libraries:
+
+- rollup-plugin-dts
+- api-extractor
+
+### rollup-plugin-dts
+
+> Project link: https://github.com/Swatinem/rollup-plugin-dts
+
+**How does it work:**
+
+After your TypeScript files are transpiled to JavaScript and rollup-ed into 1 file, you'll need to add another processing pipeline, by invoking `dts`
+![rollup and rollup-plugin-dts in action](./img/rollup-dts-plugin.png)
+
+**Configuration:**
+
+```js
+// @file: rollup.config.js
+import dts from 'rollup-plugin-dts'
+
+const config = [
+  // your default rollup config for transpilation and bundling
+  // ...
+  {
+    // path to your declaration files root
+    input: './dist/dts/index.d.ts',
+    output: [{ file: 'dist/index.d.ts', format: 'es' }],
+    plugins: [dts()],
+  },
+]
+
+export default config
+```
+
+**Run it:**
+
+```sh
+yarn rollup
+```
+
+**Pros:**
+
+- if you already use rollup for you library, setting this up takes less than 30 secondes
+- blazing fast
+- follows similar transformation methods like rollup (unfortunately it doesn't use same technique like mangling files and exporting via alias by its original name to save another kB) -> if you have multiple named exports they are aggregated into single `export {}` instead having multiple `export TokenName` statements.
+
+**Cons:**
+
+- works only with rollup
+
+### api-extractor
+
+> Project link: https://api-extractor.com
+
+**How does it work:**
+
+![rollup and api-extraction in action](./img/api-extractor.png)
+
+Api-extractor comes with extended feature set beyond just rollup-ing declaration files to one, like creating nice Markdown API file report and Document Model in JSON format which can be leveraged to generate full blown documentation for your project!
+
+For the brevity sake of this article we gonna focus only on rolluping capabilities.
+
+**Configuration:**
+
+By default, api-extractor will create all 3 things mentioned previously (rollup dts, api.md and .json model), so we'll need to turn off those features explicitly.
+
+```jsonc
+// @file api-extractor.json
+{
+  "mainEntryPointFilePath": "<projectFolder>/dist/dts/index.d.ts",
+  "apiReport": {
+    // turn off
+    "enabled": false
+  },
+  "docModel": {
+    // turn off
+    "enabled": false
+  },
+  "dtsRollup": {
+    // Whether to generate the .d.ts rollup file.
+    "enabled": true,
+    //
+    "untrimmedFilePath": "<projectFolder>/dist/index.d.ts"
+  },
+  "messages": {
+    // turn off various warnings, that might not be useful right now. Check the docs for more!
+    "extractorMessageReporting": {
+      "default": {
+        "logLevel": "none"
+      },
+      "ae-forgotten-export": {
+        "logLevel": "none"
+      }
+    }
+  }
+}
+```
+
+**Run it:**
+
+Now all we need to do is to invoke `tsc` or rollup and after that's done, we'll execute api-extractor binary:
+
+```sh
+yarn rollup # OR yarn tsc
+
+yarn api-extractor run --local
+```
+
+**Pros:**
+
+- independent CLI
+- build in powerful capabilities for generating documentation
+- rich set of configuration options for creating dts rollup (shipping declaration types for various release stages of your library like alpha/beta/etc...)
+
+**Cons:**
+
+- no `export` aggregation
+- manual plumbing into existing tools needed (I actually prefer that but from perspective of added overhead I mark this one as con)
+- heavily relies on [TSDoc](https://github.com/microsoft/tsdoc) (which is not stable), so if you don't wanna follow that specification you need to turn off various things
 
 ## Conclusion
 
-In this article we learned how to apply best practices in terms of bundling TS library on both runtime and type declarations. In the end we showcased how this can be done by leveraging existing OSS libraries with brief feature comparison.
+We as developers have a responsibility to ship the best possible code to our consumers ideally fast as possible and without unnecessary noise. While this approach is getting good traction in terms of proper bundling your source code into one tree-shaked and minified file, TypeScript type declaration files should not be an exception!
 
-Hopefully you'll be able to apply this pattern sooner than later and make ~the world~ (I meant world of type definitions) a better place.
+We showcased how this can be done by leveraging existing OSS libraries with brief feature comparison.
 
-Until next time.
-
-Cheers!
+Hopefully you'll be able to apply this pattern sooner than later and make ~the world~ (I meant world of type definitions) a better and faster place.
 
 ---
 
-As always, don't hesitate to ping me if you have any questions here or on Twitter (my handle [@martin_hotell](https://twitter.com/martin_hotell)) and besides that, happy type checking folks and 'till next time! Cheers! 🖖 🌊 🏄
+As always, don't hesitate to ping me if you have any questions here or on Twitter (my handle [@martin_hotell](https://twitter.com/martin_hotell))
 
-```
-
-```
+Until next time! Cheers! 🖖 🌊 🏄
