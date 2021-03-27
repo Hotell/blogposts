@@ -98,15 +98,26 @@ dist/
 
 What happened here? Our whole library tree structure is mirrored by emitted declaration `.d.ts` files.
 
-While we have optimized runtime by rollup-ing our source code files into 1, we have quite messy `.d.ts` output that might inflict various potential issues like:
+While we have optimized runtime by rollup-ing our source code files into 1, we have quite messy `.d.ts` output that might inflict various issues like:
 
-- 🚨 consumers can use/access parts of our codebase, that might not be intended as public API surface (which will not work if we rollup-ed our runtime ofc)
-  - ![This is our library code contrived example. We have 3 files amongst which logger.ts contains private API parts that are not exposed via barrel (index.ts). Our code produces type declarations on right side of the image.](./img/private-api-explanation-1.png)
-  - ![Now although there is no mention of logger within math.d.ts (as expected), we still ship logger.d.ts, thus consumers of our library are free to access it. This is accessing/using private API. Even TypeScript is not guarding us for this kind of situation.](./img/private-api-explanation-1.png)
-- 🚨 bigger baggage over wire
-- 🚨 potentially slower TypeScript type-check time (if you don't use `skipLibCheck:true`)
+- 🚨 breaks encapsulation, because consumers can use/access parts of our codebase, that are not part of public API surface (which will not work if we rollup-ed our runtime anyways -> thus will throw runtime error 💣)
+- 🚨 sending unnecessary baggage (kB) over wire
+- 🚨 slower TypeScript type-check/processing time (if you don't use `skipLibCheck:true`)
 
-How can we fix those ? 👌 Rollup time!
+> **Breaks encapsulation ?**
+>
+> Let's elaborate more on this one.
+>
+> Following image is a showcase of our library contrived example:
+>
+> - On the left side, we have 3 TypeScript files, amongst which `logger.ts` contains private API parts that are not exposed via barrel (`index.ts`). > > - On the right side we can see emitted `.d.ts`files. It's obvious that `math.d.ts` declaration file doesn't contain any private API from logger. Which is all good. but...`
+>   ![Our library source code on left and generated .d.ts files on the right ](./img/private-api-explanation-1.png)
+>
+> On next image, we have a contrived application code on the left, which consumes our library.
+> Now although there is no mention of logger within math.d.ts (as expected), we still ship `logger.d.ts`, thus consumers of our library are free to access it - thus breaks encapsulation. Unfortunately TypeScript is not guarding us from this kind of situation.
+> ![Consumer has access to our library private APIs](./img/private-api-explanation-1.png)
+
+How can we fix those ? 👌 Rollup time! ⚡️
 
 ## Rollup your type declarations
 
