@@ -115,7 +115,7 @@ While we have optimized runtime by rollup-ing our source code files into 1, we h
 >
 > On next image, we have a contrived application code on the left, which consumes our library.
 > Now although there is no mention of logger within math.d.ts (as expected), we still ship `logger.d.ts`, thus consumers of our library are free to access it - thus breaks encapsulation. Unfortunately TypeScript is not guarding us from this kind of situation.
-> ![Consumer has access to our library private APIs](./img/private-api-explanation-1.png)
+> ![Consumer has access to our library private APIs](./img/private-api-explanation-2.png)
 
 How can we fix those ? 👌 Rollup time! ⚡️
 
