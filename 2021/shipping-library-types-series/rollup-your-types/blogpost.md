@@ -111,11 +111,11 @@ While we have optimized runtime by rollup-ing our source code files into 1, we h
 > Following image is a showcase of our library contrived example:
 >
 > - On the left side, we have 3 TypeScript files, amongst which `logger.ts` contains private API parts that are not exposed via barrel (`index.ts`). > > - On the right side we can see emitted `.d.ts`files. It's obvious that `math.d.ts` declaration file doesn't contain any private API from logger. Which is all good. but...`
->   ![Our library source code on left and generated .d.ts files on the right ](./img/private-api-explanation-1.png)
+>   ![Our library source code on left and generated .d.ts files on the right](./img/private-api-explanation-1.png)
 >
 > On next image, we have a contrived application code on the left, which consumes our library.
 > Now although there is no mention of logger within math.d.ts (as expected), we still ship `logger.d.ts`, thus consumers of our library are free to access it - thus breaks encapsulation. Unfortunately TypeScript is not guarding us from this kind of situation.
-> ![Consumer has access to our library private APIs](./img/private-api-explanation-2.png)
+> ![Consumer App has access to our library private APIs](./img/private-api-explanation-2.png)
 
 How can we fix those ? 👌 Rollup time! ⚡️
 
