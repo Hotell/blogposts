@@ -4,11 +4,11 @@
 
 ```json
 {
-  "typescript": "4.x.x"
+  "typescript": "4.2.3"
 }
 ```
 
-> 📖 [Always free version of this article can be found on my Github](https://github.com/Hotell/blogposts/tree/master/2021/shipping-library-types-series/rollup-your-typs/blogpost.md)
+> 📖 [Original and always free version of this article can be found on my Github](https://github.com/Hotell/blogposts/blob/master/2021/shipping-library-types-series/rollup-your-types/blogpost.md)
 
 ---
 
