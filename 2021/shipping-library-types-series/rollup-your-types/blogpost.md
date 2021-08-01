@@ -22,7 +22,7 @@ If you wanna go into more deep dive, please continue reading ↓↓↓.
 
 ---
 
-If you're writing a JavaScript library or application, you'll definitely need some kind of bundler. There are various options on the market, most familiar are probably webpack and rollup. Webpack is mostly used for apps and rollup for libraries although although both can be used for the opposite thing. Because we're talking about shipping libraries lets focus on Rollup.
+If you're writing a JavaScript library or application, you'll definitely need some kind of bundler. There are various options on the market, most familiar are probably webpack and rollup. Webpack is mostly used for apps and rollup for libraries although both can be used for the opposite thing. Because we're talking about shipping libraries lets focus on Rollup.
 
 > NOTE: this article will not go through how to configure [Rollup](https://rollupjs.org/guide/en/) or how it works in detail
 
