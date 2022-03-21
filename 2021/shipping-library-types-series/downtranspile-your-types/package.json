@@ -1,18 +1,22 @@
 {
-  "name": "new-post",
+  "name": "@hotell/downlevel-types",
   "version": "1.0.0",
   "private": true,
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.rollup.d.ts",
   "author": "Martin Hochel <hochelmartin@gmail.com>",
   "license": "MIT",
   "scripts": {
     "cleanup": "rm -rf dist .cache",
     "start": "parcel ./src/index.html",
     "prebuild": "yarn cleanup",
-    "build": "parcel build ./src/index.html",
+    "build": "tsc",
+    "dts:rollup": "api-extractor run --local --typescript-compiler-folder ./node_modules/typescript --verbose",
     "format": "prettier --write \"**/*.{ts,tsx,md,css,less,sass,scss}\""
   },
   "devDependencies": {
+    "@microsoft/api-extractor": "7.19.5",
+    "@types/node": "14",
     "@types/react": "17.0.41",
     "@types/react-dom": "17.0.14",
     "prettier": "2.6.0",
