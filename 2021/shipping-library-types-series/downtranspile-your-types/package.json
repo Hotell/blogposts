@@ -4,14 +4,23 @@
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.rollup.d.ts",
+  "typesVersions": {
+    "<3.9": {
+      "*": [
+        "ts3.4/*"
+      ]
+    }
+  },
   "author": "Martin Hochel <hochelmartin@gmail.com>",
   "license": "MIT",
   "scripts": {
     "cleanup": "rm -rf dist .cache",
     "start": "parcel ./src/index.html",
     "prebuild": "yarn cleanup",
-    "build": "tsc",
+    "build": "yarn build:types && yarn dts:rollup && yarn dts:downlevel",
+    "build:types": "tsc",
     "dts:rollup": "api-extractor run --local --typescript-compiler-folder ./node_modules/typescript --verbose",
+    "dts:downlevel": "downlevel-dts dist/index.rollup.d.ts dist/ts3.4/index.rollup.d.ts",
     "format": "prettier --write \"**/*.{ts,tsx,md,css,less,sass,scss}\""
   },
   "devDependencies": {
@@ -19,12 +28,13 @@
     "@types/node": "14",
     "@types/react": "17.0.41",
     "@types/react-dom": "17.0.14",
+    "downlevel-dts": "0.9.0",
     "prettier": "2.6.0",
     "typescript": "4.6.2"
   },
   "dependencies": {
-    "tslib": "^2.3.1",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "tslib": "^2.3.1"
   }
 }

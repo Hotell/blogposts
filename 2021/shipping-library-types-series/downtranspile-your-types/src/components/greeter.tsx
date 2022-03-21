@@ -1,4 +1,4 @@
-import React from 'react'
+import { createElement } from 'react'
 
 const defaultProps = {
   who: 'World',
