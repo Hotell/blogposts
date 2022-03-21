@@ -2,7 +2,7 @@
 
 ## Prerequisite
 
-- node >=8 📠
+- node >=14 📠
 - yarn 😺
 - good mood! 👀
 
