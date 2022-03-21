@@ -20,7 +20,7 @@
     "build": "yarn build:types && yarn dts:rollup && yarn dts:downlevel",
     "build:types": "tsc",
     "dts:rollup": "api-extractor run --local --typescript-compiler-folder ./node_modules/typescript --verbose",
-    "dts:downlevel": "downlevel-dts dist/index.rollup.d.ts dist/ts3.4/index.rollup.d.ts",
+    "dts:downlevel": "downlevel-dts dist/index.rollup.d.ts dist/ts3.4/index.rollup.d.ts && node tools/postprocess",
     "format": "prettier --write \"**/*.{ts,tsx,md,css,less,sass,scss}\""
   },
   "devDependencies": {

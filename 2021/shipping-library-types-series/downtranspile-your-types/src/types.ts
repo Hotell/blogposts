@@ -41,6 +41,10 @@ type Color = 'red' | 'blue'
 type Quantity = 'one' | 'two'
 export type SeussFish = `${Quantity | Color} fish`
 
+type World = 'world'
+
+export type Greeting = `hello ${World}`
+
 // TS 4.1 - Key Remapping in Mapped Types
 type RemoveKindField<T> = {
   [K in keyof T as Exclude<K, 'kind'>]: T[K]
