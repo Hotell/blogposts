@@ -1,21 +1,27 @@
-import { logger } from './logger'
-export function add(a: number, b: number) {
-  logger.log(`addition of ${a} and ${b}`)
-  return a + b
-}
+import { type Logger } from './logger'
+import type { Calculator } from './types'
 
-export function subtract(a: number, b: number) {
-  return a - b
-}
+export function Calculator(logger: Logger): Calculator {
+  function add(a: number, b: number) {
+    logger.log('add')
+    return a + b
+  }
 
-export function divide(a: number, b: number) {
-  return a / b
-}
+  function subtract(a: number, b: number) {
+    return a - b
+  }
 
-export function multiply(a: number, b: number) {
-  return a * b
-}
+  function divide(a: number, b: number) {
+    return a / b
+  }
 
-export function modulo(a: number, b: number) {
-  return a % b
+  function multiply(a: number, b: number) {
+    return a * b
+  }
+
+  function modulo(a: number, b: number) {
+    return a % b
+  }
+
+  return { add, subtract, divide, multiply, modulo }
 }

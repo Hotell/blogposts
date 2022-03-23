@@ -1,7 +1,4 @@
-const environment = {
-  isProduction: process.env.NODE_ENV === 'production',
-}
-export function Logger(env: typeof environment) {
+export function Logger(env: { isProduction: boolean }) {
   return {
     log: (...args: unknown[]) => {
       !env.isProduction && console.log(...args)
@@ -9,4 +6,4 @@ export function Logger(env: typeof environment) {
   }
 }
 
-export const logger = Logger(environment)
+export type Logger = ReturnType<typeof Logger>

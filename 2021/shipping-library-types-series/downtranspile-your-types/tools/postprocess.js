@@ -18,14 +18,8 @@ function main() {
 }
 
 function replaceStringTypeLiterals(file) {
-  return file.replace(
-    /.*\s*type\s+\w+\s*=\s*(`[${}|\w\s]+`)/gim,
-    (match, p1, offset, string) => {
-      if (p1.includes('${')) {
-        return match.replace(p1, 'string')
-      }
+  const regexp = /`[${}|\w\s]+`/gim
+  const type = 'string'
 
-      return string.replace(/`/g, `'`)
-    }
-  )
+  return file.replace(regexp, type)
 }

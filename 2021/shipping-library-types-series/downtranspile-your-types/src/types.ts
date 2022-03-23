@@ -1,4 +1,3 @@
-import type { ReactText } from 'react'
 export interface Calculator {
   add: (a: number, b: number) => number
   subtract: (a: number, b: number) => number
@@ -25,7 +24,7 @@ export type Weekday = typeof weekday
 export type PointerRestrained = Omit<Pointer, 'y'>
 
 // TS 3.8+ - Type only import/export
-export type { Pointer, ReactText }
+export type { Pointer }
 
 // TS 4.0 - labeled tuples
 export type SomeTuple = [first: number, second: string, ...rest: Pointer[]]
@@ -40,6 +39,11 @@ export function tail<T extends any[]>(arr: readonly [any, ...T]) {
 type Color = 'red' | 'blue'
 type Quantity = 'one' | 'two'
 export type SeussFish = `${Quantity | Color} fish`
+
+export interface Misc {
+  fish: `${Quantity | Color} fish`
+  greeting: `hello ${World}`
+}
 
 type World = 'world'
 
