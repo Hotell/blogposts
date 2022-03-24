@@ -13,6 +13,9 @@
   },
   "author": "Martin Hochel <hochelmartin@gmail.com>",
   "license": "MIT",
+  "resolutions": {
+    "@microsoft/api-extractor/typescript": "4.6.2"
+  },
   "scripts": {
     "cleanup": "rm -rf dist .cache",
     "start": "parcel ./src/index.html",
@@ -21,6 +24,7 @@
     "build:types": "tsc",
     "dts:rollup": "api-extractor run --local --typescript-compiler-folder ./node_modules/typescript --verbose",
     "dts:downlevel": "downlevel-dts dist/index.rollup.d.ts dist/ts3.4/index.rollup.d.ts && node tools/postprocess",
+    "test": "dtslint",
     "format": "prettier --write \"**/*.{ts,tsx,md,css,less,sass,scss}\""
   },
   "devDependencies": {
