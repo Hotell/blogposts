@@ -1,0 +1,17 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["DOM", "ES2020"],
+    "noEmit": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "baseUrl": ".",
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node"
+  },
+   "include": [
+     "./*.d.ts"
+   ]
+}

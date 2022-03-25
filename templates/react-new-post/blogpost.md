@@ -6,7 +6,7 @@
 {
   "@types/react": "16.x.x",
   "@types/react-dom": "16.x.x",
-  "typescript": "3.x.x",
+  "typescript": "4.x.x",
   "react": "16.5.2",
   "react-dom": "16.5.2"
 }

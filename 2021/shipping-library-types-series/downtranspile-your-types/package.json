@@ -1,0 +1,49 @@
+{
+  "name": "@hotell/downlevel-types",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.rollup.d.ts",
+  "typesVersions": {
+    ">=3.4": {
+      "*": [
+        "ts3.4/*"
+      ]
+    },
+    ">=4.1 <4.5": {
+      "*": [
+        "ts4.1/*"
+      ]
+    }
+  },
+  "author": "Martin Hochel <hochelmartin@gmail.com>",
+  "license": "MIT",
+  "resolutions": {
+    "@microsoft/api-extractor/typescript": "4.6.2"
+  },
+  "scripts": {
+    "cleanup": "rm -rf dist .cache",
+    "start": "parcel ./src/index.html",
+    "prebuild": "yarn cleanup",
+    "build": "yarn build:types && yarn dts:rollup && yarn dts:downlevel",
+    "build:types": "tsc",
+    "dts:rollup": "api-extractor run --local --typescript-compiler-folder ./node_modules/typescript --verbose",
+    "dts:downlevel": "yarn dts:downlevel-3.4 && yarn dts:downlevel-4.1 && node tools/postprocess",
+    "dts:downlevel-3.4": "downlevel-dts dist/index.rollup.d.ts dist/ts3.4/index.rollup.d.ts --to=3.4",
+    "dts:downlevel-4.1": "downlevel-dts dist/index.rollup.d.ts dist/ts4.1/index.rollup.d.ts --to=4.1",
+    "test": "node tools/prepare-tests && dtslint --expectOnly test",
+    "format": "prettier --write \"**/*.{ts,tsx,md,css,less,sass,scss}\""
+  },
+  "devDependencies": {
+    "@microsoft/api-extractor": "7.19.5",
+    "@types/node": "14",
+    "downlevel-dts": "0.9.0",
+    "prettier": "2.6.0",
+    "semver": "7.3.5",
+    "typescript": "4.6.2",
+    "@definitelytyped/dtslint": "0.0.111"
+  },
+  "dependencies": {
+    "tslib": "^2.3.1"
+  }
+}
